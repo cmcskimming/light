@@ -213,8 +213,6 @@ nav:
           - Instances: api/datatypes/instances.md
           - Checked: api/datatypes/checked.md
       - Step Replication: api/step_replication.md
-      - Debug API:
-          - Debug: api/debug/index.md
       - Internal API:
           - api/internals/index.md
           - Datatypes API:
