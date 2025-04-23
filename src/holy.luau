@@ -26,12 +26,12 @@ SOFTWARE.
 --!nolint LocalShadow
 type Set<K, V = true?> = { [K]: V }
 
-type Datatype<T = any> = number & { __T: T }
+export type Datatype<T = any> = number & { __T: T }
 
-type SerStatic<Input = any> = (buff: buffer, byte_ptr: number, value: Input) -> ()
-type SerNoRealloc<Input = any> = (buff: buffer, byte_ptr: number, value: Input) -> (number)
-type Ser<Input = any> = (buff: buffer, byte_ptr: number, value: Input) -> (number, buffer)
-type Des<Output = any> = (buff: buffer, byte_ptr: number) -> (number, Output)
+export type SerStatic<Input = any> = (buff: buffer, byte_ptr: number, value: Input) -> ()
+export type SerNoRealloc<Input = any> = (buff: buffer, byte_ptr: number, value: Input) -> (number)
+export type Ser<Input = any> = (buff: buffer, byte_ptr: number, value: Input) -> (number, buffer)
+export type Des<Output = any> = (buff: buffer, byte_ptr: number) -> (number, Output)
 
 local function NOOP(): () end
 
