@@ -2,7 +2,7 @@
 
 ## `#!luau function light.internal.writer_from_size()`
 
-```luau title='<!-- client --> <!-- server --> <!-- shared --> <!-- experimental --> <!-- sync --> <!-- internal -->'
+```luau title='<!-- client --> <!-- server --> <!-- shared --> <!-- experimental --> <!-- sync -->'
 function writer_from_size(
     buff: buffer
 ): DynamicWriter

@@ -37,8 +37,10 @@ Some example code using containers:
 ```luau
 local light = require(ReplicatedStorage.light).shared
 
+local ty = light.datatypes
+
 return light.container({
-    foo = { light.u8 }, -- send a table of u8 numbers
+    foo = { ty.u8 }, -- send a table of u8 numbers
 }, "some-cool-namespace")
 ```
 

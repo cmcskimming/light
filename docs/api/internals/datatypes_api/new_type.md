@@ -7,7 +7,7 @@ custom logic.
 
 ## `#!luau type SerFunction`
 
-```luau title='<!-- client --> <!-- server --> <!-- shared --> <!-- experimental --> <!-- internal -->'
+```luau title='<!-- client --> <!-- server --> <!-- shared --> <!-- experimental -->'
 export type SerFunction<T> = (
     writer: HolyWriter,
     byte_ptr: number --(1)!,
@@ -20,7 +20,7 @@ export type SerFunction<T> = (
 
 ## `#!luau type DesFunction`
 
-```luau title='<!-- client --> <!-- server --> <!-- shared --> <!-- experimental --> <!-- internal -->'
+```luau title='<!-- client --> <!-- server --> <!-- shared --> <!-- experimental -->'
 export type DesFunction<T> = (
     writer: HolyWriter,
     byte_ptr: number --(1)!
@@ -37,7 +37,7 @@ Returns the decoded datatype, and the new byte ptr.
 
 ## `#!luau function light.internal.new_type()`
 
-```luau title='<!-- client --> <!-- server --> <!-- shared --> <!-- experimental --> <!-- sync --> <!-- internal -->'
+```luau title='<!-- client --> <!-- server --> <!-- shared --> <!-- experimental --> <!-- sync -->'
 function new_type<Input>(
     ser: SerFunction<Input>,
     des: DesFunction<Input>
@@ -48,7 +48,7 @@ You can define a new type with serialization and deserialization here.
 
 ## `#!luau function light.internal.new_type()`
 
-```luau title='<!-- client --> <!-- server --> <!-- shared --> <!-- experimental --> <!-- sync --> <!-- internal -->'
+```luau title='<!-- client --> <!-- server --> <!-- shared --> <!-- experimental --> <!-- sync -->'
 function new_type<Input>(
     static_size: number,
     static_ser: SerFunction<Input>,

@@ -5,7 +5,7 @@
 
 ## `#!luau function light.internal.output`
 
-```luau title='<!-- errors --> <!-- client --> <!-- server --> <!-- shared --> <!-- experimental --> <!-- sync --> <!-- internal -->'
+```luau title='<!-- errors --> <!-- client --> <!-- server --> <!-- shared --> <!-- experimental --> <!-- sync -->'
 function output<T>(
     writer: DynamicWriter,
     type: Datatype<T>

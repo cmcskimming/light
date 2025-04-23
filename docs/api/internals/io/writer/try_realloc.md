@@ -2,7 +2,7 @@
 
 ## `#!luau function light.internal.try_realloc()`
 
-```luau title='<!-- client --> <!-- server --> <!-- shared --> <!-- experimental --> <!-- sync --> <!-- internal -->'
+```luau title='<!-- client --> <!-- server --> <!-- shared --> <!-- experimental --> <!-- sync -->'
 function try_realloc(
     writer: DynamicWriter | HolyWriter,
     target_ptr: number

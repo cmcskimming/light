@@ -2,7 +2,7 @@
 
 ## `#!luau function light.internal.get_byte_ptr()`
 
-```luau title=' <!-- client --> <!-- server --> <!-- shared --> <!-- experimental --> <!-- sync --> <!-- internal -->'
+```luau title=' <!-- client --> <!-- server --> <!-- shared --> <!-- experimental --> <!-- sync -->'
 function get_byte_ptr(
     writer: DynamicWriter
 ): number

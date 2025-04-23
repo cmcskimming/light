@@ -72,7 +72,6 @@ theme:
       async: material/clock
       errors: material/alert-circle-outline
       experimental: material/flask
-      internal: material/eye-off
 
 extra_css:
   - stylesheets/extra.css
@@ -109,7 +108,6 @@ extra:
     Yielding: async
     Errors: errors
     Experimental: experimental
-    Internal: internal
 
 hooks:
   - docs/overrides/hooks/shortcodes.py

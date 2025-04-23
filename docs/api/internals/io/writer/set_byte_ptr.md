@@ -2,7 +2,7 @@
 
 ## `#!luau function light.internal.set_byte_ptr()`
 
-```luau title=' <!-- client --> <!-- server --> <!-- shared --> <!-- experimental --> <!-- sync --> <!-- internal -->'
+```luau title=' <!-- client --> <!-- server --> <!-- shared --> <!-- experimental --> <!-- sync -->'
 function set_byte_ptr(
     writer: DynamicWriter,
     byte_ptr: number

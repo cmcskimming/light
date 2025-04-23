@@ -4,7 +4,7 @@ Allows you to register a datatype as nilable.
 
 ## `#!luau function light.internal.make_nilable()`
 
-```luau title='<!-- client --> <!-- server --> <!-- shared --> <!-- experimental --> <!-- sync --> <!-- internal -->'
+```luau title='<!-- client --> <!-- server --> <!-- shared --> <!-- experimental --> <!-- sync -->'
 function make_nilable(
     datatype: Datatype<number>
 )

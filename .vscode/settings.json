@@ -1,13 +1,12 @@
 {
     // formatter
-
     "[luau]": {
         "editor.formatOnSave": true,
-        "editor.defaultFormatter": "JohnnyMorganz.stylua"
+        "editor.defaultFormatter": "JohnnyMorganz.stylua",
+        "editor.tabSize": 3,
+        "editor.insertSpaces": false
     },
-
     // new solver
-
     "luau-lsp.completion.enableFragmentAutocomplete": true,
     "luau-lsp.fflags.override": {
         "LuauSolverV2": "true",
@@ -15,9 +14,7 @@
         "LuauNewSolverPopulateTableLocations": "true",
         "LuauNewSolverPrePopulateClasses": "true"
     },
-
     // MD linter config for docs
-
     "markdownlint.config": {
         // Inline HTML
         "MD033": false,
@@ -28,9 +25,7 @@
         // Indentation Codeblocks Thingy
         "MD046": false
     },
-
     // wretched 4 tabsize
-
     "editor.tabSize": 4,
     "editor.insertSpaces": true,
     "prettier.useTabs": false,

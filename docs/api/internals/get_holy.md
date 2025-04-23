@@ -5,6 +5,6 @@
 
 ## `#!luau function light.internal.get_holy()`
 
-```luau title='<!-- client --> <!-- server --> <!-- shared --> <!-- sync --> <!-- internal -->'
+```luau title='<!-- client --> <!-- server --> <!-- shared --> <!-- sync -->'
 function get_holy(): HolyApi
 ```

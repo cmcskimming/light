@@ -23,7 +23,6 @@ def on_page_markdown(
         elif type == "async": return f'<a href="/api/#tag-async" target="_blank"><span class="md-tag md-tag-icon md-tag--async">Yielding</span></a>'
         elif type == "errors": return f'<a href="/api/#tag-errors" target="_blank"><span class="md-tag md-tag-icon md-tag--errors">Errors</span></a>'
         elif type == "experimental": return f'<a href="/api/#tag-experimental" target="_blank"><span class="md-tag md-tag-icon md-tag--experimental">Experimental</span></a>'
-        elif type == "internal": return f'<a href="/api/#tag-internal" target="_blank"><span class="md-tag md-tag-icon md-tag--internal">Internal</span></a>'
 
         # Otherwise, raise an error
         raise RuntimeError(f"Unknown shortcode: {type}")
