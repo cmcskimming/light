@@ -7,6 +7,7 @@ move some of the docs from this file to the mkdocs and typescript stuff. The doc
 
 local holy = require("../holy")
 local instance_classes = require("./instance_class_types")
+local imported_roblox_vect2 = require("./roblox_vect2")
 
 export type HolyDatatype<T = any> = holy.Datatype<T>
 export type Datatype<T = any> = T
@@ -586,7 +587,6 @@ vect3 mirror with datatype caching
 local function vect3(coord: HolyDatatype<number>?): HolyDatatype<vector>
 	return holy_datatypes.vect3(coord or holy_datatypes.f32)
 end
-datatypes.vect3 = vect3 :: any
 
 --[=[
 vect2 mirror with datatype caching
@@ -594,7 +594,16 @@ vect2 mirror with datatype caching
 local function vect2(coord: HolyDatatype<number>?): HolyDatatype<vector>
 	return holy_datatypes.vect2(cached(coord or holy_datatypes.f32))
 end
+
+--[=[
+imported roblox_vect2 mirror with datatype caching
+]=]
+local function roblox_vect2(coord: HolyDatatype): HolyDatatype<Vector2>
+	return imported_roblox_vect2(cached(coord) or holy_datatypes.f32)
+end
+datatypes.vect3 = vect3 :: any
 datatypes.vect2 = vect2 :: any
+datatypes.roblox_vect2 = roblox_vect2 :: any
 
 --[=[
 1:1 mirror of literal
