@@ -33,7 +33,22 @@ export type SerNoRealloc<Input = any> = (buff: buffer, byte_ptr: number, value: 
 export type Ser<Input = any> = (buff: buffer, byte_ptr: number, value: Input) -> (number, buffer)
 export type Des<Output = any> = (buff: buffer, byte_ptr: number) -> (number, Output)
 
-local function NOOP(): () end
+type MetadataSet<Data = true?> = Set<Datatype, Data>
+
+local metadata = {
+	static_size = {} :: MetadataSet<number>,
+	ser_static = {} :: MetadataSet<SerStatic>,
+	ser_no_realloc = {} :: MetadataSet<SerNoRealloc>,
+	ser = {} :: MetadataSet<Ser>,
+	des = {} :: MetadataSet<Des>,
+	literal_value = {} :: MetadataSet<any>,
+
+	is_number = {} :: MetadataSet,
+	is_nilable = {} :: MetadataSet,
+	is_literal = {} :: MetadataSet,
+}
+
+local CONST_LOOKUPS = {}
 
 local function ordered_hash(...: any): string
 	return table.concat({ ... }, "\126\002")
@@ -53,20 +68,24 @@ local function vlq_size_bytes(uint: number): number
 	return math.ceil(math.log(uint + 1, 2) / 7)
 end
 
-local metadata = {
-	static_size = {} :: Set<Datatype, number>,
-	ser_static = {} :: Set<Datatype, SerStatic>,
-	ser_no_realloc = {} :: Set<Datatype, SerNoRealloc>,
-	ser = {} :: Set<Datatype, Ser>,
-	des = {} :: Set<Datatype, Des>,
-	literal_value = {} :: Set<Datatype, any>,
+local function check_datatype_exists(datatype: any): boolean
+	if metadata.ser[datatype] == nil then
+		return false
+	end
+	if metadata.des[datatype] == nil then
+		return false
+	end
+	return true
+end
 
-	is_number = {} :: Set<Datatype>,
-	is_nilable = {} :: Set<Datatype>,
-	is_literal = {} :: Set<Datatype>,
-}
-
-local const = {}
+local function copy_datatype(src: Datatype, target: Datatype)
+	if not check_datatype_exists(src) then
+		error(debug.traceback(`Failed to copy datatype, DatatypeId<{src}> was not a valid datatype`))
+	end
+	for _, copyable in metadata :: {[string]: MetadataSet<any>} do
+		copyable[target] = copyable[src]
+	end
+end
 
 local new_datatype
 do
@@ -82,19 +101,6 @@ do
 		current_id += 1
 		
 		return created_id :: any
-	end
-end
-
-local check_datatype_exists
-do
-	function check_datatype_exists(datatype: any): boolean
-		if not metadata.ser[datatype] then
-			return false
-		end
-		if not metadata.des[datatype] then
-			return false
-		end
-		return true
 	end
 end
 
@@ -478,7 +484,7 @@ do
 
 datatypes.u56 = u56 :: Datatype<number> end
 
-const.uint = {
+CONST_LOOKUPS.uint = {
 	type = {
 		[1] = datatypes.u8,
 		[2] = datatypes.u16,
@@ -928,7 +934,7 @@ do
 
 datatypes.i53 = i53 :: Datatype<number> end
 
-const.int = {
+CONST_LOOKUPS.int = {
 	type = {
 		[1] = datatypes.i8,
 		[2] = datatypes.i16,
@@ -1052,7 +1058,7 @@ do
 	metadata.des[f64] = f64_des
 datatypes.f64 = f64 :: Datatype<number> end
 
-const.float = {
+CONST_LOOKUPS.float = {
 	type = {
 		[4] = datatypes.f32,
 		[8] = datatypes.f64,
@@ -1096,7 +1102,7 @@ do
 		literal_ser_no_realloc = function(buff: buffer, byte_ptr: number): (number)
 			return byte_ptr
 		end
-		literal_ser_static = NOOP
+		literal_ser_static = function() end
 
 		@native --dynamic_ncgen
 		function literal_ser(buff: buffer, byte_ptr: number): (number, buffer)
@@ -1129,7 +1135,7 @@ do
 
 		return literal_datatype :: any
 	end
-	
+
 datatypes.literal = literal end
 
 do
@@ -1168,9 +1174,9 @@ do
 		cache[hash] = range_datatype
 
 		local uint_ser_static, uint_ser, uint_des =
-			const.uint.ser_static[delta_bytes],
-			const.uint.ser[delta_bytes],
-			const.uint.des[delta_bytes]
+			CONST_LOOKUPS.uint.ser_static[delta_bytes],
+			CONST_LOOKUPS.uint.ser[delta_bytes],
+			CONST_LOOKUPS.uint.des[delta_bytes]
 
 		@native --dynamic_ncgen
 		local function range_ser_no_realloc(buff: buffer, byte_ptr: number, input: any): (number)
@@ -1245,7 +1251,7 @@ do
 		local vlq_shape = new_datatype()
 		cache[max_bytes] = vlq_shape
 
-		local lookup_ser_static_uint = const.uint.ser_static
+		local lookup_ser_static_uint = CONST_LOOKUPS.uint.ser_static
 
 		@native --dynamic_ncgen
 		local function vlq_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
@@ -3340,8 +3346,9 @@ return {
 	export = export_datatype,
 	new_datatype = new_datatype,
 	check_datatype_exists = check_datatype_exists,
+	copy_datatype = copy_datatype,
 
-	const_lookups = const,
+	const_lookups = CONST_LOOKUPS,
 
 	datatypes = datatypes,
 
