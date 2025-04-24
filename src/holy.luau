@@ -28,8 +28,8 @@ type Set<K, V = true?> = { [K]: V }
 
 export type Datatype<T = any> = number & { __HOLY_T: T }
 
-export type SerStatic<Input = any> = (buff: buffer, byte_ptr: number, value: Input) -> ()
 export type SerNoRealloc<Input = any> = (buff: buffer, byte_ptr: number, value: Input) -> (number)
+export type SerStatic<Input = any> = (buff: buffer, byte_ptr: number, value: Input) -> ()
 export type Ser<Input = any> = (buff: buffer, byte_ptr: number, value: Input) -> (number, buffer)
 export type Des<Output = any> = (buff: buffer, byte_ptr: number) -> (number, Output)
 
@@ -49,6 +49,30 @@ local metadata = {
 }
 
 local CONST_LOOKUPS = {}
+
+local function fetch_ser_no_realloc<T>(
+	datatype: Datatype<T>
+): SerNoRealloc<T>
+	return metadata.ser_no_realloc[datatype]
+end
+
+local function fetch_ser_static<T>(
+	datatype: Datatype<T>
+): SerStatic<T>
+	return metadata.ser_static[datatype]
+end
+
+local function fetch_ser<T>(
+	datatype: Datatype<T>
+): Ser<T>
+	return metadata.ser[datatype]
+end
+
+local function fetch_des<T>(
+	datatype: Datatype<T>
+): Des<T>
+	return metadata.des[datatype]
+end
 
 local function ordered_hash(...: any): string
 	return table.concat({ ... }, "\126\002")
@@ -3340,8 +3364,15 @@ do
 
 datatypes.computed = computed end
 
-return {
+local holy = {
 	_datatype_metadata = metadata,
+
+	fetch = {
+		ser_no_realloc = fetch_ser_no_realloc,
+		ser_static = fetch_ser_static,
+		ser = fetch_ser,
+		des = fetch_des,
+	},
 
 	export = export_datatype,
 	new_datatype = new_datatype,
@@ -3355,3 +3386,5 @@ return {
 	uint_size = uint_size_bytes,
 	vlq_size = vlq_size_bytes,
 }
+
+return holy
