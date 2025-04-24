@@ -35,11 +35,11 @@ export type Des<Output = any> = (buff: buffer, byte_ptr: number) -> (number, Out
 
 local function NOOP(): () end
 
-local function ordered_hash(...: any)
+local function ordered_hash(...: any): string
 	return table.concat({ ... }, "\126\002")
 end
 
-local function uint_size_bytes(uint: number)
+local function uint_size_bytes(uint: number): number
 	return math.ceil(math.log(uint + 1, 2) / 8)
 end
 
