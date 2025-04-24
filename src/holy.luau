@@ -60,8 +60,10 @@ local const = {}
 
 local new_datatype
 do
+	-- Starting datatype IDs at two to support implicit table declaration syntax in external tools. Kinda messy but if it
+	-- works it works
 	-- Luau
-	local current_id = (1 :: any) :: Datatype
+	local current_id = (2 :: any) :: Datatype
 	function new_datatype<InputOutput>(static_size: number?): Datatype<InputOutput>
 		local created_id = current_id
 
