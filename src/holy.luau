@@ -39,8 +39,18 @@ local function ordered_hash(...: any): string
 	return table.concat({ ... }, "\126\002")
 end
 
+--[=[
+Returns the minimum number of bytes required to encode a given unsigned int.
+]=]
 local function uint_size_bytes(uint: number): number
 	return math.ceil(math.log(uint + 1, 2) / 8)
+end
+
+--[=[
+Returns the minimum number of bytes required to encode a given unsigned int as a VLQ value.
+]=]
+local function vlq_size_bytes(uint: number): number
+	return math.ceil(math.log(uint + 1, 2) / 7)
 end
 
 local metadata = {
@@ -486,7 +496,7 @@ const.uint = {
 		[5] = metadata.ser_no_realloc[datatypes.u40],
 		[6] = metadata.ser_no_realloc[datatypes.u48],
 		[7] = metadata.ser_no_realloc[datatypes.u56],
-	},
+	} :: Set<number, SerNoRealloc>,
 	ser_static = {
 		[1] = metadata.ser_static[datatypes.u8],
 		[2] = metadata.ser_static[datatypes.u16],
@@ -936,7 +946,7 @@ const.int = {
 		[5] = metadata.ser_no_realloc[datatypes.i40],
 		[6] = metadata.ser_no_realloc[datatypes.i48],
 		[7] = metadata.ser_no_realloc[datatypes.i53],
-	},
+	} :: Set<number, SerNoRealloc>,
 	ser_static = {
 		[1] = metadata.ser_static[datatypes.i8],
 		[2] = metadata.ser_static[datatypes.i16],
@@ -1050,7 +1060,7 @@ const.float = {
 	ser_no_realloc = {
 		[4] = metadata.ser_no_realloc[datatypes.f32],
 		[8] = metadata.ser_no_realloc[datatypes.f64],
-	},
+	} :: Set<number, SerNoRealloc>,
 	ser_static = {
 		[4] = metadata.ser_static[datatypes.f32],
 		[8] = metadata.ser_static[datatypes.f64],
@@ -1243,12 +1253,14 @@ do
 			local septet: number
 
 			for byte = 1, max_bytes do
-				septet = input % 0b10000000
-				output += septet * ((0b10^8) ^ (byte - 1))
+				local offset = (0b10^8) ^ (byte - 1)
+
+				septet = input % 0b10^7
+				output += septet * offset
 				input //= 0b10^7
 
 				if input >= 0b1 then
-					output += 0b10000000 * ((0b10^8) ^ (byte - 1))
+					output += 0b10000000 * offset
 					continue
 				end
 
@@ -3331,5 +3343,8 @@ return {
 
 	const_lookups = const,
 
-	datatypes = datatypes
+	datatypes = datatypes,
+
+	uint_size = uint_size_bytes,
+	vlq_size = vlq_size_bytes,
 }
