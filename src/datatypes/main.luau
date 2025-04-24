@@ -6,7 +6,7 @@ move some of the docs from this file to the mkdocs and typescript stuff. The doc
 ]]
 
 local holy = require("../holy")
-local instance_class_types = require("./instance_class_types")
+local instance_classes = require("./instance_class_types")
 
 export type HolyDatatype<T = any> = holy.Datatype<T>
 export type Datatype<T = any> = T
@@ -441,7 +441,7 @@ do
 
 	[Learn More](http://light.ardi.gg/api/datatypes/instances/)
 	]=]
-	local instances = ... :: instance_class_types.InstanceClassnameTable
+	local instances = ... :: instance_classes.InstanceClassnameTable
 	datatypes.instances = instances
 
 	--[=[
