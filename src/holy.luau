@@ -1428,6 +1428,140 @@ do
 datatypes.str = str end
 
 do
+	local cache = {} :: Set<Datatype<number>, Datatype<buffer>>
+
+	local function buff(length_datatype: Datatype<number>?): Datatype<buffer>
+		local length_datatype = length_datatype or datatypes.vlq(3)
+		do
+			local cached = cache[length_datatype]
+			if cached ~= nil then return cached end
+		end
+		
+		if not check_datatype_exists(length_datatype) then
+			error(debug.traceback(`Invalid buff: Length provided is not a valid datatype.`))
+		end
+		if not metadata.is_number[length_datatype] then
+			error(debug.traceback(`Invalid buff: Length must be a valid number datatype.`))
+		end
+
+		local literal_len_value = metadata.literal_value[length_datatype]
+
+		local case_literal_len = not not metadata.is_literal[length_datatype]
+		local case_static_len = not not literal_len_value
+		
+		local buff_datatype = new_datatype(if case_literal_len then literal_len_value else nil)
+		cache[length_datatype] = buff_datatype
+
+		local buff_ser_no_realloc, buff_ser_static, buff_ser, buff_des
+
+		if case_literal_len then
+			@native --dynamic_ncgen
+			function buff_ser_no_realloc(buff: buffer, byte_ptr: number, input: any): (number)
+				buffer.copy(buff, byte_ptr, input, 0, literal_len_value)
+				byte_ptr += literal_len_value
+
+				return byte_ptr
+			end
+
+			@native --dynamic_ncgen
+			function buff_ser_static(buff: buffer, byte_ptr: number, input: any): ()
+				buffer.copy(buff, byte_ptr, input, 0, literal_len_value)
+			end
+
+			@native --dynamic_ncgen
+			function buff_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
+				local len = buffer.len(buff)
+
+				--[[stylua: ignore]] -- alloc
+				local target_ptr = byte_ptr + literal_len_value; if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+
+				buffer.copy(buff, byte_ptr, input, 0, literal_len_value)
+				return target_ptr, buff
+			end
+
+			@native --dynamic_ncgen
+			function buff_des(buff: buffer, byte_ptr: number): (number, buffer)
+				local output = buffer.create(literal_len_value)
+				buffer.copy(output, 0, buff, byte_ptr, literal_len_value)
+				byte_ptr += literal_len_value
+
+				return byte_ptr, output
+			end
+		elseif case_static_len then
+			local static_len_bytes = metadata.static_size[length_datatype]
+			local static_ser_length = metadata.ser_static[length_datatype]
+			local des_length = metadata.des[length_datatype]
+
+			@native --dynamic_ncgen
+			function buff_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
+				local buff_len = buffer.len(input)
+				local len = buffer.len(buff)
+
+				--[[stylua: ignore]] -- alloc
+				local target_ptr = byte_ptr + static_len_bytes + buff_len; if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+
+				static_ser_length(buff, byte_ptr, buff_len)
+				byte_ptr += static_len_bytes
+
+				buffer.copy(buff, byte_ptr, input, 0, buff_len)
+
+				return target_ptr, buff
+			end
+
+			@native --dynamic_ncgen
+			function buff_des(buff: buffer, byte_ptr: number): (number, buffer)
+				local buff_len
+				byte_ptr, buff_len = des_length(buff, byte_ptr)
+
+				local output = buffer.create(buff_len)
+				buffer.copy(output, 0, buff, byte_ptr, buff_len)
+				byte_ptr += buff_len
+
+				return byte_ptr, output
+			end
+		else
+			local ser_length = metadata.ser[length_datatype]
+			local des_length = metadata.des[length_datatype]
+
+			@native
+			function buff_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
+				local buff_len = buffer.len(input)
+				byte_ptr, buff = ser_length(buff, byte_ptr, buff_len)
+
+				local len = buffer.len(buff)
+
+				--[[stylua: ignore]] -- alloc
+				local target_ptr = byte_ptr + buff_len; if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+
+				buffer.copy(buff, byte_ptr, input, 0, buff_len)
+
+				return target_ptr, buff
+			end
+
+			@native
+			function buff_des(buff: buffer, byte_ptr: number): (number, buffer)
+				local buff_len
+				byte_ptr, buff_len = des_length(buff, byte_ptr)
+
+				local output = buffer.create(buff_len)
+				buffer.copy(output, 0, buff, byte_ptr, buff_len)
+				byte_ptr += buff_len
+
+				return byte_ptr, output
+			end
+		end
+
+		metadata.ser_no_realloc[buff_datatype] = buff_ser_no_realloc
+		metadata.ser_static[buff_datatype] = buff_ser_static
+		metadata.ser[buff_datatype] = buff_ser
+		metadata.des[buff_datatype] = buff_des
+
+		return buff_datatype
+	end
+
+datatypes.buff = buff end
+
+do
 	local cache = {} :: Set<string, Datatype<{any}>>
 
 	local function arr<Item>(item_datatype: Datatype<Item>, length_datatype: Datatype<number>?): Datatype<{Item}>
