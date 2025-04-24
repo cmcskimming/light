@@ -26,7 +26,7 @@ SOFTWARE.
 --!nolint LocalShadow
 type Set<K, V = true?> = { [K]: V }
 
-export type Datatype<T = any> = number & { __T: T }
+export type Datatype<T = any> = number & { __HOLY_T: T }
 
 export type SerStatic<Input = any> = (buff: buffer, byte_ptr: number, value: Input) -> ()
 export type SerNoRealloc<Input = any> = (buff: buffer, byte_ptr: number, value: Input) -> (number)
@@ -85,6 +85,13 @@ do
 			return false
 		end
 		return true
+	end
+end
+
+local export_datatype
+do
+	function export_datatype<T>(datatype: Datatype<T>): T
+		return datatype :: any
 	end
 end
 
@@ -3184,6 +3191,7 @@ datatypes.computed = computed end
 return {
 	_datatype_metadata = metadata,
 
+	export = export_datatype,
 	new_datatype = new_datatype,
 	check_datatype_exists = check_datatype_exists,
 
