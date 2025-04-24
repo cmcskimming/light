@@ -6,7 +6,7 @@ move some of the docs from this file to the mkdocs and typescript stuff. The doc
 ]]
 
 local holy = require("../holy")
-local instance_classes = require("./instance_class_types")
+local imported_instances = require("./instances")
 local imported_roblox_vect2 = require("./roblox_vect2")
 
 export type HolyDatatype<T = any> = holy.Datatype<T>
@@ -48,7 +48,9 @@ end
 
 local holy_datatypes = holy.datatypes
 
-local datatypes = {}
+local datatypes = {
+	instances = imported_instances,
+}
 
 --[[-inline-documentation-is-my-passion-inline-documentation-is-my-passion-inline-documentation-is-my-passion-----------
 Blank functions for user-facing types / documentation. Functions are defined with their real type inputs, then the
@@ -218,7 +220,7 @@ do
 	function datatypes.range(minimum: number, maximum: number): Datatype<number>
 		return ERR()
 	end
-	
+
 	--[=[
 	Represents a 3 component luau vector. Includes optional `coord` parameter for the datatype each coordinate will use,
 	defaulting to an [f32](https://light.ardi.gg/api/datatypes/numbers/floats/). It is worth noting that an
@@ -389,9 +391,7 @@ do
 	): Datatype<Output>
 	```
 	]=]
-	function datatypes.computed<Output>(
-		lambda: () -> (Datatype<Output>)
-	): Datatype<Output>
+	function datatypes.computed<Output>(lambda: () -> Datatype<Output>): Datatype<Output>
 		return ERR()
 	end
 
@@ -434,18 +434,6 @@ do
 	datatypes.any = any
 
 	--[=[
-	Light supports validated types for (almost) every Instance.
-
-	Instances are generally an [any](http://light.ardi.gg/api/datatypes/any/) Datatype that check to make sure the value
-	being sent is a valid Roblox Instance of a specific classname. Using these datatypes while sending unreliably can
-	cause issues if the packet is too large.
-
-	[Learn More](http://light.ardi.gg/api/datatypes/instances/)
-	]=]
-	local instances = ... :: instance_classes.InstanceClassnameTable
-	datatypes.instances = instances
-
-	--[=[
 	For types that are especially hard to describe, you can use `checked`. Checked is generally an
 	[any](http://light.ardi.gg/api/datatypes/any/) Datatype which allows you to pass a "sanity check" callback. This
 	makes sure that even though Roblox's default networking is used, you still get proper type validation & annotation.
@@ -458,9 +446,7 @@ do
 	
 	[Learn More](http://light.ardi.gg/api/datatypes/checked/)
 	]=]
-	function datatypes.checked<Input, Checked>(
-		sanity_check: (Input) -> (Checked)
-	): Datatype<Checked>
+	function datatypes.checked<Input, Checked>(sanity_check: (Input) -> Checked): Datatype<Checked>
 		return ERR()
 	end
 end
@@ -520,10 +506,7 @@ local function arr<Item>(
 	item_datatype: HolyDatatype<Item>,
 	length_datatype: HolyDatatype<number>?
 ): HolyDatatype<{ Item }>
-	return holy_datatypes.arr(
-		cached(item_datatype),
-		length_datatype or holy_datatypes.u16
-	)
+	return holy_datatypes.arr(cached(item_datatype), length_datatype or holy_datatypes.u16)
 end
 
 --[=[
@@ -616,7 +599,7 @@ datatypes.literal = literal :: any
 --[=[
 1:1 mirror of computed
 ]=]
-local function computed<Output>(lambda: () -> (HolyDatatype<Output>)): HolyDatatype<Output>
+local function computed<Output>(lambda: () -> HolyDatatype<Output>): HolyDatatype<Output>
 	return holy_datatypes.computed(lambda)
 end
 datatypes.computed = computed :: any
