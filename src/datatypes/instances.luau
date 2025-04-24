@@ -14,7 +14,9 @@ local any_ser = metadata.ser[imported_any]
 local any_des = metadata.des[imported_any]
 local any_static_size = metadata.static_size[imported_any]
 
-if any_static_size == nil then error(report.bug(report.problem("Could not fetch static size"))) end
+if any_static_size == nil then
+	error(report.bug(report.problem("Could not fetch static size for any")))
+end
 
 return setmetatable({}, {
 	__index = function(
