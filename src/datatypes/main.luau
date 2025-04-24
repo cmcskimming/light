@@ -6,6 +6,7 @@ move some of the docs from this file to the mkdocs and typescript stuff. The doc
 ]]
 
 local holy = require("../holy")
+local imported_checked = require("./checked")
 local imported_instances = require("./instances")
 local imported_roblox_vect2 = require("./roblox_vect2")
 
@@ -611,5 +612,13 @@ local function buff(length: HolyDatatype<number>?): HolyDatatype<buffer>
 	return holy_datatypes.buff(length or vlq(3))
 end
 datatypes.buff = buff :: any
+
+--[=[
+imported checked mirror with datatype caching
+]=]
+local function checked<Input, Checked>(sanity_check: (Input) -> Checked): HolyDatatype<Checked>
+	return imported_checked(sanity_check)
+end
+datatypes.checked = checked :: any
 
 return datatypes
