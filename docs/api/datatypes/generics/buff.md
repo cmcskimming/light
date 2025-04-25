@@ -1,5 +1,14 @@
 # Buffers
 
+Represents a
+<a href="https://create.roblox.com/docs/reference/engine/libraries/buffer" target="_blank">`#!luau buffer`</a>.
+
+Includes an optional Datatype for length, which defaults to
+[`vlq(3)`](./vlq.md). The length datatype should NOT be a regular
+number—instead: use a datatype that represents a number, like a
+[`uint`](https://light.ardi.gg/api/datatypes/numbers/uints/), or
+[`range`](https://light.ardi.gg/api/datatypes/generics/range/).
+
 ## `#!luau function light.datatypes.buff`
 
 ```luau title='<!-- client --> <!-- server --> <!-- shared --> <!-- sync -->'
@@ -8,9 +17,7 @@ function buff(
 ): Datatype<buffer>
 ```
 
-`length` will default to [`#!luau datatypes.vlq()`](./vlq.md).
-
-First argument represents how the length is encoded. A couple of ways you can use the optional `length` parameter:
+A couple of ways you could use the optional `length` parameter:
 
 ```luau
 local types = light.datatypes

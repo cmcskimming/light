@@ -27,22 +27,24 @@ Light is a *light*weight, robust, and secure remote wrapper for roblox. Read bel
 or <a href="https://github.com/1Axen/blink" target="_blank">Blink</a>.
 Light is similar to these, but will require some work to migrate to/from.
 
-- Secure your messages for you. Static serialization ensures you get the types you expect, but the data can still be manipulated by exploiters.
+- Secure your messages for you.
+Static serialization ensures you get the types you expect, but the data can still be manipulated by exploiters.
 
 - Provide a built-in signal implementation.
-Light messages can only be connected or disconnected with a single callback. For convenience, a thread reuse implementation is packaged out-of-the-box with [`#!luau light.connect()`](./api/network/messages/listening/connect.md)
+Light messages can only be connected or disconnected with a single callback. For convenience, a thread reuse
+implementation is packaged out-of-the-box with [`#!luau light.connect()`](./api/network/messages/listening/connect.md)
 [why?](#q-why-only-allow-one-callback)
 
 ## FAQ / Q&A
 
-### Q: Does batching add extra delays or overhead to my networking?
+### Q: Does batching add extra delays or bandwidth overhead to my networking?
 
-No. Roblox does batching on its own, light does batching to group messages together and optimize bandwidth
+No. Roblox does batching on its own, light does batching to group messages together and optimize bandwidth.
 
 ### Q: Is event order the same as roblox?
 
-No. Messages will be ordered per-message-name. This means that if you send 2 kinds of messages in a frame, you may
-end up with 2 contiguous lists of calls for each type:
+No. Messages will be ordered per-message-name. This means that if you send 2 kinds of messages in the same frame, you
+may end up with 2 contiguous lists of calls for each type:
 
 ```luau
 send(message_a)
@@ -51,18 +53,20 @@ send(message_a)
 ```
 
 The other side will recieve the first call to message a, the second call to message a, and then the call(s) to message
-b. Essentially, per-event ordering. If you use
-<a href="https://github.com/ffrostfall/BridgeNet2" target="_blank">BridgeNet2</a>, you're already experiencing this.
+b. If you use <a href="https://github.com/ffrostfall/BridgeNet2" target="_blank">BridgeNet2</a>, you're already
+experiencing this.
 
 ### Q: Why only allow one callback?
 
-"Message" in Light indicates that there's an intended target or consumer, so the message does care about its callback. Handling it this way solves a lot of edge cases. To make an event, you could always make a wrapper yourself which pipes the message into a signal implementation. If you're interested in profiling, the docs for
-[`#!luau light.disconnect()`](./api/network/messages/listening/disconnect.md) have a decent example of an event
-profiler.
+"Message" in Light indicates that there's an intended target or consumer, meaning the message "knows" about its
+callback. Handling it this way solves a lot of edge cases. To make an event instead, you can make a wrapper which pipes
+the message into a signal implementation, which is why I believe it'd be bloated to include. If you're interested in
+profiling, the docs for [`#!luau light.disconnect()`](./api/network/messages/listening/disconnect.md) have a decent
+example of an event profiler.
 
 ### Q: Where can I find holy?
 
-Holy is available on [its github repo](https://github.com/hardlyardi/holy).
+Holy is available on [its github repo](https://placeholder.gg/).
 
 ## Special Thanks
 

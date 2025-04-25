@@ -21,22 +21,25 @@ function message<T>(
 ): (Message<T>)
 ```
 
-`template` in both above samples should always be any valid [Datatype](../../../datatypes/index.md).
-This includes [Datatypes](../../../datatypes/index.md) like arrays or maps that are defined with luau tables.
-I.e., `#!luau { light.u8 }`
+`template` in both above samples should always be any valid [Datatype](../../../datatypes/index.md#what-is-a-datatype).
+This includes [Datatypes](../../../datatypes/index.md#what-is-a-datatype) like arrays or maps that are defined with luau tables.
+I.e., `#!luau { light.datatypes.u8 }`
 
-If you wanted to recreate the behavior of this code that uses containers:
+If you wanted to create messages en-masse without restricting yourself to the structure of a container, this can be
+very useful. You could also use it to re-invent the wheel:
 
 ```luau
+local ty = light.datatypes
+
 return light.container({
-    foo = { light.u8 }, -- send a table of u8 numbers
+    abc = { ty.u8 }, -- send a table of u8 numbers
 })
 ```
 
-You can do that with raw message api:
+Is equivalent* to:
 
 ```luau
 return {
-    foo = light.message("ping", { light.u8 })
+    abc = light.message("abc", { light.u8 })
 }
 ```

@@ -13,7 +13,7 @@ function input<T>(
 )
 ```
 
-You'll need to provide a valid [DynamicWriter](./writer/index.md), [Datatype](../../datatypes/index.md), and some
+You'll need to provide a valid [DynamicWriter](./writer/index.md), [Datatype](../../datatypes/index.md#what-is-a-datatype), and some
 data to serialize. You can deserialize the data with [Output](./output.md).
 
 !!! danger "Use correct data or `#!luau pcall()`"

@@ -10,5 +10,5 @@ function make_nilable(
 )
 ```
 
-This will register the [Datatype](../../datatypes/index.md) as nilable, meaning it could or always does return nil.
+This will register the [Datatype](../../datatypes/index.md#what-is-a-datatype) as nilable, meaning it could or always does return nil.
 I.e., you're re-implementing an optional datatype.

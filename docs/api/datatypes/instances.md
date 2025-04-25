@@ -2,13 +2,13 @@
 
 Light supports validated types for (almost) every Instance.
 
-Instances are generally [Any](./any.md) [Datatypes](./index.md) that check to make sure the value
-sent is a valid Roblox Instance of a specific classname. Using these datatypes while
-[sending unreliably](../network/messages/sending/send_unreliably.md) can cause issues if the packet is too large.
+Instances are generally [Any](./any.md) [Datatypes](./index.md#what-is-a-datatype)
+which represent a Roblox Instance Classname. Using these datatypes while sending unreliably can cause consistent
+packet dropping issues if the packet is too large.
 
 You can access each one with `light.datatypes.instances.<Name>`.
 
-[//]: # (i'm so funny for putting 800 lines of instance datatypes in this file)
+[//]: # (i'm so funny for putting like 500 lines of instance datatypes in this file)
 
 | Roblox Type | Supported? |
 | ----------: | :--------- |

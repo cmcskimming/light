@@ -1,32 +1,22 @@
 # Datatypes
 
-## Intro
+## What is a Datatype?
 
-Light has lots of Datatypes you can define to use in messages.
-These Datatypes usually come in the form of numeric IDs under the hood, with some casual lying to luau.
-Here's an example of one:
+A datatype is something that represents some set of possible values. When you're sending something across the network
+with light, you'll need to define what you want that thing to look like. Light has a lot of tools for doing that, which
+is what this section is all about. Here's an example of one of the number Datatypes:
 
-[`#!luau local u8 = light.u8`](./numbers/uints.md),
+[`#!luau local u8 = light.datatypes.u8`](./numbers/uints.md),
 
-`u8` can be understood by splitting up its name:
-
-- u: unsigned integer (minimum value 0, no decimal places)
-
-- 8: 8 bits, or 1 byte of accuracy/space (maximum value 255)
-
-## Luau Tables
-
-A luau table can also be a valid Datatype under [certain circumstances](./generics/tables/index.md).
+`u` means the number should be "unsigned"; greater than zero. The number to the right, `8`, means the datatype
+represents something which costs exactly 8 bits[^1] to send. The maximum value for an unsigned integer is `(2 ^ bits) - 1` or
+`(256 ^ bytes) - 1`. If we apply this to a `u8`, we should be able to send any value `0` to `255`.
 
 ## Lying to luau
 
 Generally, places where you see `#!luau Datatype<T>` in these docs, you will only see `#!luau T` or a type in your
-editor / LSP. This is to avoid needing to use type functions for every function, which would break compatability with
-luau's old type solver.
+editor. Generally, this avoids causing problems with Luau's type system.
 
-## Why use Datatypes?
+[^1]:
 
-Clamping numbers or values to be within a certain range of values allows us to validate type safety, save a lot of bandwidth, and gain performance, since we
-send the data directly as binary over the network. If we don't say what type something is beforehand, the network has
-to include the type of the packet in the packet, which isn't efficient. When you use
-[`#!luau any`](./any.md) in light, you lose the benefits of static serialization.
+    8 bits is also known as a byte. `#!luau local bytes = bits // 8` & `#!luau local bits = 8·bytes`

@@ -50,14 +50,19 @@ end
 
 local holy_datatypes = holy.datatypes
 
-local datatypes = {
-	instances = imported_instances,
-}
+local datatypes = {}
+
+--[=[
+Instances are generally [Any](http://light.ardi.gg/api/datatypes/any/) [Datatypes](http://light.ardi.gg/api/datatypes/#what-is-a-datatype)
+which represent a Roblox Instance Classname. Using these datatypes while sending unreliably can cause consistent
+packet dropping issues if the packet is too large.
+]=]
+datatypes.instances = imported_instances
 
 --[[-inline-documentation-is-my-passion-inline-documentation-is-my-passion-inline-documentation-is-my-passion-----------
 Blank functions for user-facing types / documentation. Functions are defined with their real type inputs, then the
 documented functions get replaced. This makes it very easy to have an internal datatype definition for this file, and
-LSP function documentation.
+LSP function documentation. Inline documentation is my passion.
 -inline-documentation-is-my-passion-inline-documentation-is-my-passion-inline-documentation-is-my-passion-------------]]
 do
 	local function ERR(): any
@@ -91,7 +96,9 @@ do
 	end
 
 	--[=[
-	Arrays take in a datatype for what kind of item they should use, and an optional datatype for length which defaults
+	An array represents a contiguous list of values in a table. I.e., `{ "a", "b", "c" }`
+
+	Arrays take in a datatype for what kind of item they should use, and an optional parameter for length which defaults
 	to [`u16`](https://light.ardi.gg/api/datatypes/numbers/uints/). The length datatype should NOT be a regular
 	number—instead: use a datatype that represents a number, like a
 	[`uint`](https://light.ardi.gg/api/datatypes/numbers/uints/), or
@@ -114,8 +121,10 @@ do
 	end
 
 	--[=[
-	Maps take in a datatype for their key, a datatype for their value, and an optional datatype for length which defaults
-	to [`u16`](https://light.ardi.gg/api/datatypes/numbers/uints/). The length datatype should NOT be a regular
+	A map represents a set of keys mapping to values in a table. I.e., `{ ["random string"] = 1234 }`
+
+	Maps take in a datatype for their key, a datatype for their value, and an optional parameter for length which
+	defaults to [`u16`](https://light.ardi.gg/api/datatypes/numbers/uints/). The length datatype should NOT be a regular
 	number—instead: use a datatype that represents a number, like a
 	[`uint`](https://light.ardi.gg/api/datatypes/numbers/uints/), or
 	[`range`](https://light.ardi.gg/api/datatypes/generics/range/).
@@ -139,9 +148,10 @@ do
 	end
 
 	--[=[
-	Structs are a fixed set of string keys and values.
-	Structs are not guaranteed to have the field order you defined them with, but ordering is identical on client and
-	server.
+	A struct represents a fixed set of string keys and value datatypes.
+
+	Structs are not guaranteed to have exactly the field order you defined them with, but the order of their fields is
+	identical on client and server.
 
 	```luau
 	function struct<Fields>(--Sync--
@@ -156,8 +166,9 @@ do
 	end
 
 	--[=[
-	Variable Length Quantities allow you to encode a number which takes more space as it gets bigger. Includes an
-	optional max_bytes, which will default to 7.
+	Variable Length Quantities represent arbitrarily sized unsigned integers. A VLQ takes less space for generally
+	"smaller" numbers, so it can allow you to save on space if you don't know the size of a number ahead of time. There
+	is an optional `max_bytes` parameter to limit the number of bytes it can occupy, defaulting to 7.
 
 	```luau
 	function vlq(--Sync--
@@ -170,9 +181,10 @@ do
 	end
 
 	--[=[
-	Create an Optional version of a datatype. This means it can be nil. This is most useful in a
-	[`struct`](http://light.ardi.gg/api/datatypes/generics/tables/struct/), where you might not want or need all fields
-	to exist in the data you're sending.
+	Optionals represent a value which could be `nil`, and can be applied to any datatype. Optionals are most often used
+	within a [`struct`](http://light.ardi.gg/api/datatypes/generics/tables/struct/), where you might not want or need all
+	fields to exist in the data you're sending. A fair alternative to an optional Datatype can be a
+	[`Tagged Enum`](https://light.ardi.gg/api/datatypes/generics/enums/#tagged-enums)
 
 	```luau
 	function optional<Inner>(--Sync--
@@ -187,8 +199,8 @@ do
 	end
 
 	--[=[
-	Represents a string value. Includes an optional Datatype for length, which defaults
-	to [`vlq(3)`](https://light.ardi.gg/api/datatypes/generics/vlq). The length datatype should NOT be a regular
+	Represents a string value. Includes an optional parameter for length which defaults to
+	[`vlq(3)`](https://light.ardi.gg/api/datatypes/generics/vlq). The length datatype should NOT be a regular
 	number—instead: use a datatype that represents a number, like a
 	[`uint`](https://light.ardi.gg/api/datatypes/numbers/uints/), or
 	[`range`](https://light.ardi.gg/api/datatypes/generics/range/).
@@ -207,8 +219,10 @@ do
 
 	--[=[
 	Represents a range of possible [`uints`](https://light.ardi.gg/api/datatypes/numbers/uints) by providing a minimum
-	and maximum value. If you input a number which is larger or smaller than the range, the number will always be clamped
-	to fit the range.
+	and maximum value.
+	
+	If you serialize a number which is larger or smaller than the range, the number will always be clamped to fit the
+	range.
 
 	```luau
 	function range(--Sync--
@@ -224,10 +238,12 @@ do
 	end
 
 	--[=[
-	Represents a 3 component luau vector. Includes optional `coord` parameter for the datatype each coordinate will use,
-	defaulting to an [f32](https://light.ardi.gg/api/datatypes/numbers/floats/). It is worth noting that an
-	[`f64`](https://light.ardi.gg/api/datatypes/numbers/floats/) Datatype's precision won't apply to a vector, and
-	[`f32`](https://light.ardi.gg/api/datatypes/numbers/floats/) is always a better choice.
+	Represents a 3 component luau vector.
+	
+	There is an optional `coord` parameter representing each coordinate (`x`, `y`, `z`) which defaults to
+	[`f32`](https://light.ardi.gg/api/datatypes/numbers/floats/). It is worth noting that an
+	[`f64`](https://light.ardi.gg/api/datatypes/numbers/floats/) Datatype's precision won't apply here, so
+	[`f32`](https://light.ardi.gg/api/datatypes/numbers/floats/) is always better for vectors.
 
 	```luau
 	function vect3(--Sync--
@@ -242,10 +258,12 @@ do
 	end
 
 	--[=[
-	Represents a 2 component luau vector. Includes optional `coord` parameter for the datatype each coordinate will use,
-	defaulting to an [f32](https://light.ardi.gg/api/datatypes/numbers/floats/). It is worth noting that an
-	[`f64`](https://light.ardi.gg/api/datatypes/numbers/floats/) Datatype's precision won't apply to a vector, and
-	[`f32`](https://light.ardi.gg/api/datatypes/numbers/floats/) is always a better choice.
+	Represents a 2 component luau vector.
+	
+	There is an optional `coord` parameter representing each coordinate (`x`, `y`) which defaults to
+	[`f32`](https://light.ardi.gg/api/datatypes/numbers/floats/). It is worth noting that an
+	[`f64`](https://light.ardi.gg/api/datatypes/numbers/floats/) Datatype's precision won't apply here, so
+	[`f32`](https://light.ardi.gg/api/datatypes/numbers/floats/) is always better for vectors.
 
 	```luau
 	function vect2(--Sync--
@@ -260,10 +278,12 @@ do
 	end
 
 	--[=[
-	Represents a Roblox Vector2 userdata. Includes optional `coord` parameter for the datatype each coordinate will use,
-	defaulting to an [f32](https://light.ardi.gg/api/datatypes/numbers/floats/). It is worth noting that an
-	[`f64`](https://light.ardi.gg/api/datatypes/numbers/floats/) Datatype's precision won't apply to a vector, and
-	[`f32`](https://light.ardi.gg/api/datatypes/numbers/floats/) is always a better choice.
+	Represents a Roblox Vector2 userdata.
+	
+	There is an optional `coord` parameter representing each coordinate (`x`, `y`) which defaults to
+	[`f32`](https://light.ardi.gg/api/datatypes/numbers/floats/). It is worth noting that an
+	[`f64`](https://light.ardi.gg/api/datatypes/numbers/floats/) Datatype's precision won't apply here, so
+	[`f32`](https://light.ardi.gg/api/datatypes/numbers/floats/) is always better for vectors.
 
 	```luau
 	function roblox_vect2(--Sync--
@@ -278,9 +298,10 @@ do
 	end
 
 	--[=[
-	Represents a Roblox CFrame userdata. Includes optional `position` parameter for the datatype each positional
-	coordinate will use, defaulting to an [f32](https://light.ardi.gg/api/datatypes/numbers/floats/). The orientation
-	occupies a fixed four bytes.
+	Represents a Roblox CFrame userdata.
+	
+	There is an optional `position` parameter representing each positional coordinate (`x`, `y`, `z`) which defaults to
+	[f32](https://light.ardi.gg/api/datatypes/numbers/floats/). The orientation occupies a fixed four bytes.
 
 	```luau
 	function cframe(--Sync--
@@ -316,7 +337,8 @@ do
 
 		--[=[
 		### Enum types are generally only supported as a first-class feature in the Luau Inference Engine V2.
-		Some features may work, but type information in older versions of the type inference engine for enums is not officially supported.
+		Some features may work, but type information in older versions of the type inference engine for enums is not
+		officially supported.
 		
 		### Tagged enums only accept a table as a datatype.
 		You must provide a luau table which can be converted into a struct. Anything else will result in an error.
@@ -374,8 +396,8 @@ do
 	end
 
 	--[=[
-	Literals represent a value which is "literally" something. Pass in any value, and it'll be seen as a constant which
-	costs zero bytes.
+	Literals represent a value which is "literally" something. Any value you pass to a literal will become a constant and
+	cost zero bytes.
 	
 	```luau
 	function literal<Value>(--Sync--
@@ -384,7 +406,7 @@ do
 	```
 
 	Literals do not perform any validation on inputs, instead overwriting what gets encoded with the value provided. If
-	you want to check the type of the input, you can use an
+	you want to check the type of the input, you could use an
 	[Identifier Enum](http://light.ardi.gg/api/datatypes/generics/enums/#identifier-enums) with only a single item:
 	```luau
 	local ty = light.datatypes
@@ -451,7 +473,7 @@ do
 	datatypes.any = ... :: Datatype<any>
 
 	--[=[
-	For types that are especially hard to describe, you can use `checked`. Checked is generally an
+	For types that are especially hard to describe, you could use `checked`. Checked is generally an
 	[any](http://light.ardi.gg/api/datatypes/any/) Datatype which allows you to pass a "sanity check" callback. This
 	makes sure that even though Roblox's default networking is used, you still get proper type validation & annotation.
 

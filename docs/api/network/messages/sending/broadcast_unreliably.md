@@ -5,7 +5,7 @@ Identical behavior to [`#!luau light.broadcast()`](./broadcast.md), except the m
 There is no size limit on light unreliable sending&mdash;however, sending
 [instances](../../../datatypes/instances.md) /
 [any](../../../datatypes/any.md) /
-[checked](../../../datatypes/checked.md)
+[checked](../../../datatypes/generics/checked.md)
 can cause it to exceed size thresholds and fail to send.
 
 ## `#!luau function light.broadcast_unreliably`

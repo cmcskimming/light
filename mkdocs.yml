@@ -165,7 +165,35 @@ nav:
       - Beginner's Guide: quick-start/start_guide.md
   - API Docs:
       - API Documentation: api/index.md
+      - Datatypes:
+          - Datatypes: api/datatypes/index.md
+          - Unsigned Integers: api/datatypes/numbers/uints.md
+          - Signed Integers: api/datatypes/numbers/ints.md
+          - Floating Points: api/datatypes/numbers/floats.md
+          - Range: api/datatypes/generics/range.md
+          - Tables:
+              - Table Datatypes: api/datatypes/generics/tables/index.md
+              - Array: api/datatypes/generics/tables/arr.md
+              - Map: api/datatypes/generics/tables/map.md
+              - Struct: api/datatypes/generics/tables/struct.md
+          - VLQ: api/datatypes/generics/vlq.md
+          - Bool: api/datatypes/bool.md
+          - String: api/datatypes/generics/str.md
+          - Optional: api/datatypes/generics/optional.md
+          - Literal: api/datatypes/generics/literal.md
+          - Vect3: api/datatypes/generics/vect3.md
+          - Vect2: api/datatypes/generics/vect2.md
+          - Roblox Vect2: api/datatypes/generics/roblox_vect2.md
+          - CFrame: api/datatypes/generics/cframe.md
+          - Enums: api/datatypes/generics/enums.md
+          - Any: api/datatypes/any.md
+          - Instances: api/datatypes/instances.md
+          - Checked: api/datatypes/generics/checked.md
+          - Cached Datatypes: api/datatypes/generics/cached.md
+          - Computed: api/datatypes/generics/computed.md
+          - Buffer: api/datatypes/generics/buff.md
       - Begin Replication: api/begin_replication.md
+      - Step Replication: api/step_replication.md
       - Messages:
           - Creation:
               - container: api/network/messages/creation/container.md
@@ -183,36 +211,6 @@ nav:
               - connect: api/network/messages/listening/connect.md
               - disconnect: api/network/messages/listening/disconnect.md
               - connect_sync: api/network/messages/listening/connect_sync.md
-      - Datatypes:
-          - Datatypes: api/datatypes/index.md
-          - Numbers:
-              - Unsigned Integers: api/datatypes/numbers/uints.md
-              - Signed Integers: api/datatypes/numbers/ints.md
-              - Floating Points: api/datatypes/numbers/floats.md
-          - Generic Datatypes:
-              - Generic Datatypes: api/datatypes/generics/index.md
-              - Tables:
-                  - Table Datatypes: api/datatypes/generics/tables/index.md
-                  - Array: api/datatypes/generics/tables/arr.md
-                  - Map: api/datatypes/generics/tables/map.md
-                  - Struct: api/datatypes/generics/tables/struct.md
-              - Optional: api/datatypes/generics/optional.md
-              - String: api/datatypes/generics/str.md
-              - VLQ: api/datatypes/generics/vlq.md
-              - Range: api/datatypes/generics/range.md
-              - Vect3: api/datatypes/generics/vect3.md
-              - Vect2: api/datatypes/generics/vect2.md
-              - Roblox Vect2: api/datatypes/generics/roblox_vect2.md
-              - Enums: api/datatypes/generics/enums.md
-              - Literal: api/datatypes/generics/literal.md
-              - Cached Datatypes: api/datatypes/generics/cached.md
-              - Computed: api/datatypes/generics/computed.md
-              - Buffer: api/datatypes/generics/buff.md
-          - Bool: api/datatypes/bool.md
-          - Any: api/datatypes/any.md
-          - Instances: api/datatypes/instances.md
-          - Checked: api/datatypes/checked.md
-      - Step Replication: api/step_replication.md
       - Internal API:
           - api/internals/index.md
           - Datatypes API:
@@ -247,6 +245,7 @@ nav:
       - Message Sync: blog/internals/message_sync.md
       - Unreliable Fragmentation: blog/internals/unreliable_fragmentation.md
       - Replication Batch: blog/internals/replication_batch.md
+      - CFrame Encoding: blog/internals/cframe_encoding.md
       - Dynamic Streams: blog/internals/dynamic_streams.md
       - Intern Strings: blog/internals/intern_strings.md
       - Bitpacks: blog/internals/bitpacks.md

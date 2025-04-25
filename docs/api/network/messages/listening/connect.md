@@ -2,7 +2,7 @@
 
 Connect sets a callback for a given message when it is sent. A message can only have one connection, but you can always
 connect your messages into a choice signal implementation. Callbacks can be removed with
-[`#!luau light.disconnect()`](./disconnect.md). Message callbacks will be spawned asynchronously with thread reuse, to
+[`#!luau light.disconnect()`](./disconnect.md). Message callbacks will be spawned asynchronously with thread reuse. To
 create a non-yielding callback you can use [`#!luau light.connect_sync()`](./connect_sync.md)
 
 !!! tip "This function can error if there is already a callback connected."

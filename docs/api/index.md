@@ -1,33 +1,40 @@
 # API Documentation
 
-This part of the documentation is for light's user-facing APIs.
+This part of the documentation is for all of the properties and functions you're able to access inside of light's API.
+It also teaches you more about Datatypes and ways you could use them efficiently.
 
-## Tags Reference
+## Tags
 
 ### <!-- client -->
 
-This can be called on the client: `#!luau require(ReplicatedStorage.light).client`
+API can be accessed on the client:
+<br><small>`#!luau require(ReplicatedStorage.light).client`</small>
 
 ### <!-- server -->
 
-This can be called on the server: `#!luau require(ReplicatedStorage.light).server`
+API can be accessed on the server:
+<br><small>`#!luau require(ReplicatedStorage.light).server`</small>
 
 ### <!-- shared -->
 
-This can be called in a shared context: `#!luau require(ReplicatedStorage.light).shared`
+API can be accessed in a shared context:
+<br><small>`#!luau require(ReplicatedStorage.light).shared`</small>
 
 ### <!-- sync -->
 
-This call can run without yielding the current thread.
+Function can run without yielding the current thread
 
 ### <!-- async -->
 
-This call can yield the current thread.
+Function can yield the current thread
 
 ### <!-- errors -->
 
-This call can error under specific circumstances. This tag does not include errors from issues like passing in the wrong
-type.
+Function can error under specific circumstances.(1)
+{.annotate}
+
+1. This tag does not include errors from user mistakes, like trying to write a `string` into a `u8` Datatype, or calling
+an API with the wrong parameters.
 
 ### <!-- experimental -->
 

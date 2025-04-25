@@ -3,15 +3,15 @@
 Caching closures is a basic optimization
 [Holy](https://github.com/hardlyardi/holy) and
 [Squash](https://github.com/Data-Oriented-House/Squash)
-to work with "generic" [Datatypes](../../../api/datatypes/index.md).(1) It works generally by storing an
+to work with "generic" [Datatypes](../../../api/datatypes/index.md).(1#what-is-a-datatype) It works generally by storing an
 "input" index based on parameters, and saving the result shape ID. This caching system is important to make sure memory
 usage stays low (by not creating new serialization/deserialization functions), and to prevent ser/de IDs from getting
 out of hand in size. As an example, here's the [vect3 caching](../../../api/datatypes/generics/vect3.md) src:
 {.annotate}
 
-1. Generic [Datatypes](../../../api/datatypes/index.md) are
+1. Generic [Datatypes](../../../api/datatypes/index.md#what-is-a-datatype) are
 functions which take in [Datatype(s)](../../../api/datatypes/index.md) and return a
-[Datatype](../../../api/datatypes/index.md)
+[Datatype](../../../api/datatypes/index.md#what-is-a-datatype)
 
 ```luau
 local vect3_shape_cache = {} :: { [Shape<any>]: Shape<any> } --(1)!

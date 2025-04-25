@@ -12,7 +12,7 @@ function output<T>(
 ): T
 ```
 
-You'll need to provide a valid [DynamicWriter](./writer/index.md), and [Datatype](../../datatypes/index.md). You can
+You'll need to provide a valid [DynamicWriter](./writer/index.md), and [Datatype](../../datatypes/index.md#what-is-a-datatype). You can
 serialize the data with [`#!luau light.input()`](./input.md).
 
 !!! danger "Use correct data or `#!luau pcall()`"

@@ -1,7 +1,7 @@
 # Disconnect
 
-You can use this to remove a callback from a message. [`#!luau light.disconnect()`](./disconnect.md) returns the old
-callback if there was one.
+Remove a callback from a message. [`#!luau light.disconnect()`](./disconnect.md) returns the old callback if there was
+one.
 
 ## `#!luau function light.disconnect`
 

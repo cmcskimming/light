@@ -1,18 +1,17 @@
 # Vector2
 
-[`#!luau light.roblox_vect2()`](./roblox_vect2.md) is a
-<a href="https://create.roblox.com/docs/reference/engine/datatypes/Vector2" target="_blank">Roblox `Vector2`</a>
-[Datatype](../index.md). This is not to be confused with [`#!luau light.vect2()`](./vect2.md), the luau
-[Datatype](../index.md).
+Represents a
+<a href="https://create.roblox.com/docs/reference/engine/datatypes/Vector2" target="_blank">Roblox `#!luau Vector2`</a>
+[Datatype](../index.md#what-is-a-datatype).
 
-## `#!luau function light.roblox_vect2`
+There is an optional `coord` parameter representing each coordinate (`x`, `y`) which defaults to
+[`f32`](../numbers/floats.md). It is worth noting that an [`f64`](../numbers/floats.md) [Datatype](../index.md#what-is-a-datatype)'s
+precision won't apply here, so [`f32`](../numbers/floats.md) is always better for vectors.
+
+## `#!luau function light.datatypes.roblox_vect2`
 
 ```luau title='<!-- client --> <!-- server --> <!-- shared --> <!-- sync -->'
 function roblox_vect2(
     coord: Datatype<number>?
 ): Datatype<vector>
 ```
-
-The `coord` parameter defines how each coordinate of [`#!luau light.roblox_vect2()`](./roblox_vect2.md) will be encoded.
-If left unselected, it will choose [`float32`](../numbers/floats.md) by default. Luau cannot represent floats beyond
-[`f32`](../numbers/floats.md) in a Vector2, so using [`f64`](../numbers/floats.md) for this would be wasteful.

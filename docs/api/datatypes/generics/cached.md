@@ -1,14 +1,14 @@
 # Cached
 
-In light, you can use luau [arrays](./tables/arr.md), [maps](./tables/map.md), and [structs](./tables/struct.md)
-to define a message [Datatype](../index.md).
+In light, [you can use lua table syntax](./tables/index.md) to represent a [Datatype](../index.md#what-is-a-datatype), and it'll be
+converted automatically when you use it in a Message.
 
-This API exists to cache the result of a [Datatype](../index.md). This will internally turn it into a numeric ID if it
-isn't one already, rendering it unusable for anything other than ser/des and messages. Messages cache their
-[Datatypes](../index.md) automatically, but this can be useful in conjunction with other features like
+This API exists to manually cache the result of a [Datatype](../index.md#what-is-a-datatype). This will internally turn it into a numeric
+ID if it isn't one already, rendering it unusable for anything other than ser/des and messages. Messages cache their
+[Datatypes](../index.md#what-is-a-datatype) automatically, but this can be useful in conjunction with other features like
 [Computed Datatypes](./computed.md).
 
-## `#!luau function light.cached`
+## `#!luau function light.datatypes.cached`
 
 ```luau title='<!-- client --> <!-- server --> <!-- shared --> <!-- sync -->'
 function cached<T>(
@@ -17,7 +17,7 @@ function cached<T>(
 ```
 
 An example
-<a href="https://en.wikipedia.org/wiki/Linked_list" target="_blank">LinkedList</a> [Datatype](../index.md)
+<a href="https://en.wikipedia.org/wiki/Linked_list" target="_blank">LinkedList</a> [Datatype](../index.md#what-is-a-datatype)
 using [`#!luau datatypes.cached()`](./cached.md) and [`#!luau datatypes.computed()`](./computed.md):
 
 ```luau title="linked_list.luau"
@@ -40,14 +40,6 @@ end
 
 return linkedlist
 ```
-
-!!! danger "You should never yield from within [`#!luau datatypes.computed()`](./computed.md)'s lambda callback(s)."
-
-    This is considered undefined behavior.
-
-!!! danger "You should never send a message from within [`#!luau datatypes.computed()`](./computed.md)'s lambda callback(s)."
-
-    This is considered undefined behavior.
 
 !!! danger "[`#!luau light.computed()`](./computed.md) allows for recursive types."
 

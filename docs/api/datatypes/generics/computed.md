@@ -1,8 +1,9 @@
 # Computed Datatypes
 
 Computed [Datatypes](../index.md) are similar to [`#!luau light.literal()`](./literal.md) and
-[`#!luau light.enum()`](./enums.md), except they are a function which returns a [Datatype](../index.md). They are mostly
-useful for <a href="https://en.wikipedia.org/wiki/Linked_list" target="_blank">LinkedList</a>, and are best paired with
+[`#!luau light.enum()`](./enums.md), except they are a function which returns a
+[Datatype](../index.md#what-is-a-datatype). They are mostly useful for
+<a href="https://en.wikipedia.org/wiki/Linked_list" target="_blank">LinkedList</a>, and are best paired with
 [Cached Datatypes](./cached.md).
 
 !!! danger "Introducing external conditionality to serialization / deserialization can be dangerous. Please be careful."
@@ -21,8 +22,12 @@ useful for <a href="https://en.wikipedia.org/wiki/Linked_list" target="_blank">L
 
 !!! danger "No implicit declarations"
 
-    [Returning](https://en.wikipedia.org/wiki/Return_statement) implicit [declarations](https://en.wikipedia.org/wiki/Declaration_(computer_programming)), [such](https://www.merriam-webster.com/dictionary/such) as [Table Syntax](./tables/index.md) will not [work](https://www.bonesafety.com/products/road-work-ahead-rus). You must [return](https://en.wikipedia.org/wiki/Return_statement) an
-    explicitly defined [Datatype](../index.md)
+    [Returning](https://en.wikipedia.org/wiki/Return_statement) implicitly defined
+    [Datatypes](../index.md#what-is-a-datatype), [such](https://www.merriam-webster.com/dictionary/such) as
+    [Table Syntax](./tables/index.md), will not [work](https://www.bonesafety.com/products/road-work-ahead-rus). You
+    [must](https://en.wikipedia.org/wiki/Must_(disambiguation)) [return](https://en.wikipedia.org/wiki/Return_statement)
+    an explicitly defined [Datatype](../index.md#what-is-a-datatype). To get around this, you can use
+    [`#!luau datatypes.cached()`](./cached.md)
 
 ## `#!luau function light.datatypes.computed`
 
@@ -32,7 +37,7 @@ function computed<Output>(
 ): Datatype<Output>
 ```
 
-An example <a href="https://en.wikipedia.org/wiki/Linked_list" target="_blank">LinkedList</a> [Datatype](../index.md)
+An example <a href="https://en.wikipedia.org/wiki/Linked_list" target="_blank">LinkedList</a> [Datatype](../index.md#what-is-a-datatype)
 using [`#!luau datatypes.computed()`](./computed.md) and [Cached Datatypes](./cached.md):
 
 ```luau title="linked_list.luau"

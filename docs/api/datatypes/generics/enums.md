@@ -28,6 +28,10 @@ function enum<IdentifierName, Identifier, T>(
 Identifier enums are a set of possible literal values, and can be accessed by calling `#!luau light.enum()` with one
 parameter.
 
+!!! danger "Identifier encoding will not do a deep equality check."
+
+    If an identifier isn't "literally" an option in the enum, it will error when you try to encode.
+
 ```luau
 local ty = light.datatypes
 
@@ -44,12 +48,6 @@ local state = ty.enum({
     ```luau
     type state = "Starting" | "Started" | "Stopping" | "Stopped"
     ```
-
-!!! info "It's worth noting that Light's identifier/tagged enums can also hold non-text identifiers if needbe."
-
-!!! danger "Identifier encoding will not do a deep equality check."
-
-    If an identifier isn't "literally" an option in the enum, it will error when you try to encode.
 
 Another way you could use an Identifier Enum, this time with instances:
 
@@ -77,6 +75,18 @@ return light.container {
  broadcast_player_spawned = player_spawned,
  broadcast_players_spawned = ty.arr(player_spawned, ty.range(1, MAX_PLAYERS)),
 }
+```
+
+Or, if you really want to ruin someone's day:
+
+```luau title='fibonacci_datatype.luau'
+local ty = light.datatypes
+
+local fibonacci_numbers = { 0, 1 }
+for i = 3, 79 do
+    fibonacci_numbers[i] = fibonacci_numbers[i - 1] + fibonacci_numbers[i - 2]
+end
+local fibonacci_number = ty.enum(fibonacci_numbers)
 ```
 
 ## Tagged Enums

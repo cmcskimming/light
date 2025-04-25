@@ -2,9 +2,9 @@
 
 Containers are the recommended and easy way to group together messages in light by name.
 
-Container inputs should be a map of string message-names to any valid [Datatype](../../../datatypes/index.md).
-This includes [Datatypes](../../../datatypes/index.md) like arrays or maps that are defined with luau tables.
-I.e., `#!luau { light.u8 }`
+Container inputs should be a map of string message-names to any valid [Datatype](../../../datatypes/index.md#what-is-a-datatype).
+This includes [Datatypes](../../../datatypes/index.md#what-is-a-datatype) like arrays or maps that are defined with luau tables.
+I.e., `#!luau { light.datatypes.u8 }`
 
 !!! info "If messages inside are already synchronized beforehand, the container will not yield."
 
@@ -40,7 +40,7 @@ local light = require(ReplicatedStorage.light).shared
 local ty = light.datatypes
 
 return light.container({
-    foo = { ty.u8 }, -- send a table of u8 numbers
+    abc = { ty.u8 }, -- send a table of u8 numbers
 }, "some-cool-namespace")
 ```
 

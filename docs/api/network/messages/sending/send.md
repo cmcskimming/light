@@ -12,7 +12,7 @@ function send<T>(
 Send a message with given data to the server, for example:
 
 ```luau
-light.send(messages.foo, 1234)
+light.send(messages.abc, 1234)
 ```
 
 !!! tip "Sending messages to multiple people"
@@ -33,6 +33,6 @@ Send a message with given data to a player, for example:
 
 ```luau
 Players.PlayerAdded:Connect(function(player)
-    light.send(messages.foo, player, 1234)
+    light.send(messages.abc, player, 1234)
 end)
 ```

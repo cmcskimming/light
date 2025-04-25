@@ -1,27 +1,48 @@
 # Structs
 
 Structs are quite simple.
-<br>Structs in light are a fixed set of string keys and values.
-<br>Structs are not guaranteed to have the field order you defined them with, but ordering is identical on client and
-server. They can also be assumed to be the same order for every struct with the exact same keys and values provided,
-even if they're provided in different orders.
 
-You can define a valid struct [Datatype](../../index.md) using a simple table, just like luau:
+A struct represents a fixed set of string keys and value datatypes.
+
+Structs are not guaranteed to have exactly the field order you defined them with, but the order of their fields is
+identical on client and server.
+
+You can define a valid struct [Datatype](../../index.md#what-is-a-datatype) using a simple table, just like luau:
 
 ```luau
-local some_struct = {
-    foo_field = light.u8,
-    bar_field = light.i16,
-    baz_field = light.str()
+local ty = light.datatypes
+
+local some_struct = {--(1)!
+    a = ty.u8,
+    b = ty.i16,
+    c = {
+        some = ty.str(),
+        thing = ty.u8
+    }
 }
 ```
 
-Using the above table syntax will behave the same as the API shown below.
+1. Struct Merging
+
+    Because of this design, merging structs together is as simple as writing a table merging utility:
+
+    ```luau title='struct_merge.luau'
+    local function struct_merge<From, Into>(from: From, into: Into): Into & From
+        local output = table.clone(into)
+        for field_name, field_type in from do
+            assert(not output[field_name], `Duplicate Field Name: {field_name}`)
+            output[field_name] = field_type
+        end
+        return output
+    end
+    ```
+
+Using the above table syntax will behave the same as passing the table into the API shown below.
 
 ## `#!luau function light.datatypes.struct`
 
 ```luau title='<!-- client --> <!-- server --> <!-- shared --> <!-- sync -->'
-function struct<T>(
-    map: T & { [string]: Datatype },
-): Datatype<T>
+function struct<Fields>(--Sync--
+    map: Fields -- { [string]: Datatype }
+): Datatype<Fields>
 ```

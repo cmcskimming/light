@@ -10,5 +10,5 @@ function make_number(
 )
 ```
 
-This will register the [Datatype](../../datatypes/index.md) as a number so that it can be used for dynamic lengths, etc.
+This will register the [Datatype](../../datatypes/index.md#what-is-a-datatype) as a number so that it can be used for dynamic lengths, etc.
 Any scenario where you're required to have a number datatype for a generic for example, this could be useful.

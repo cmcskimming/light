@@ -2,7 +2,7 @@
 
 ## Overview
 
-[`#!luau light.new_type()`](./new_type.md) lets you create a new [Datatype](../../datatypes/index.md) with completely
+[`#!luau light.new_type()`](./new_type.md) lets you create a new [Datatype](../../datatypes/index.md#what-is-a-datatype) with completely
 custom logic.
 
 ## `#!luau type SerFunction`

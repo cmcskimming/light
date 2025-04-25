@@ -1,18 +1,20 @@
 # Arrays
 
 Arrays are quite simple.
-<br>Arrays in light represent a contiguous list of "things", just like luau.
-<br>An example of a contiguous array value would be `#!luau {"Hello", " ", "World!"}`.
-It shouldn't have any `#!luau nil`s or "gaps", unless the [Datatype](../../index.md) provided is optional. If you want
-holes in your array, use [Maps](./map.md), or [Optional Values](../optional.md).
 
-You can define a valid array [Datatype](../../index.md) using a simple table, just like luau:
+An array represents a contiguous list of values in a table. I.e., `#!luau { "a", "b", "c" }`
+
+An array shouldn't have any `#!luau nil`s or "gaps". If you want holes in a table, use [Maps](./map.md).
+
+You can define a valid array [Datatype](../../index.md#what-is-a-datatype) using a simple table, just like luau:
 
 ```luau
-local some_array = { light.u8 }
+local ty = light.datatypes
+
+local some_array = { ty.u8 }
 ```
 
-Using the above table syntax will behave the same as the API shown below.
+Using the above table syntax will behave the same as passing the table into the API shown below.
 
 ## `#!luau function light.datatypes.arr`
 
@@ -23,21 +25,22 @@ function arr<Item>(
 ): Datatype<{T}>
 ```
 
-`length` will default to [`#!luau datatypes.vlq(3)`](../vlq.md).
+First argument should be any [Datatype](../../index.md#what-is-a-datatype) which cannot be `#!luau nil`. The `length` parameter describes
+the number of items in the array, and will default to [`#!luau datatypes.u16`](../../numbers/uints.md). The length
+datatype should NOT be a regular number—instead: use a datatype that represents a number, like a
+[`uint`](https://light.ardi.gg/api/datatypes/numbers/uints/), or
+[`range`](https://light.ardi.gg/api/datatypes/generics/range/).
 
-First argument can be any [Datatype](../../index.md). Second argument represents how the length is encoded. A couple of
-ways you can use the optional `length` parameter:
+A couple of ways you could use the optional `length` parameter:
 
 ```luau
-local types = light.datatypes
-
-local some_arr = types.arr( types.u8, types.range(0, 50) ) -- Array should have between 0 and 50 items.
+local some_arr = ty.arr( ty.u8, ty.range(0, 50) ) -- Array should have between 0 and 50 items.
 ```
 
 ```luau
-local some_arr = types.arr( types.u8, types.literal(3) ) -- Array will always have three items.
+local some_arr = ty.arr( ty.u8, ty.literal(3) ) -- Array will always have three items.
 ```
 
 ```luau
-local some_arr = types.arr( types.u8, types.u8 ) -- between 0-255 items.
+local some_arr = ty.arr( ty.u8, ty.u8 ) -- between 0-255 items.
 ```
