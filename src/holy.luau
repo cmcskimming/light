@@ -153,8 +153,11 @@ do
 	local function u8_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 		local len = buffer.len(buff)
 		
-		--[[stylua: ignore]] -- alloc
-		local target_ptr = byte_ptr + static_size; if target_ptr > len then local old_buf = buff;len *= 2;while target_ptr > len do len *= 2;end;buff = buffer.create(len);buffer.copy(buff, 0, old_buf, 0, byte_ptr); end
+		local target_ptr = byte_ptr + static_size
+		--stylua: ignore
+		do -- alloc
+			if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+		end
 		
 		buffer.writeu8(buff, byte_ptr, input)
 		--byte_ptr += static_size
@@ -192,8 +195,11 @@ do
 	local function u16_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 		local len = buffer.len(buff)
 		
-		--[[stylua: ignore]] -- alloc
-		local target_ptr = byte_ptr + static_size; if target_ptr > len then local old_buf = buff;len *= 2;while target_ptr > len do len *= 2;end;buff = buffer.create(len);buffer.copy(buff, 0, old_buf, 0, byte_ptr); end
+		local target_ptr = byte_ptr + static_size
+		--stylua: ignore
+		do -- alloc
+			if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+		end
 		
 		buffer.writeu16(buff, byte_ptr, input)
 		--byte_ptr += static_size
@@ -245,8 +251,11 @@ do
 	local function u24_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 		local len = buffer.len(buff)
 
-		--[[stylua: ignore]] -- alloc
-		local target_ptr = byte_ptr + static_size; if target_ptr > len then local old_buf = buff;len *= 2;while target_ptr > len do len *= 2;end;buff = buffer.create(len);buffer.copy(buff, 0, old_buf, 0, byte_ptr); end
+		local target_ptr = byte_ptr + static_size
+		--stylua: ignore
+		do -- alloc
+			if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+		end
 
 		buffer.writeu8(buff, byte_ptr, input)
 		input //= 2^8
@@ -289,8 +298,11 @@ do
 	local function u32_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 		local len = buffer.len(buff)
 		
-		--[[stylua: ignore]] -- alloc
-		local target_ptr = byte_ptr + static_size; if target_ptr > len then local old_buf = buff;len *= 2;while target_ptr > len do len *= 2;end;buff = buffer.create(len);buffer.copy(buff, 0, old_buf, 0, byte_ptr); end
+		local target_ptr = byte_ptr + static_size
+		--stylua: ignore
+		do -- alloc
+			if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+		end
 		
 		buffer.writeu32(buff, byte_ptr, input)
 		return target_ptr, buff
@@ -340,8 +352,11 @@ do
 	local function u40_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 		local len = buffer.len(buff)
 
-		--[[stylua: ignore]] -- alloc
-		local target_ptr = byte_ptr + static_size; if target_ptr > len then local old_buf = buff;len *= 2;while target_ptr > len do len *= 2;end;buff = buffer.create(len);buffer.copy(buff, 0, old_buf, 0, byte_ptr); end
+		local target_ptr = byte_ptr + static_size
+		--stylua: ignore
+		do -- alloc
+			if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+		end
 
 		buffer.writeu8(buff, byte_ptr, input)
 		input //= 2^8
@@ -401,8 +416,11 @@ do
 	local function u48_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 		local len = buffer.len(buff)
 
-		--[[stylua: ignore]] -- alloc
-		local target_ptr = byte_ptr + static_size; if target_ptr > len then local old_buf = buff;len *= 2;while target_ptr > len do len *= 2;end;buff = buffer.create(len);buffer.copy(buff, 0, old_buf, 0, byte_ptr); end
+		local target_ptr = byte_ptr + static_size
+		--stylua: ignore
+		do -- alloc
+			if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+		end
 
 		buffer.writeu16(buff, byte_ptr, input)
 		input //= 2^16
@@ -470,8 +488,11 @@ do
 	local function u56_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 		local len = buffer.len(buff)
 
-		--[[stylua: ignore]] -- alloc
-		local target_ptr = byte_ptr + static_size; if target_ptr > len then local old_buf = buff;len *= 2;while target_ptr > len do len *= 2;end;buff = buffer.create(len);buffer.copy(buff, 0, old_buf, 0, byte_ptr); end
+		local target_ptr = byte_ptr + static_size
+		--stylua: ignore
+		do -- alloc
+			if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+		end
 
 		buffer.writeu8(buff, byte_ptr, input)
 		input //= 2^8
@@ -573,8 +594,11 @@ do
 	local function i8_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 		local len = buffer.len(buff)
 
-		--[[stylua: ignore]] -- alloc
-		local target_ptr = byte_ptr + static_size; if target_ptr > len then local old_buf = buff;len *= 2;while target_ptr > len do len *= 2;end;buff = buffer.create(len);buffer.copy(buff, 0, old_buf, 0, byte_ptr); end
+		local target_ptr = byte_ptr + static_size
+		--stylua: ignore
+		do -- alloc
+			if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+		end
 
 		buffer.writei8(buff, byte_ptr, input)
 
@@ -612,8 +636,11 @@ do
 	local function i16_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 		local len = buffer.len(buff)
 
-		--[[stylua: ignore]] -- alloc
-		local target_ptr = byte_ptr + static_size; if target_ptr > len then local old_buf = buff;len *= 2;while target_ptr > len do len *= 2;end;buff = buffer.create(len);buffer.copy(buff, 0, old_buf, 0, byte_ptr); end
+		local target_ptr = byte_ptr + static_size
+		--stylua: ignore
+		do -- alloc
+			if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+		end
 
 		buffer.writei16(buff, byte_ptr, input)
 
@@ -669,8 +696,11 @@ do
 		input += 2^23
 		local len = buffer.len(buff)
 
-		--[[stylua: ignore]] -- alloc
-		local target_ptr = byte_ptr + static_size; if target_ptr > len then local old_buf = buff;len *= 2;while target_ptr > len do len *= 2;end;buff = buffer.create(len);buffer.copy(buff, 0, old_buf, 0, byte_ptr); end
+		local target_ptr = byte_ptr + static_size
+		--stylua: ignore
+		do -- alloc
+			if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+		end
 
 		buffer.writeu8(buff, byte_ptr, input)
 		input //= 2^8
@@ -717,8 +747,11 @@ do
 	local function i32_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 		local len = buffer.len(buff)
 
-		--[[stylua: ignore]] -- alloc
-		local target_ptr = byte_ptr + static_size; if target_ptr > len then local old_buf = buff;len *= 2;while target_ptr > len do len *= 2;end;buff = buffer.create(len);buffer.copy(buff, 0, old_buf, 0, byte_ptr); end
+		local target_ptr = byte_ptr + static_size
+		--stylua: ignore
+		do -- alloc
+			if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+		end
 
 		buffer.writei32(buff, byte_ptr, input)
 
@@ -773,8 +806,11 @@ do
 		input += 2^39
 		local len = buffer.len(buff)
 
-		--[[stylua: ignore]] -- alloc
-		local target_ptr = byte_ptr + static_size; if target_ptr > len then local old_buf = buff;len *= 2;while target_ptr > len do len *= 2;end;buff = buffer.create(len);buffer.copy(buff, 0, old_buf, 0, byte_ptr); end
+		local target_ptr = byte_ptr + static_size
+		--stylua: ignore
+		do -- alloc
+			if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+		end
 
 		buffer.writeu8(buff, byte_ptr, input)
 		input //= 2^8
@@ -839,8 +875,11 @@ do
 		input += 2^47
 		local len = buffer.len(buff)
 
-		--[[stylua: ignore]] -- alloc
-		local target_ptr = byte_ptr + static_size; if target_ptr > len then local old_buf = buff;len *= 2;while target_ptr > len do len *= 2;end;buff = buffer.create(len);buffer.copy(buff, 0, old_buf, 0, byte_ptr); end
+		local target_ptr = byte_ptr + static_size
+		--stylua: ignore
+		do -- alloc
+			if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+		end
 
 		buffer.writeu16(buff, byte_ptr, input)
 		input //= 2^16
@@ -915,8 +954,11 @@ do
 	local function i53_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 		local len = buffer.len(buff)
 
-		--[[stylua: ignore]] -- alloc
-		local target_ptr = byte_ptr + static_size; if target_ptr > len then local old_buf = buff;len *= 2;while target_ptr > len do len *= 2;end;buff = buffer.create(len);buffer.copy(buff, 0, old_buf, 0, byte_ptr); end
+		local target_ptr = byte_ptr + static_size
+		--stylua: ignore
+		do -- alloc
+			if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+		end
 
 		if input < 0 then
 			input += 2^53
@@ -1023,8 +1065,11 @@ do
 	local function f32_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 		local len = buffer.len(buff)
 
-		--[[stylua: ignore]] -- alloc
-		local target_ptr = byte_ptr + static_size; if target_ptr > len then local old_buf = buff;len *= 2;while target_ptr > len do len *= 2;end;buff = buffer.create(len);buffer.copy(buff, 0, old_buf, 0, byte_ptr); end
+		local target_ptr = byte_ptr + static_size
+		--stylua: ignore
+		do -- alloc
+			if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+		end
 
 		buffer.writef32(buff, byte_ptr, input)
 
@@ -1061,8 +1106,11 @@ do
 	local function f64_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 		local len = buffer.len(buff)
 
-		--[[stylua: ignore]] -- alloc
-		local target_ptr = byte_ptr + static_size; if target_ptr > len then local old_buf = buff;len *= 2;while target_ptr > len do len *= 2;end;buff = buffer.create(len);buffer.copy(buff, 0, old_buf, 0, byte_ptr); end
+		local target_ptr = byte_ptr + static_size
+		--stylua: ignore
+		do -- alloc
+			if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+		end
 
 		buffer.writef64(buff, byte_ptr, input)
 
@@ -1132,8 +1180,11 @@ do
 		function literal_ser(buff: buffer, byte_ptr: number): (number, buffer)
 			local len = buffer.len(buff)
 
-			--[[stylua: ignore]] -- alloc
-			local target_ptr = byte_ptr; if target_ptr > len then local old_buf = buff;len *= 2;while target_ptr > len do len *= 2;end;buff = buffer.create(len);buffer.copy(buff, 0, old_buf, 0, byte_ptr); end
+			local target_ptr = byte_ptr
+			--stylua: ignore
+			do -- alloc
+				if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+			end
 
 			return byte_ptr, buff
 		end
@@ -1296,8 +1347,11 @@ do
 
 				local len = buffer.len(buff)
 
-				--[[stylua: ignore]] -- alloc
-				local target_ptr = byte_ptr + byte; if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+				local target_ptr = byte_ptr + byte
+				--stylua: ignore
+				do -- alloc
+					if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+				end
 
 				local uint_ser = lookup_ser_static_uint[byte]
 				uint_ser(buff, byte_ptr, output)
@@ -1384,8 +1438,11 @@ do
 			function string_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 				local len = buffer.len(buff)
 
-				--[[stylua: ignore]] -- alloc
-				local target_ptr = byte_ptr + literal_len_value; if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+				local target_ptr = byte_ptr + literal_len_value
+				--stylua: ignore
+				do -- alloc
+					if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+				end
 
 				buffer.writestring(buff, byte_ptr, input, literal_len_value)
 				return target_ptr, buff
@@ -1408,8 +1465,11 @@ do
 				local str_len = #input
 				local len = buffer.len(buff)
 
-				--[[stylua: ignore]] -- alloc
-				local target_ptr = byte_ptr + static_len_bytes + str_len; if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+				local target_ptr = byte_ptr + static_len_bytes + str_len
+				--stylua: ignore
+				do -- alloc
+					if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+				end
 
 				static_ser_length(buff, byte_ptr, str_len)
 				byte_ptr += static_len_bytes
@@ -1440,8 +1500,11 @@ do
 
 				local len = buffer.len(buff)
 
-				--[[stylua: ignore]] -- alloc
-				local target_ptr = byte_ptr + str_len; if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+				local target_ptr = byte_ptr + str_len
+				--stylua: ignore
+				do -- alloc
+					if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+				end
 
 				buffer.writestring(buff, byte_ptr, input, str_len)
 
@@ -1514,8 +1577,11 @@ do
 			function buff_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 				local len = buffer.len(buff)
 
-				--[[stylua: ignore]] -- alloc
-				local target_ptr = byte_ptr + literal_len_value; if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+				local target_ptr = byte_ptr + literal_len_value
+				--stylua: ignore
+				do -- alloc
+					if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+				end
 
 				buffer.copy(buff, byte_ptr, input, 0, literal_len_value)
 				return target_ptr, buff
@@ -1539,8 +1605,11 @@ do
 				local buff_len = buffer.len(input)
 				local len = buffer.len(buff)
 
-				--[[stylua: ignore]] -- alloc
-				local target_ptr = byte_ptr + static_len_bytes + buff_len; if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+				local target_ptr = byte_ptr + static_len_bytes + buff_len
+				--stylua: ignore
+				do -- alloc
+					if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+				end
 
 				static_ser_length(buff, byte_ptr, buff_len)
 				byte_ptr += static_len_bytes
@@ -1572,8 +1641,11 @@ do
 
 				local len = buffer.len(buff)
 
-				--[[stylua: ignore]] -- alloc
-				local target_ptr = byte_ptr + buff_len; if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+				local target_ptr = byte_ptr + buff_len
+				--stylua: ignore
+				do -- alloc
+					if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+				end
 
 				buffer.copy(buff, byte_ptr, input, 0, buff_len)
 
@@ -1670,8 +1742,11 @@ do
 			function array_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 				local len = buffer.len(buff)
 
-				--[[stylua: ignore]] -- alloc
-				local target_ptr = byte_ptr + array_static_size; if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+				local target_ptr = byte_ptr + array_static_size
+				--stylua: ignore
+				do -- alloc
+					if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+				end
 
 				for item = 1, literal_length_value do
 					item_ser_static(buff, byte_ptr, input[item])
@@ -1690,10 +1765,9 @@ do
 
 				local buff_len = buffer.len(buff)
 
+				--stylua: ignore
 				do -- alloc
 					local increment = static_length_size + arr_len * static_item_size
-
-					--[[stylua: ignore]] -- alloc
 					local target_ptr = byte_ptr + increment; if target_ptr > buff_len then local old_buff = buff; buff_len *= 2; while target_ptr > buff_len do buff_len *= 2 end; buff = buffer.create(buff_len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
 				end
 
@@ -1717,7 +1791,7 @@ do
 
 				byte_ptr, buff = length_ser(buff, byte_ptr, arr_len)
 
-				--[[stylua: ignore]] -- alloc
+				--stylua: ignore
 				do
 					local len = buffer.len(buff)
 
@@ -1862,8 +1936,11 @@ do
 			function map_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 				local len = buffer.len(buff)
 
-				--[[stylua: ignore]] -- alloc
-				local target_ptr = byte_ptr + map_static_size; if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+				local target_ptr = byte_ptr + map_static_size
+				--stylua: ignore
+				do -- alloc
+					if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+				end
 
 				local key, value
 				for i = 1, length_literal_value do
@@ -1892,8 +1969,11 @@ do
 
 				local buff_len = buffer.len(buff)
 
-				--[[stylua: ignore]] -- alloc
 				local target_ptr = byte_ptr + length_static_size + (map_len * pair_static_size); if target_ptr > buff_len then local old_buff = buff; buff_len *= 2; while target_ptr > buff_len do buff_len *= 2 end; buff = buffer.create(buff_len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+				--stylua: ignore
+				do -- alloc
+					if target_ptr > buff_len then local old_buff = buff; buff_len *= 2; while target_ptr > buff_len do buff_len *= 2 end; buff = buffer.create(buff_len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+				end
 
 				length_ser_static(buff, byte_ptr, map_len)
 				byte_ptr += length_static_size
@@ -1926,8 +2006,11 @@ do
 
 				local buff_len = buffer.len(buff)
 
-				--[[stylua: ignore]] -- alloc
 				local target_ptr = byte_ptr + (map_len * pair_static_size); if target_ptr > buff_len then local old_buff = buff; buff_len *= 2; while target_ptr > buff_len do buff_len *= 2 end; buff = buffer.create(buff_len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+				--stylua: ignore
+				do -- alloc
+					if target_ptr > buff_len then local old_buff = buff; buff_len *= 2; while target_ptr > buff_len do buff_len *= 2 end; buff = buffer.create(buff_len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+				end
 
 				-- TODO: test `for i = 1, map_len do next(map, key)` is faster
 				for key, value in input do
@@ -2151,8 +2234,13 @@ do
 				@native --dynamic_ncgen
 				function struct_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 					local len = buffer.len(buff)
-					--[[stylua: ignore]] -- alloc
-					local target_ptr = byte_ptr + struct_static_size; if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+
+					local target_ptr = byte_ptr + struct_static_size
+					--stylua: ignore
+					do -- alloc
+						if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+					end
+
 					byte_ptr = field_a_ser(buff, byte_ptr, input[field_a_name])
 					return byte_ptr, buff
 				end
@@ -2177,8 +2265,11 @@ do
 				@native --dynamic_ncgen
 				function struct_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 					local len = buffer.len(buff)
-					--[[stylua: ignore]] -- alloc
-					local target_ptr = byte_ptr + struct_static_size; if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+					local target_ptr = byte_ptr + struct_static_size
+					--stylua: ignore
+					do -- alloc
+						if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+					end
 					byte_ptr = field_a_ser(buff, byte_ptr, input[field_a_name])
 					byte_ptr = field_b_ser(buff, byte_ptr, input[field_b_name])
 					return byte_ptr, buff
@@ -2207,8 +2298,11 @@ do
 				@native --dynamic_ncgen
 				function struct_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 					local len = buffer.len(buff)
-					--[[stylua: ignore]] -- alloc
-					local target_ptr = byte_ptr + struct_static_size; if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+					local target_ptr = byte_ptr + struct_static_size
+					--stylua: ignore
+					do -- alloc
+						if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+					end
 					byte_ptr = field_a_ser(buff, byte_ptr, input[field_a_name])
 					byte_ptr = field_b_ser(buff, byte_ptr, input[field_b_name])
 					byte_ptr = field_c_ser(buff, byte_ptr, input[field_c_name])
@@ -2241,8 +2335,11 @@ do
 				@native --dynamic_ncgen
 				function struct_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 					local len = buffer.len(buff)
-					--[[stylua: ignore]] -- alloc
-					local target_ptr = byte_ptr + struct_static_size; if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+					local target_ptr = byte_ptr + struct_static_size
+					--stylua: ignore
+					do -- alloc
+						if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+					end
 					byte_ptr = field_a_ser(buff, byte_ptr, input[field_a_name])
 					byte_ptr = field_b_ser(buff, byte_ptr, input[field_b_name])
 					byte_ptr = field_c_ser(buff, byte_ptr, input[field_c_name])
@@ -2279,8 +2376,11 @@ do
 				@native --dynamic_ncgen
 				function struct_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 					local len = buffer.len(buff)
-					--[[stylua: ignore]] -- alloc
-					local target_ptr = byte_ptr + struct_static_size; if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+					local target_ptr = byte_ptr + struct_static_size
+					--stylua: ignore
+					do -- alloc
+						if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+					end
 					byte_ptr = field_a_ser(buff, byte_ptr, input[field_a_name])
 					byte_ptr = field_b_ser(buff, byte_ptr, input[field_b_name])
 					byte_ptr = field_c_ser(buff, byte_ptr, input[field_c_name])
@@ -2321,8 +2421,11 @@ do
 				@native --dynamic_ncgen
 				function struct_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 					local len = buffer.len(buff)
-					--[[stylua: ignore]] -- alloc
-					local target_ptr = byte_ptr + struct_static_size; if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+					local target_ptr = byte_ptr + struct_static_size
+					--stylua: ignore
+					do -- alloc
+						if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+					end
 					byte_ptr = field_a_ser(buff, byte_ptr, input[field_a_name])
 					byte_ptr = field_b_ser(buff, byte_ptr, input[field_b_name])
 					byte_ptr = field_c_ser(buff, byte_ptr, input[field_c_name])
@@ -2367,8 +2470,11 @@ do
 				@native --dynamic_ncgen
 				function struct_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 					local len = buffer.len(buff)
-					--[[stylua: ignore]] -- alloc
-					local target_ptr = byte_ptr + struct_static_size; if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+					local target_ptr = byte_ptr + struct_static_size
+					--stylua: ignore
+					do -- alloc
+						if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+					end
 					byte_ptr = field_a_ser(buff, byte_ptr, input[field_a_name])
 					byte_ptr = field_b_ser(buff, byte_ptr, input[field_b_name])
 					byte_ptr = field_c_ser(buff, byte_ptr, input[field_c_name])
@@ -2417,8 +2523,11 @@ do
 				@native --dynamic_ncgen
 				function struct_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 					local len = buffer.len(buff)
-					--[[stylua: ignore]] -- alloc
-					local target_ptr = byte_ptr + struct_static_size; if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+					local target_ptr = byte_ptr + struct_static_size
+					--stylua: ignore
+					do -- alloc
+						if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+					end
 					byte_ptr = field_a_ser(buff, byte_ptr, input[field_a_name])
 					byte_ptr = field_b_ser(buff, byte_ptr, input[field_b_name])
 					byte_ptr = field_c_ser(buff, byte_ptr, input[field_c_name])
@@ -2468,8 +2577,12 @@ do
 				@native --dynamic_ncgen
 				function struct_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 					local len = buffer.len(buff)
-					--[[stylua: ignore]] -- alloc
-					local target_ptr = byte_ptr + struct_static_size; if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+
+					local target_ptr = byte_ptr + struct_static_size
+					--stylua: ignore
+					do -- alloc
+						if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+					end
 					
 					for index = 1, num_static_keys do
 						local field_name = static_keys[index]
@@ -2884,8 +2997,11 @@ do
 			function struct_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 				local len = buffer.len(buff)
 
-				--[[stylua: ignore]] -- alloc
-				local target_ptr = byte_ptr + struct_static_size; if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+				local target_ptr = byte_ptr + struct_static_size
+				--stylua: ignore
+				do -- alloc
+					if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+				end
 
 				static_portion_ser_static(buff, byte_ptr, input)
 				byte_ptr = target_ptr
@@ -3190,8 +3306,11 @@ do
 			function vect3_ser(buff: buffer, byte_ptr: number, data: any): (number, buffer)
 				local len = buffer.len(buff)
 
-				--[[stylua: ignore]] -- alloc
-				local target_ptr = byte_ptr + vect3_static_size; if target_ptr > len then local old_buf = buff;len *= 2;while target_ptr > len do len *= 2;end;buff = buffer.create(len);buffer.copy(buff, 0, old_buf, 0, byte_ptr); end
+				local target_ptr = byte_ptr + vect3_static_size
+				--stylua: ignore
+				do -- alloc
+					if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+				end
 
 				coord_ser_static(buff, byte_ptr, data.x)
 				byte_ptr += coord_static_size
@@ -3298,8 +3417,11 @@ do
 			function vect2_ser(buff: buffer, byte_ptr: number, data: any): (number, buffer)
 				local len = buffer.len(buff)
 
-				--[[stylua: ignore]] -- alloc
-				local target_ptr = byte_ptr + vect2_static_size; if target_ptr > len then local old_buf = buff;len *= 2;while target_ptr > len do len *= 2;end;buff = buffer.create(len);buffer.copy(buff, 0, old_buf, 0, byte_ptr); end
+				local target_ptr = byte_ptr + vect2_static_size
+				--stylua: ignore
+				do -- alloc
+					if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+				end
 
 				coord_ser_static(buff, byte_ptr, data.x)
 				byte_ptr += coord_static_size
