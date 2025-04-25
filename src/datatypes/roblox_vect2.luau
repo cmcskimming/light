@@ -2,7 +2,7 @@
 --!strict
 local holy = require("../holy")
 
-type Datatype<T=any> = holy.Datatype<T>
+type Datatype<T = any> = holy.Datatype<T>
 
 local metadata = holy._datatype_metadata
 
@@ -14,16 +14,24 @@ local function roblox_vect2(coord_datatype: Datatype<number>?): Datatype<vector>
 	if cached ~= nil then return cached end
 
 	if not holy.check_datatype_exists(coord_datatype) then
-		error(debug.traceback(`Invalid vect2: coord must be a valid datatype. Got id: "{coord_datatype}"`))
+		error(
+			debug.traceback(
+				`Invalid vect2: coord must be a valid datatype. Got id: "{coord_datatype}"`
+			)
+		)
 	elseif not metadata.is_number[coord_datatype] then
-		error(debug.traceback(`Invalid vect2: coord must be a number datatype. Got id: "{coord_datatype}"`))
+		error(
+			debug.traceback(
+				`Invalid vect2: coord must be a number datatype. Got id: "{coord_datatype}"`
+			)
+		)
 	end
 
 	local coord_static_size = metadata.static_size[coord_datatype]
 	local coord_des = metadata.des[coord_datatype]
 
 	local vect2_static_size = coord_static_size and coord_static_size * 2
-	
+
 	local roblox_vect2_datatype = holy.new_datatype(vect2_static_size)
 	cache[coord_datatype] = roblox_vect2_datatype :: Datatype<vector>
 
@@ -33,7 +41,7 @@ local function roblox_vect2(coord_datatype: Datatype<number>?): Datatype<vector>
 		local coord_ser_static = metadata.ser_static[coord_datatype]
 
 		@native --dynamic_ncgen
-		function roblox_vect2_ser_no_realloc(buff: buffer, byte_ptr: number, data: any): (number)
+		function roblox_vect2_ser_no_realloc(buff: buffer, byte_ptr: number, data: any): number
 			coord_ser_static(buff, byte_ptr, data.X)
 			byte_ptr += coord_static_size
 
@@ -53,10 +61,12 @@ local function roblox_vect2(coord_datatype: Datatype<number>?): Datatype<vector>
 
 		@native --dynamic_ncgen
 		function roblox_vect2_ser(buff: buffer, byte_ptr: number, data: any): (number, buffer)
+			
+			--stylua: ignore start
 			local len = buffer.len(buff)
-
-			--[[stylua: ignore]] -- alloc
-			local target_ptr = byte_ptr + vect2_static_size; if target_ptr > len then local old_buf = buff;len *= 2;while target_ptr > len do len *= 2;end;buff = buffer.create(len);buffer.copy(buff, 0, old_buf, 0, byte_ptr); end
+			local target_ptr = byte_ptr + vect2_static_size
+			if target_ptr > len then local old_buf = buff;len *= 2;while target_ptr > len do len *= 2;end;buff = buffer.create(len);buffer.copy(buff, 0, old_buf, 0, byte_ptr); end
+			--stylua: ignore end
 
 			coord_ser_static(buff, byte_ptr, data.X)
 			byte_ptr += coord_static_size
