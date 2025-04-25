@@ -439,8 +439,7 @@ do
 
 	[Learn More](http://light.ardi.gg/api/datatypes/bool/)
 	]=]
-	local bool = ... :: Datatype<boolean>
-	datatypes.bool = bool
+	datatypes.bool = ... :: Datatype<boolean>
 
 	--[=[
 	### Consider using [Instances](http://light.ardi.gg/api/datatypes/instances/) or [Checked](http://light.ardi.gg/api/datatypes/checked/) instead of `any`. `any` can not validate that the type sent over the network is correct, and can be manipulated by exploiters.
@@ -449,8 +448,7 @@ do
 
 	[Learn More](http://light.ardi.gg/api/datatypes/any/)
 	]=]
-	local any = ... :: Datatype<any>
-	datatypes.any = any
+	datatypes.any = ... :: Datatype<any>
 
 	--[=[
 	For types that are especially hard to describe, you can use `checked`. Checked is generally an
