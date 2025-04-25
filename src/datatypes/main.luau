@@ -6,6 +6,7 @@ move some of the docs from this file to the mkdocs and typescript stuff. The doc
 ]]
 
 local holy = require("../holy")
+local imported_cframe = require("./cframe")
 local imported_checked = require("./checked")
 local imported_instances = require("./instances")
 local imported_roblox_vect2 = require("./roblox_vect2")
@@ -273,6 +274,23 @@ do
 	[Learn More](https://light.ardi.gg/api/datatypes/generics/roblox_vect2/)
 	]=]
 	function datatypes.roblox_vect2(coord_datatype: Datatype<number>?): Datatype<vector>
+		return ERR()
+	end
+
+	--[=[
+	Represents a Roblox CFrame userdata. Includes optional `position` parameter for the datatype each positional
+	coordinate will use, defaulting to an [f32](https://light.ardi.gg/api/datatypes/numbers/floats/). The orientation
+	occupies a fixed four bytes.
+
+	```luau
+	function cframe(--Sync--
+		position: Datatype<number>?
+	): Datatype<CFrame>
+	```
+
+	[Learn More](https://light.ardi.gg/api/datatypes/generics/cframe/)
+	]=]
+	function datatypes.cframe(position_datatype: Datatype<number>?): Datatype<CFrame>
 		return ERR()
 	end
 
@@ -588,6 +606,14 @@ end
 datatypes.vect3 = vect3 :: any
 datatypes.vect2 = vect2 :: any
 datatypes.roblox_vect2 = roblox_vect2 :: any
+
+--[=[
+imported cframe mirror
+]=]
+local function cframe(position: HolyDatatype): HolyDatatype<CFrame>
+	return imported_cframe(position)
+end
+datatypes.cframe = cframe :: any
 
 --[=[
 1:1 mirror of literal
