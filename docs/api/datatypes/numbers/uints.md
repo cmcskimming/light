@@ -3,7 +3,7 @@
 Unsigned Integers represent a whole number which is greater than or equal to zero. For numbers with decimal places, you
 should use a [Float](./floats.md).
 
-You can tell a datatype is an unsigned number by the preceding `u` prefix. The number afterward tells you how many bits
+You can tell a datatype represents an unsigned number by the `u` prefix. The number afterward tells you how many bits
 the [Datatype](../index.md#what-is-a-datatype) costs to send over the network.
 
 | Name   | Size        | Minimum Int    | Maximum Int     |
