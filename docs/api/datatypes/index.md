@@ -12,8 +12,6 @@ The prefix `u` indicates the number should be "unsigned"; greater than zero. The
 of "bits"[^1] the value will take up across the network. A u8 can represent any value
 <nobr>between `0` and `255`</nobr>
 
-!!! tip
-
 ## Lying to luau
 
 Generally, places where you see `#!luau Datatype<T>` in these docs, you will only see `#!luau T` or a type in your
