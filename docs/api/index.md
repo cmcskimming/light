@@ -8,17 +8,17 @@ It also teaches you more about Datatypes and ways you could use them efficiently
 ### <!-- client -->
 
 API can be accessed on the client:
-<br><small>`#!luau require(ReplicatedStorage.light).client`</small>
+<br>`#!luau require(ReplicatedStorage.light).client`
 
 ### <!-- server -->
 
 API can be accessed on the server:
-<br><small>`#!luau require(ReplicatedStorage.light).server`</small>
+<br>`#!luau require(ReplicatedStorage.light).server`
 
 ### <!-- shared -->
 
 API can be accessed in a shared context:
-<br><small>`#!luau require(ReplicatedStorage.light).shared`</small>
+<br>`#!luau require(ReplicatedStorage.light).shared`
 
 ### <!-- sync -->
 

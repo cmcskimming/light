@@ -1,10 +1,11 @@
 # Strings
 
-Represents a string value. Includes an optional parameter for length which defaults to
-[`vlq(3)`](./vlq.md). The length datatype should NOT be a regular
-number—instead: use a datatype that represents a number, like a
-[`uint`](../numbers/uints.md), or
-[`range`](./range.md).
+Represents a string value. Includes an optional parameter for length which will default to
+[`#!luau datatypes.vlq(3)`](./vlq.md#size-index).
+
+The length datatype should NOT be a regular number—instead: use a
+datatype that represents a number, like a [`uint`](../numbers/uints.md), or a
+[`range`](./range.md#function-lightdatatypesrange).
 
 ## `#!luau function light.datatypes.str`
 

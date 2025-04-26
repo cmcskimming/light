@@ -31,12 +31,13 @@ function map<Key, Value>(
 ): Datatype<{ [Key]: Value }>
 ```
 
-First two arguments should be any [Datatypes](../../index.md#what-is-a-datatype) which cannot be `#!luau nil`. The `length` parameter
-should represent the number of keys in the map, and will default to [`#!luau datatypes.u16`](../../numbers/uints.md).
+First two arguments should be any [Datatypes](../../index.md#what-is-a-datatype) which cannot be `#!luau nil`. The
+`length` parameter should represent the number of keys in the map, and will default to
+[`#!luau datatypes.u16`](../../numbers/uints.md).
 
-The length datatype should NOT be a regular number—instead: use a datatype that represents a number, like a
-[`uint`](https://light.ardi.gg/api/datatypes/numbers/uints/), or
-[`range`](https://light.ardi.gg/api/datatypes/generics/range/).
+The length datatype should NOT be a regular number—instead: use a
+datatype that represents a number, like a [`uint`](../../numbers/uints.md), or a
+[`range`](../range.md#function-lightdatatypesrange).
 
 A couple of ways you could use the optional `length` parameter:
 

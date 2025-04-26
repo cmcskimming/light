@@ -20,16 +20,18 @@ Returns a variable length number [Datatype](../index.md#what-is-a-datatype).
 You can use this table to guage how large of a VLQ you should use, or to find out how many bytes a given integer is
 going to occupy.
 
-| `max_bytes` | Size        | Minimum    | Maximum Int                    |
-| ----------: | :---------- | ---------- | -------------                  |
-| vlq(1)      | 1 byte      | 0          | 127 `(128^1)-1`                |
-| vlq(2)      | 1-2 byte(s) | 0          | 16,383 `(128^2)-1`             |
-| vlq(3)      | 1-3 byte(s) | 0          | 2,097,151 `(128^3)-1`          |
-| vlq(4)      | 1-4 byte(s) | 0          | 268,435,455 `(128^4)-1`        |
-| vlq(5)      | 1-5 byte(s) | 0          | 34,359,738,367 `(128^5)-1`     |
-| vlq(6)      | 1-6 byte(s) | 0          | 4,398,046,511,103 `(128^6)-1`  |
-| vlq(7)      | 1-7 byte(s) | 0          | 140,737,488,355,327 `(2^47)-1` |
-| vlq(8)      | N/A         | N/A        | N/A                            |
+## Size Index
+
+| `max_bytes` | Size        | Maximum Int                   | Minimum Int |
+| ----------: | :---------- | ----------------------------- | ----------- |
+| vlq(1)      | 1 byte      | 127`(128^1)-1`                | 0           |
+| vlq(2)      | 1-2 byte(s) | 16,383`(128^2)-1`             | 0           |
+| vlq(3)      | 1-3 byte(s) | 2,097,151`(128^3)-1`          | 0           |
+| vlq(4)      | 1-4 byte(s) | 268,435,455`(128^4)-1`        | 0           |
+| vlq(5)      | 1-5 byte(s) | 34,359,738,367`(128^5)-1`     | 0           |
+| vlq(6)      | 1-6 byte(s) | 4,398,046,511,103`(128^6)-1`  | 0           |
+| vlq(7)      | 1-7 byte(s) | 140,737,488,355,327`(2^47)-1` | 0           |
+| vlq(8)      | N/A         | N/A`(N/A)`                    | N/A         |
 
 ## Why `2^47-1` for `#!luau vlq(7)`? <small>(Technical Details)</small>
 

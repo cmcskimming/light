@@ -3,11 +3,11 @@
 Represents a
 <a href="https://create.roblox.com/docs/reference/engine/libraries/buffer" target="_blank">`#!luau buffer`</a>.
 
-Includes an optional Datatype for length, which defaults to
-[`vlq(3)`](./vlq.md). The length datatype should NOT be a regular
-number—instead: use a datatype that represents a number, like a
-[`uint`](https://light.ardi.gg/api/datatypes/numbers/uints/), or
-[`range`](https://light.ardi.gg/api/datatypes/generics/range/).
+Includes an optional parameter for length which will default to [`#!luau datatypes.vlq(3)`](./vlq.md).
+
+The length datatype should NOT be a regular number—instead: use a
+datatype that represents a number, like a [`uint`](../numbers/uints.md), or a
+[`range`](./range.md#function-lightdatatypesrange).
 
 ## `#!luau function light.datatypes.buff`
 
