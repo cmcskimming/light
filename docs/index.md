@@ -1,12 +1,13 @@
 ---
 hide:
   - navigation
+  - feedback
 ---
 
 # <span style="font-family:Comic Neue; font-weight:900">:3c</span>
 
 Light is a *light*weight, robust, and secure remote wrapper for roblox. Read below, or [get started](quick-start/index.md).
-<br>If you like Light or find it interesting, consider [leaving a ⭐](https://github.com/hardlyardi/light) to save it for later, or watching the repository.
+<br>If you like Light or find it interesting, consider [leaving a ⭐](https://github.com/hardlyardi/light/) to save it for later, or watching the repository.
 
 ## What Light does
 

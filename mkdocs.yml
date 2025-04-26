@@ -77,8 +77,59 @@ extra_css:
   - stylesheets/extra.css
 
 extra:
+  analytics:
+    provider: google
+    property: G-WJ3WTV5DDW
+    feedback:
+      title: Was this page helpful?
+      ratings:
+        - icon: material/heart
+          name: I've been blessed reading this
+          data: 4
+          note: >-
+            Mrrp meow the cat ate ur feedback:
+            <PRE><tt>／l、<br>（ﾟ､ ｡７<br>  l、ﾞ~ヽ<br>     じしf_,)ノ</tt></PRE>
+            <img src="https://raw.githubusercontent.com/hardlyardi/light/main/docs/assets/images/the_cat.jpg" alt="Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow"> 
+            <br>...Though, if you have anything more to say, please visit the <a href="https://docs.google.com/forms/d/e/1FAIpQLSeOxVTHsijUPxAYUXJMvb0fCjYfNgHyMu7Hh310LqvLgFLG7Q/viewform?usp=header" target="_blank">feedback form</a>. <small>(Yes, Seriously.)</small>
+
+        - icon: material/emoticon-happy-outline
+          name: This page was helpful
+          data: 3
+          note: >-
+            Mrrp meow the cat ate ur feedback:
+            <PRE><tt>／l、<br>（ﾟ､ ｡７<br>  l、ﾞ~ヽ<br>     じしf_,)ノ</tt></PRE>
+            <img src="https://raw.githubusercontent.com/hardlyardi/light/main/docs/assets/images/the_cat.jpg" alt="Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow"> 
+            <br>...Though, if you have anything more to say, please visit the <a href="https://docs.google.com/forms/d/e/1FAIpQLSeOxVTHsijUPxAYUXJMvb0fCjYfNgHyMu7Hh310LqvLgFLG7Q/viewform?usp=header" target="_blank">feedback form</a>. <small>(Yes, Seriously.)</small>
+
+        - icon: material/emoticon-neutral-outline
+          name: This page is alright
+          data: 2
+          note: >-
+            Mrrp meow the cat ate ur feedback:
+            <PRE><tt>／l、<br>（ﾟ､ ｡７<br>  l、ﾞ~ヽ<br>     じしf_,)ノ</tt></PRE>
+            <img src="https://raw.githubusercontent.com/hardlyardi/light/main/docs/assets/images/the_cat.jpg" alt="Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow"> 
+            <br>...Though, if you have anything more to say, please visit the <a href="https://docs.google.com/forms/d/e/1FAIpQLSeOxVTHsijUPxAYUXJMvb0fCjYfNgHyMu7Hh310LqvLgFLG7Q/viewform?usp=header" target="_blank">feedback form</a>. <small>(Yes, Seriously.)</small>
+
+        - icon: material/emoticon-sad-outline
+          name: This page wasn't helpful
+          data: 1
+          note: >-
+            Mrrp meow the cat ate ur feedback:
+            <PRE><tt>／l、<br>（ﾟ､ ｡７<br>  l、ﾞ~ヽ<br>     じしf_,)ノ</tt></PRE>
+            <img src="https://raw.githubusercontent.com/hardlyardi/light/main/docs/assets/images/the_cat.jpg" alt="Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow"> 
+            <br>...Though, if you have anything more to say, please visit the <a href="https://docs.google.com/forms/d/e/1FAIpQLSeOxVTHsijUPxAYUXJMvb0fCjYfNgHyMu7Hh310LqvLgFLG7Q/viewform?usp=header" target="_blank">feedback form</a>. <small>(Yes, Seriously.)</small>
+
+        - icon: material/heart-broken
+          name: I hate you
+          data: 0
+          note: >-
+            Mrrp meow the cat ate ur feedback:
+            <PRE><tt>／l、<br>（ﾟ､ ｡７<br>  l、ﾞ~ヽ<br>     じしf_,)ノ</tt></PRE>
+            <img src="https://raw.githubusercontent.com/hardlyardi/light/main/docs/assets/images/the_cat.jpg" alt="Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow"> 
+            <br>...Though, if you have anything more to say, please visit the <a href="https://docs.google.com/forms/d/e/1FAIpQLSeOxVTHsijUPxAYUXJMvb0fCjYfNgHyMu7Hh310LqvLgFLG7Q/viewform?usp=header" target="_blank">feedback form</a>. <small>(Yes, Seriously.)</small>
+
   consent:
-    title: "<h1>S<b>light</b>ly Annoying 🍪 Popup</h1>"
+    title: "<h1>S<b><b>light</b></b>ly Annoying 🍪 Popup</h1>"
     description: >-
       We use cookies to recognize your repeated visits and preferences, as well
       as to measure the effectiveness of our documentation and whether users
