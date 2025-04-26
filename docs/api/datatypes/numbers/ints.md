@@ -2,7 +2,7 @@
 
 Signed Integers represent a number which is divisible by one and could be negative.
 
-You can tell a datatype is a signed integer by the preceding `i` prefix. The number afterward tells you how many bits
+You can tell a datatype is a signed integer by the `i` prefix. The number afterward tells you how many bits
 the [Datatype](../index.md#what-is-a-datatype) costs to send over the network.
 
 | Name   | Size      | Minimum Int      | Maximum Int     |
