@@ -30,7 +30,7 @@ Datatypes:
 
 `#!luau local u8 = light.datatypes.u8`
 
-The prefix `u` indicates the number is unsigned<small> (should be greater than zero.)</small> The number to the right,
+The prefix `u` indicates the number is an unsigned integer <small>(whole numbers greater than zero.)</small> The number to the right,
 `8`, is the number of "bits"[^1] the value will take up across the network. A u8 can represent any value
 <nobr>between `0` and `255`</nobr>
 
