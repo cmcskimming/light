@@ -8,9 +8,8 @@ just that, but here's an example of one of the primitive number Datatypes:
 
 [`#!luau local u8 = light.datatypes.u8`](./numbers/uints.md)
 
-The prefix `u` indicates the number should be "unsigned"; greater than zero. The number to the right, `8`, is the number
-of "bits"[^1] the value will take up across the network. A u8 can represent any value
-<nobr>between `0` and `255`</nobr>
+The prefix `u` indicates the number should be an "unsigned integer"; greater than zero. The number to the right, `8`, is the number
+of "bits"[^1] the value will take up across the network. A u8 represents a value <nobr>between `0` and `255`</nobr>
 
 ## Lying to luau
 
