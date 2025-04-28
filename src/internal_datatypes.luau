@@ -24,28 +24,49 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
+local holy = require("./holy")
+local library_datatypes = require("./datatypes/main")
+local message_id = require("./messages/id")
+local message_types = require("./messages/types")
 
---[=[
-General functions for reporting errors / problems.
-]=]
+type HolyDatatype<T = any> = holy.Datatype<T>
+type MessageId = message_types.MessageId
 
-local logging_messages = {}
+local ty = library_datatypes
 
-function logging_messages.bug(text: string): string
-	return `(BUG, PLEASE REPORT ON THE GITHUB: https://github.com/hardlyardi/light/issues/)\n{text}`
+local u8 = ty.u8
+
+local str = ty.str
+local range = ty.range
+local struct = ty.struct
+local arr = ty.arr
+
+local function make_holy<Type>(Datatype: Type): holy.Datatype<Type>
+	-- Luau
+	return Datatype :: any
 end
 
-function logging_messages.problem(msg: string, trace_level: number?): string
-	local level = trace_level and trace_level + 2 or 2
+local internal_datatypes = {}
 
-	return debug.traceback(`\n[LIGHT]: {msg}\nERROR TRACE:`, level)
+do -- messages
+	local low_message =
+		range(message_id.LOW_MESSAGES_START, message_id.LOW_MESSAGES_END) :: MessageId
+	local high_message =
+		range(message_id.HIGH_MESSAGES_START, message_id.HIGH_MESSAGES_END) :: MessageId
+	local any_message =
+		range(message_id.LOW_MESSAGES_START, message_id.HIGH_MESSAGES_END) :: MessageId
+
+	local message_sync_one = struct({
+		name = str(u8),
+		message_id = any_message,
+	})
+	local message_sync_many = arr(message_sync_one, ty.vlq(3))
+
+	internal_datatypes.low_message = make_holy(low_message)
+	internal_datatypes.high_message = make_holy(high_message)
+	internal_datatypes.any_message = make_holy(any_message)
+	internal_datatypes.message_sync_one = make_holy(message_sync_one)
+	internal_datatypes.message_sync_many = make_holy(message_sync_many)
 end
 
-function logging_messages.thread(msg: string, thread: thread, trace_level: number?): string
-	local level = trace_level and trace_level + 2 or 2
-
-	return debug.traceback(thread, `\n[LIGHT]: {msg}\nTHREAD TRACE:`)
-		.. debug.traceback(`\nERROR TRACE:`, level)
-end
-
-return logging_messages
+return internal_datatypes

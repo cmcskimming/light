@@ -1,76 +1,97 @@
---!optimize 2
+--[[MIT License Copyright (c) 2025 @hardlyardi
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+]]
+--[[
+--FOR DESCRIPTIONS OF API & CODE FUNCTION, ETC: https://light.ardi.gg/
+--FOR ISSUES, BUG REPORTS, OR FEATURE REQUESTS: https://light.ardi.gg/github
+--ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
+--MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
+]]
+--[[
+This file is entirely documentation & typecasts
+]]
 --!nolint LocalShadow
 
---[[TODO
-move some of the docs from this file to the mkdocs and typescript stuff. The docs are much better here.
-]]
-
 local holy = require("../holy")
+local imported_any = require("./any")
+local imported_bool = require("./bool")
+local imported_buff = require("./mirrors/buff")
+local imported_cached = require("./cached")
+local imported_cached_arr = require("./cached_arr")
+local imported_cached_map = require("./cached_map")
+local imported_cached_struct = require("./cached_struct")
 local imported_cframe = require("./cframe")
 local imported_checked = require("./checked")
+local imported_computed = require("./mirrors/computed")
+local imported_enum_overload = require("./enum/overload")
+local imported_enum_tagged = require("./enum/tagged")
 local imported_instances = require("./instances")
+local imported_literal = require("./mirrors/literal")
+local imported_optional = require("./optional")
+local imported_range = require("./mirrors/range")
 local imported_roblox_vect2 = require("./roblox_vect2")
+local imported_str = require("./mirrors/str")
+local imported_vect2 = require("./mirrors/vect2")
+local imported_vect3 = require("./mirrors/vect3")
+local imported_vlq = require("./mirrors/vlq")
+
+local ty = holy.datatypes
 
 export type HolyDatatype<T = any> = holy.Datatype<T>
 export type Datatype<T = any> = T
 
-export type AcceptableSchema =
-	-- raw datatype (cached)
-	| HolyDatatype<any>
-	-- arrays
-	| { AcceptableSchema }
-	-- maps
-	| { [AcceptableSchema]: AcceptableSchema }
-	-- structs
-	| { [string]: AcceptableSchema }
-
-type function tagged_enum(tag: type, identifier_map: type)
-	assert(identifier_map:is("table"), "Must take in a table datatype")
-	assert(tag:is("singleton"), "Tag must be a singleton")
-	assert(type(tag:value()) == "string", "Tag must be a string singleton")
-
-	local props = identifier_map:properties()
-
-	local output = {}
-
-	for key, readwrite in props do
-		local read = readwrite.read :: type
-
-		if not read:is("table") then
-			error(`Expected a "table" at key "{key:value()}" of identifier map, got tag "{read.tag}"`)
-		end
-
-		read:setproperty(tag, key)
-
-		table.insert(output, read)
-	end
-
-	return types.unionof(unpack(output))
+local function PLACEHOLDER(): any
+	error(debug.traceback([[
+	Attempt to call placeholder. Please report this as a bug on the github:
+	https://github.com/hardlyardi/light/issues
+	]]))
 end
 
-local holy_datatypes = holy.datatypes
+local datatypes = {
+	u8 = (ty.u8 :: any) :: Datatype<number>,
+	u16 = (ty.u16 :: any) :: Datatype<number>,
+	u24 = (ty.u24 :: any) :: Datatype<number>,
+	u32 = (ty.u32 :: any) :: Datatype<number>,
+	u40 = (ty.u40 :: any) :: Datatype<number>,
+	u48 = (ty.u48 :: any) :: Datatype<number>,
+	u53 = (ty.u53 :: any) :: Datatype<number>,
 
-local datatypes = {}
+	i8 = (ty.i8 :: any) :: Datatype<number>,
+	i16 = (ty.i16 :: any) :: Datatype<number>,
+	i24 = (ty.i24 :: any) :: Datatype<number>,
+	i32 = (ty.i32 :: any) :: Datatype<number>,
+	i40 = (ty.i40 :: any) :: Datatype<number>,
+	i48 = (ty.i48 :: any) :: Datatype<number>,
+	i54 = (ty.i54 :: any) :: Datatype<number>,
 
---[=[
-Instances are generally [Any](http://light.ardi.gg/api/datatypes/any/) [Datatypes](http://light.ardi.gg/api/datatypes/#what-is-a-datatype)
-which represent a Roblox Instance Classname. Using these datatypes while sending unreliably can cause consistent
-packet dropping issues if the packet is too large.
-]=]
-datatypes.instances = imported_instances
+	f32 = (ty.f32 :: any) :: Datatype<number>,
+	f64 = (ty.f64 :: any) :: Datatype<number>,
+}
 
---[[-inline-documentation-is-my-passion-inline-documentation-is-my-passion-inline-documentation-is-my-passion-----------
-Blank functions for user-facing types / documentation. Functions are defined with their real type inputs, then the
-documented functions get replaced. This makes it very easy to have an internal datatype definition for this file, and
-LSP function documentation. Inline documentation is my passion.
--inline-documentation-is-my-passion-inline-documentation-is-my-passion-inline-documentation-is-my-passion-------------]]
 do
-	local function ERR(): any
-		error(debug.traceback([[
-		Attempt to call placeholder. Please report this as a bug on the github:
-		https://github.com/hardlyardi/light/issues
-		]]))
-	end
+	--[=[
+	Instances are generally [Any](http://light.ardi.gg/api/datatypes/any/) [Datatypes](http://light.ardi.gg/api/datatypes/#what-is-a-datatype)
+	which represent a Roblox Instance Classname. Using these datatypes while sending unreliably can cause consistent
+	packet dropping issues if the packet is too large.
+	]=]
+	datatypes.instances = imported_instances
 
 	--[=[
 	In light, you can use luau
@@ -92,8 +113,9 @@ do
 	[Learn More](https://light.ardi.gg/api/datatypes/generics/cached/)
 	]=]
 	function datatypes.cached<Input>(schema: Input): Datatype<Input>
-		return ERR()
+		return PLACEHOLDER()
 	end
+	datatypes.cached = imported_cached :: any
 
 	--[=[
 	An array represents a contiguous list of values in a table. I.e., `{ "a", "b", "c" }`
@@ -117,8 +139,9 @@ do
 		item_datatype: Datatype<Item>,
 		length_datatype: Datatype<number>?
 	): Datatype<{ Item }>
-		return ERR()
+		return PLACEHOLDER()
 	end
+	datatypes.arr = imported_cached_arr :: any
 
 	--[=[
 	A map represents a set of keys mapping to values in a table. I.e., `{ ["random string"] = 1234 }`
@@ -144,8 +167,9 @@ do
 		value_datatye: Datatype<Value>,
 		length_datatype: Datatype<number>?
 	): Datatype<{ [Key]: Value }>
-		return ERR()
+		return PLACEHOLDER()
 	end
+	datatypes.map = imported_cached_map :: any
 
 	--[=[
 	A struct represents a fixed set of string keys and value datatypes.
@@ -162,8 +186,9 @@ do
 	[Learn More](https://light.ardi.gg/api/datatypes/generics/tables/struct/)
 	]=]
 	function datatypes.struct<Fields>(map: Fields): Datatype<Fields>
-		return ERR()
+		return PLACEHOLDER()
 	end
+	datatypes.struct = imported_cached_struct :: any
 
 	--[=[
 	Variable Length Quantities represent arbitrarily sized unsigned integers. A VLQ takes less space for generally
@@ -177,8 +202,9 @@ do
 	```
 	]=]
 	function datatypes.vlq(max_bytes: number?): Datatype<number>
-		return ERR()
+		return PLACEHOLDER()
 	end
+	datatypes.vlq = imported_vlq :: any
 
 	--[=[
 	Optionals represent a value which could be `nil`, and can be applied to any datatype. Optionals are most often used
@@ -195,8 +221,9 @@ do
 	[Learn More](https://light.ardi.gg/api/datatypes/generics/optional/)
 	]=]
 	function datatypes.optional<Inner>(inner_datatype: Datatype<Inner>): Datatype<Inner?>
-		return ERR()
+		return PLACEHOLDER()
 	end
+	datatypes.optional = imported_optional :: any
 
 	--[=[
 	Represents a string value. Includes an optional parameter for length which defaults to
@@ -214,8 +241,9 @@ do
 	[Learn More](https://light.ardi.gg/api/datatypes/generics/str/)
 	]=]
 	function datatypes.str(length_datatype: Datatype<number>?): Datatype<string>
-		return ERR()
+		return PLACEHOLDER()
 	end
+	datatypes.str = imported_str :: any
 
 	--[=[
 	Represents a range of possible [`uints`](https://light.ardi.gg/api/datatypes/numbers/uints) by providing a minimum
@@ -234,8 +262,9 @@ do
 	[Learn More](https://light.ardi.gg/api/datatypes/generics/range/)
 	]=]
 	function datatypes.range(minimum: number, maximum: number): Datatype<number>
-		return ERR()
+		return PLACEHOLDER()
 	end
+	datatypes.range = imported_range :: any
 
 	--[=[
 	Represents a 3 component luau vector.
@@ -254,8 +283,9 @@ do
 	[Learn More](https://light.ardi.gg/api/datatypes/generics/vect3/)
 	]=]
 	function datatypes.vect3(coord_datatype: Datatype<number>?): Datatype<vector>
-		return ERR()
+		return PLACEHOLDER()
 	end
+	datatypes.vect3 = imported_vect3 :: any
 
 	--[=[
 	Represents a 2 component luau vector.
@@ -274,8 +304,9 @@ do
 	[Learn More](https://light.ardi.gg/api/datatypes/generics/vect2/)
 	]=]
 	function datatypes.vect2(coord_datatype: Datatype<number>?): Datatype<vector>
-		return ERR()
+		return PLACEHOLDER()
 	end
+	datatypes.vect2 = imported_vect2 :: any
 
 	--[=[
 	Represents a Roblox Vector2 userdata.
@@ -294,8 +325,9 @@ do
 	[Learn More](https://light.ardi.gg/api/datatypes/generics/roblox_vect2/)
 	]=]
 	function datatypes.roblox_vect2(coord_datatype: Datatype<number>?): Datatype<vector>
-		return ERR()
+		return PLACEHOLDER()
 	end
+	datatypes.roblox_vect2 = imported_roblox_vect2 :: any
 
 	--[=[
 	Represents a Roblox CFrame userdata.
@@ -312,88 +344,86 @@ do
 	[Learn More](https://light.ardi.gg/api/datatypes/generics/cframe/)
 	]=]
 	function datatypes.cframe(position_datatype: Datatype<number>?): Datatype<CFrame>
-		return ERR()
+		return PLACEHOLDER()
+	end
+	datatypes.cframe = imported_cframe :: any
+
+	--[=[
+	### Enum types are generally only supported as a first-class feature in the Luau Inference Engine V2.
+
+	An enum represents a set of possible values. Because of limitations with string types, to get full type info from
+	some enums you will need to typecast into a string literal type.
+	
+	```luau
+	function enum<Identifier>(--Sync--
+		identifiers: { Identifier }
+	): Datatype<Identifier>
+	```
+
+	[Learn More](http://light.ardi.gg/api/datatypes/generics/enums/#identifier-enums)
+	]=]
+	local function enum_identifier_overload<Identifier>(identifiers: { Identifier }): Datatype<Identifier>
+		return PLACEHOLDER()
 	end
 
-	local overloaded_enum
-	do
-		--[=[
-		### Enum types are generally only supported as a first-class feature in the Luau Inference Engine V2.
+	--[=[
+	### Enum types are generally only supported as a first-class feature in the Luau Inference Engine V2.
+	Some features may work, but type information in older versions of the type inference engine for enums is not
+	officially supported.
+	
+	### Tagged enums only accept a table as a datatype.
+	You must provide a luau table which can be converted into a struct. Anything else will result in an error.
 
-		An enum represents a set of possible values. Because of limitations with string types, to get full type info from
-		some enums you will need to typecast into a string literal type.
-		
-		```luau
-		function enum<Identifier>(--Sync--
-			identifiers: { Identifier }
-		): Datatype<Identifier>
-		```
+	Passing two parameters to `enum()` represents a tagged enum type. Tagged enums are a set of possible structs, and
+	the first parameter is the name for the field which is used to identify each struct.
 
-		[Learn More](http://light.ardi.gg/api/datatypes/generics/enums/#identifier-enums)
-		]=]
-		local function identifier_overload<Identifier>(identifiers: { Identifier }): Datatype<Identifier>
-			return ERR()
-		end
+	```luau
+	-- The real type is defined with a type function, the type displayed here is an approximation of tagged enums.
+	function enum<IdentifierName, Identifier, PossibleData>(--Sync--
+		tag_name: IdentifierName, -- string
+		datatypes: { [Identifier]: Datatype<PossibleData> }
+	): Datatype<PossibleData & { [IdentifierName]: Identifier }>
+	```
 
-		--[=[
-		### Enum types are generally only supported as a first-class feature in the Luau Inference Engine V2.
-		Some features may work, but type information in older versions of the type inference engine for enums is not
-		officially supported.
-		
-		### Tagged enums only accept a table as a datatype.
-		You must provide a luau table which can be converted into a struct. Anything else will result in an error.
+	Because of limitations with string types, to get type info from tagged enums you will need to typecast into a
+	string literal:
+	```luau
+	local ty = light.datatypes
 
-		Passing two parameters to `enum()` represents a tagged enum type. Tagged enums are a set of possible structs, and
-		the first parameter is the name for the field which is used to identify each struct.
-
-		```luau
-		-- The real type is defined with a type function, the type displayed here is an approximation of tagged enums.
-		function enum<IdentifierName, Identifier, PossibleData>(--Sync--
-			tag_name: IdentifierName, -- string
-			datatypes: { [Identifier]: Datatype<PossibleData> }
-		): Datatype<PossibleData & { [IdentifierName]: Identifier }>
-		```
-
-		Because of limitations with string types, to get type info from tagged enums you will need to typecast into a
-		string literal:
-		```luau
-		local ty = light.datatypes
-
-		local vfx = ty.enum("kind"::"kind", {
-			explosion = {
-				position = ty.vect3(),
-				magnitude = ty.range(0, 15)
-			},
-			ability = {
-				player: ty.instances.Player
-			}
-		})
-		-- Produces the following type:
-		type vfx = {
-			kind: "explosion",
-			position: vector,
-			magnitude: number
-		} | {
-			kind: "ability",
-			player: Player
+	local vfx = ty.enum("kind"::"kind", {
+		explosion = {
+			position = ty.vect3(),
+			magnitude = ty.range(0, 15)
+		},
+		ability = {
+			player: ty.instances.Player
 		}
-		```
+	})
+	-- Produces the following type:
+	type vfx = {
+		kind: "explosion",
+		position: vector,
+		magnitude: number
+	} | {
+		kind: "ability",
+		player: Player
+	}
+	```
 
-		[Learn More](http://light.ardi.gg/api/datatypes/generics/enums/#tagged-enums)
-		]=]
-		local function tagged_overload<Tag, IdentifierMap>(
-			tag: Tag,
-			identifier_map: IdentifierMap
-		): tagged_enum<Tag, IdentifierMap>
-			return ERR()
-		end
-
-		function overloaded_enum(): any
-			return ERR()
-		end
-
-		datatypes.enum = overloaded_enum :: typeof(identifier_overload) & typeof(tagged_overload)
+	[Learn More](http://light.ardi.gg/api/datatypes/generics/enums/#tagged-enums)
+	]=]
+	local function enum_tagged_overload<Tag, IdentifierMap>(
+		tag: Tag,
+		identifier_map: IdentifierMap
+	): imported_enum_tagged.tagged_enum<
+		Tag,
+		IdentifierMap
+	>
+		return PLACEHOLDER()
 	end
+
+	datatypes.enum =
+		imported_enum_overload :: typeof(enum_identifier_overload) & typeof(enum_tagged_overload)
 
 	--[=[
 	Literals represent a value which is "literally" something. Any value you pass to a literal will become a constant and
@@ -418,8 +448,9 @@ do
 	[Learn More](https://light.ardi.gg/api/datatypes/generics/literal/)
 	]=]
 	function datatypes.literal<Value>(value: Value): Datatype<Value>
-		return ERR()
+		return PLACEHOLDER()
 	end
+	datatypes.literal = imported_literal :: any
 
 	--[=[
 	A whole host of things can go wrong while using computed—so I'll leave you to read
@@ -433,8 +464,9 @@ do
 	```
 	]=]
 	function datatypes.computed<Output>(lambda: () -> Datatype<Output>): Datatype<Output>
-		return ERR()
+		return PLACEHOLDER()
 	end
+	datatypes.computed = imported_computed :: any
 
 	--[=[
 	Represents a buffer in memory. Includes an optional Datatype for length, which defaults
@@ -452,25 +484,9 @@ do
 	[Learn More](https://light.ardi.gg/api/datatypes/generics/buff/)
 	]=]
 	function datatypes.buff(length: Datatype<number>?): Datatype<buffer>
-		return ERR()
+		return PLACEHOLDER()
 	end
-
-	--[=[
-	Represents `true | false`. Booleans (for most intents and purposes) cost 1/8th of a byte to send over the
-	network.
-
-	[Learn More](http://light.ardi.gg/api/datatypes/bool/)
-	]=]
-	datatypes.bool = ... :: Datatype<boolean>
-
-	--[=[
-	### Consider using [Instances](http://light.ardi.gg/api/datatypes/instances/) or [Checked](http://light.ardi.gg/api/datatypes/checked/) instead of `any`. `any` can not validate that the type sent over the network is correct, and can be manipulated by exploiters.
-	Any is a Datatype that represents a value which should be serialized with the format Roblox's Remote Events use.
-	Using this while sending unreliably can cause issues if the packet is too large.
-
-	[Learn More](http://light.ardi.gg/api/datatypes/any/)
-	]=]
-	datatypes.any = ... :: Datatype<any>
+	datatypes.buff = imported_buff :: any
 
 	--[=[
 	For types that are especially hard to describe, you could use `checked`. Checked is generally an
@@ -486,185 +502,26 @@ do
 	[Learn More](http://light.ardi.gg/api/datatypes/checked/)
 	]=]
 	function datatypes.checked<Input, Checked>(sanity_check: (Input) -> Checked): Datatype<Checked>
-		return ERR()
+		return PLACEHOLDER()
 	end
+	datatypes.checked = imported_checked :: any
+
+	--[=[
+	Represents `true | false`. Booleans (for most intents and purposes) cost 1/8th of a byte to send over the
+	network.
+
+	[Learn More](http://light.ardi.gg/api/datatypes/bool/)
+	]=]
+	datatypes.bool = imported_bool :: Datatype<boolean>
+
+	--[=[
+	### Consider using [Instances](http://light.ardi.gg/api/datatypes/instances/) or [Checked](http://light.ardi.gg/api/datatypes/checked/) instead of `any`. `any` can not validate that the type sent over the network is correct, and can be manipulated by exploiters.
+	Any is a Datatype that represents a value which should be serialized with the format Roblox's Remote Events use.
+	Using this while sending unreliably can cause issues if the packet is too large.
+
+	[Learn More](http://light.ardi.gg/api/datatypes/any/)
+	]=]
+	datatypes.any = imported_any :: Datatype<any>
 end
-
---[=[
-Converts Recursively:
-```luau
-type {Datatype<Item>} -- into arr(Datatype<Item>)
-type {[Datatype<Key>]: Datatype<Value>} -- into map(Datatype<Key>, Datatype<Value>)
-type {[string]: Datatype} -- into a struct
-```
-]=]
-local function cached<Input>(input: AcceptableSchema): HolyDatatype<Input>
-	local input_type = type(input)
-	if input_type ~= "table" then
-		if holy.check_datatype_exists(input) then return input :: any end
-		error(debug.traceback("Invalid Datatype: Datatype does not exist!"))
-	end
-
-	local input = input :: { [unknown]: AcceptableSchema }
-
-	local first_index, first_value = next(input)
-
-	if first_index == 1 then return holy_datatypes.arr(cached(first_value)) end
-
-	-- Luau
-	local cached_first_index = cached(first_index :: any)
-
-	local type_first_index = type(cached_first_index)
-
-	if (type_first_index == "number") or (type_first_index == "vector") then
-		return holy_datatypes.map(cached_first_index, cached(first_value))
-	end
-
-	local input = input :: { [string]: AcceptableSchema }
-
-	local output = {} :: { [string]: any }
-
-	for key, value in input do
-		if type(key) ~= "string" then
-			error(
-				debug.traceback(
-					`Invalid cached datatype: Expected a string key at key "{key}", got type {typeof(key)}`
-				)
-			)
-		end
-		output[key] = cached(value)
-	end
-
-	return holy_datatypes.struct(output)
-end
-
---[=[
-array mirror with datatype caching
-]=]
-local function arr<Item>(
-	item_datatype: HolyDatatype<Item>,
-	length_datatype: HolyDatatype<number>?
-): HolyDatatype<{ Item }>
-	return holy_datatypes.arr(cached(item_datatype), length_datatype or holy_datatypes.u16)
-end
-
---[=[
-map mirror with datatype caching
-]=]
-local function map<Key, Value>(
-	key_datatype: HolyDatatype<Key>,
-	value_datatype: HolyDatatype<Value>,
-	length_datatype: HolyDatatype<number>?
-): HolyDatatype<{ [Key]: Value }>
-	return holy_datatypes.map(
-		cached(key_datatype),
-		cached(value_datatype),
-		length_datatype or holy_datatypes.u16
-	)
-end
-
---[=[
-struct mirror with datatype caching
-]=]
-local function struct<FieldValues>(fields: { [string]: FieldValues }): HolyDatatype<{ [string]: FieldValues }>
-	local cached_fields = table.clone(fields) :: { [string]: Datatype<FieldValues> }
-
-	for field_name, field_datatype in fields do
-		cached_fields[field_name] = cached(field_datatype)
-	end
-
-	return holy_datatypes.struct(cached_fields)
-end
-datatypes.arr = arr :: any
-datatypes.map = map :: any
-datatypes.struct = struct :: any
-
---[=[
-1:1 mirror of vlq
-]=]
-local function vlq(max_bytes: number?): HolyDatatype<number>
-	return holy_datatypes.vlq(max_bytes or 7)
-end
-datatypes.vlq = vlq :: any
-
---[=[
-1:1 mirror of str
-]=]
-local function str(length: HolyDatatype<number>?)
-	return holy_datatypes.str(length or vlq(3))
-end
-datatypes.str = str :: any
-
---[=[
-1:1 mirror of range
-]=]
-local function range(minimum: number, maximum: number): HolyDatatype<number>
-	return holy_datatypes.range(minimum, maximum)
-end
-datatypes.range = range :: any
-
---[=[
-vect3 mirror with datatype caching
-]=]
-local function vect3(coord: HolyDatatype<number>?): HolyDatatype<vector>
-	return holy_datatypes.vect3(coord or holy_datatypes.f32)
-end
-
---[=[
-vect2 mirror with datatype caching
-]=]
-local function vect2(coord: HolyDatatype<number>?): HolyDatatype<vector>
-	return holy_datatypes.vect2(cached(coord or holy_datatypes.f32))
-end
-
---[=[
-imported roblox_vect2 mirror with datatype caching
-]=]
-local function roblox_vect2(coord: HolyDatatype): HolyDatatype<Vector2>
-	return imported_roblox_vect2(cached(coord) or holy_datatypes.f32)
-end
-datatypes.vect3 = vect3 :: any
-datatypes.vect2 = vect2 :: any
-datatypes.roblox_vect2 = roblox_vect2 :: any
-
---[=[
-imported cframe mirror
-]=]
-local function cframe(position: HolyDatatype): HolyDatatype<CFrame>
-	return imported_cframe(position)
-end
-datatypes.cframe = cframe :: any
-
---[=[
-1:1 mirror of literal
-]=]
-local function literal<Value>(value: Value): HolyDatatype<Value>
-	return holy_datatypes.literal(value)
-end
-datatypes.literal = literal :: any
-
---[=[
-1:1 mirror of computed
-]=]
-local function computed<Output>(lambda: () -> HolyDatatype<Output>): HolyDatatype<Output>
-	return holy_datatypes.computed(lambda)
-end
-datatypes.computed = computed :: any
-
---[=[
-1:1 mirror of buff
-]=]
-local function buff(length: HolyDatatype<number>?): HolyDatatype<buffer>
-	return holy_datatypes.buff(length or vlq(3))
-end
-datatypes.buff = buff :: any
-
---[=[
-imported checked mirror with datatype caching
-]=]
-local function checked<Input, Checked>(sanity_check: (Input) -> Checked): HolyDatatype<Checked>
-	return imported_checked(sanity_check)
-end
-datatypes.checked = checked :: any
 
 return datatypes

@@ -24,28 +24,16 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
+local identifier_enum = require("./identifier")
+local tagged_enum = require("./tagged")
 
---[=[
-General functions for reporting errors / problems.
-]=]
-
-local logging_messages = {}
-
-function logging_messages.bug(text: string): string
-	return `(BUG, PLEASE REPORT ON THE GITHUB: https://github.com/hardlyardi/light/issues/)\n{text}`
+local function general_enum(first: any, second: any): any
+	if second ~= nil then
+		-- Luau
+		return tagged_enum(first, second :: any) :: any
+	else
+		return identifier_enum(first)
+	end
 end
 
-function logging_messages.problem(msg: string, trace_level: number?): string
-	local level = trace_level and trace_level + 2 or 2
-
-	return debug.traceback(`\n[LIGHT]: {msg}\nERROR TRACE:`, level)
-end
-
-function logging_messages.thread(msg: string, thread: thread, trace_level: number?): string
-	local level = trace_level and trace_level + 2 or 2
-
-	return debug.traceback(thread, `\n[LIGHT]: {msg}\nTHREAD TRACE:`)
-		.. debug.traceback(`\nERROR TRACE:`, level)
-end
-
-return logging_messages
+return general_enum :: typeof(identifier_enum) & typeof(tagged_enum)

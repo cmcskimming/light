@@ -24,28 +24,33 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
+local bitpacker = require("../bitpack")
+local message_types = require("../messages/types")
 
---[=[
-General functions for reporting errors / problems.
-]=]
+type MessageId = message_types.MessageId
+type Bitpacker = bitpacker.Packer
 
-local logging_messages = {}
+export type OutgoingStream = {
+	send_unknown: {
+		table: { unknown },
+		top: number,
+	},
 
-function logging_messages.bug(text: string): string
-	return `(BUG, PLEASE REPORT ON THE GITHUB: https://github.com/hardlyardi/light/issues/)\n{text}`
-end
+	state_current_bitpack: Bitpacker?,
 
-function logging_messages.problem(msg: string, trace_level: number?): string
-	local level = trace_level and trace_level + 2 or 2
+	message_writers: { [MessageId]: buffer },
 
-	return debug.traceback(`\n[LIGHT]: {msg}\nERROR TRACE:`, level)
-end
+	batch_low_messages: {
+		buffs: { [MessageId]: buffer },
+		cursors: { [MessageId]: number },
+		unique_message_ids: number,
+	},
 
-function logging_messages.thread(msg: string, thread: thread, trace_level: number?): string
-	local level = trace_level and trace_level + 2 or 2
+	batch_high_messages: {
+		buffs: { [MessageId]: buffer },
+		cursors: { [MessageId]: number },
+		unique_message_ids: number,
+	},
+}
 
-	return debug.traceback(thread, `\n[LIGHT]: {msg}\nTHREAD TRACE:`)
-		.. debug.traceback(`\nERROR TRACE:`, level)
-end
-
-return logging_messages
+return nil

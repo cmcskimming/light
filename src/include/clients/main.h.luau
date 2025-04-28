@@ -25,27 +25,27 @@ SOFTWARE.
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
 
---[=[
-General functions for reporting errors / problems.
-]=]
+local clients_types = require("./types")
+local luau_signal = require("../../utils/luau_signal")
+local report = require("../../report")
 
-local logging_messages = {}
+type Client = clients_types.Identity
 
-function logging_messages.bug(text: string): string
-	return `(BUG, PLEASE REPORT ON THE GITHUB: https://github.com/hardlyardi/light/issues/)\n{text}`
-end
+export type ApiIdentity = {
+	local_client: Client,
 
-function logging_messages.problem(msg: string, trace_level: number?): string
-	local level = trace_level and trace_level + 2 or 2
+	all_clients: () -> { Client },
+	client_added: luau_signal.Identity<Client>,
+}
 
-	return debug.traceback(`\n[LIGHT]: {msg}\nERROR TRACE:`, level)
-end
+local identity = setmetatable({}, {
+	__index = function(_, index_name)
+		error(
+			report.problem(
+				report.bug(`Error while indexing: key of name "{index_name}" is undefined!`)
+			)
+		)
+	end,
+}) :: ApiIdentity
 
-function logging_messages.thread(msg: string, thread: thread, trace_level: number?): string
-	local level = trace_level and trace_level + 2 or 2
-
-	return debug.traceback(thread, `\n[LIGHT]: {msg}\nTHREAD TRACE:`)
-		.. debug.traceback(`\nERROR TRACE:`, level)
-end
-
-return logging_messages
+return identity

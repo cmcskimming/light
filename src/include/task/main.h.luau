@@ -24,28 +24,25 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
+local report = require("../../report")
+local task_types = require("./types")
 
---[=[
-General functions for reporting errors / problems.
-]=]
+export type ApiIdentity = {
+	wait: task_types.wait,
+	spawn: task_types.spawn,
+	defer: task_types.defer,
+	delay: task_types.delay,
+	close: task_types.close,
+}
 
-local logging_messages = {}
+local identity = setmetatable({} :: ApiIdentity, {
+	__index = function(_, index_name)
+		error(
+			report.problem(
+				report.bug(`Error while indexing: key of name "{index_name}" is undefined!`)
+			)
+		)
+	end,
+})
 
-function logging_messages.bug(text: string): string
-	return `(BUG, PLEASE REPORT ON THE GITHUB: https://github.com/hardlyardi/light/issues/)\n{text}`
-end
-
-function logging_messages.problem(msg: string, trace_level: number?): string
-	local level = trace_level and trace_level + 2 or 2
-
-	return debug.traceback(`\n[LIGHT]: {msg}\nERROR TRACE:`, level)
-end
-
-function logging_messages.thread(msg: string, thread: thread, trace_level: number?): string
-	local level = trace_level and trace_level + 2 or 2
-
-	return debug.traceback(thread, `\n[LIGHT]: {msg}\nTHREAD TRACE:`)
-		.. debug.traceback(`\nERROR TRACE:`, level)
-end
-
-return logging_messages
+return identity

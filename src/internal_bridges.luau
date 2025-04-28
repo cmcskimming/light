@@ -24,28 +24,22 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
+local bridge = require("./include/bridge/main.h")
+local bridge_types = require("./include/bridge/types")
+local light_types = require("./types")
 
---[=[
-General functions for reporting errors / problems.
-]=]
+type MessagingBridgeData = light_types.MessagingBridgeData
+type Bridge<BridgeData...> = bridge_types.Bridge<BridgeData...>
 
-local logging_messages = {}
-
-function logging_messages.bug(text: string): string
-	return `(BUG, PLEASE REPORT ON THE GITHUB: https://github.com/hardlyardi/light/issues/)\n{text}`
-end
-
-function logging_messages.problem(msg: string, trace_level: number?): string
-	local level = trace_level and trace_level + 2 or 2
-
-	return debug.traceback(`\n[LIGHT]: {msg}\nERROR TRACE:`, level)
-end
-
-function logging_messages.thread(msg: string, thread: thread, trace_level: number?): string
-	local level = trace_level and trace_level + 2 or 2
-
-	return debug.traceback(thread, `\n[LIGHT]: {msg}\nTHREAD TRACE:`)
-		.. debug.traceback(`\nERROR TRACE:`, level)
-end
-
-return logging_messages
+return {
+	to_client = {
+		reliable_messaging = bridge.new("TO_CLIENT_RELIABLE") :: Bridge<...MessagingBridgeData>,
+		unreliable_messaging = bridge.new("TO_CLIENT_UNRELIABLE") :: Bridge<...MessagingBridgeData>,
+		sync_one_id = bridge.new("TO_CLIENT_SYNC_ONE") :: Bridge<buffer>,
+		sync_many_ids = bridge.new("TO_CLIENT_SYNC_MANY") :: Bridge<buffer>,
+	},
+	to_server = {
+		reliable_messaging = bridge.new("TO_SERVER_RELIABLE") :: Bridge<MessagingBridgeData, buffer?>,
+		unreliable_messaging = bridge.new("TO_SERVER_UNRELIABLE") :: Bridge<MessagingBridgeData, buffer?>,
+	},
+}

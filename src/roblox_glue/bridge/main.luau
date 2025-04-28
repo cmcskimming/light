@@ -24,28 +24,42 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
+local bridge = require("../../include/bridge/main.h")
+local bridge_types = require("../../include/bridge/types")
+local clients_types = require("../../include/clients/types")
+local report = require("../../report")
+local roblox_storage = require("../utils/roblox_storage")
 
---[=[
-General functions for reporting errors / problems.
-]=]
+function bridge.new<BridgeData...>(name: string, unreliable: boolean?): bridge_types.Bridge<BridgeData...>
+	local remote_event = roblox_storage.inst:WaitForChild(name) :: RemoteEvent
 
-local logging_messages = {}
+	if remote_event:IsA("BaseRemoteEvent") == false then
+		error(report.problem("remote event inst was not a base remote event"))
+	end
 
-function logging_messages.bug(text: string): string
-	return `(BUG, PLEASE REPORT ON THE GITHUB: https://github.com/hardlyardi/light/issues/)\n{text}`
+	local impl = {} :: bridge_types.Bridge<BridgeData...>
+
+	function impl.server_event(callback: bridge_types.ServerCallback<BridgeData...>): ()
+		remote_event.OnServerEvent:Connect(callback :: any)
+	end
+
+	function impl.client_event(callback: bridge_types.ClientCallback<BridgeData...>): ()
+		remote_event.OnClientEvent:Connect(callback :: any)
+	end
+
+	function impl.fire_server(...: BridgeData...): ()
+		remote_event:FireServer(...)
+	end
+
+	function impl.fire_all_clients(...: BridgeData...): ()
+		remote_event:FireAllClients(...)
+	end
+
+	function impl.fire_client(client: clients_types.Identity, ...: BridgeData...): ()
+		remote_event:FireClient(client, ...)
+	end
+
+	return impl
 end
 
-function logging_messages.problem(msg: string, trace_level: number?): string
-	local level = trace_level and trace_level + 2 or 2
-
-	return debug.traceback(`\n[LIGHT]: {msg}\nERROR TRACE:`, level)
-end
-
-function logging_messages.thread(msg: string, thread: thread, trace_level: number?): string
-	local level = trace_level and trace_level + 2 or 2
-
-	return debug.traceback(thread, `\n[LIGHT]: {msg}\nTHREAD TRACE:`)
-		.. debug.traceback(`\nERROR TRACE:`, level)
-end
-
-return logging_messages
+return nil

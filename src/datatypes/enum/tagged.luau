@@ -24,28 +24,50 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
+local datatype_cached = require("../cached")
+local holy = require("../../holy")
 
---[=[
-General functions for reporting errors / problems.
-]=]
+type HolyDatatype<T = any> = holy.Datatype<T>
 
-local logging_messages = {}
+local ty = holy.datatypes
 
-function logging_messages.bug(text: string): string
-	return `(BUG, PLEASE REPORT ON THE GITHUB: https://github.com/hardlyardi/light/issues/)\n{text}`
+export type function tagged_enum(tag: type, identifier_map: type)
+	assert(identifier_map:is("table"), "Must take in a table datatype")
+	assert(tag:is("singleton"), "Tag must be a singleton")
+	assert(type(tag:value()) == "string", "Tag must be a string singleton")
+
+	local props = identifier_map:properties()
+
+	local output = {}
+
+	for key, readwrite in props do
+		local read = readwrite.read :: type
+
+		if not read:is("table") then
+			error(`Expected a "table" at key "{key:value()}" of identifier map, got tag "{read.tag}"`)
+		end
+
+		read:setproperty(tag, key)
+
+		table.insert(output, read)
+	end
+
+	return types.unionof(unpack(output))
 end
 
-function logging_messages.problem(msg: string, trace_level: number?): string
-	local level = trace_level and trace_level + 2 or 2
+local function tagged<IdentifierName, Identifier, PossibleData>(
+	tag_name: IdentifierName, -- string
+	datatypes: {
+		[Identifier]: HolyDatatype<PossibleData>,
+	}
+): HolyDatatype<
+	PossibleData & { [IdentifierName]: Identifier }
+>
+	local tagged_enum_datatype = holy.new_datatype()
 
-	return debug.traceback(`\n[LIGHT]: {msg}\nERROR TRACE:`, level)
+	-- TODO
+
+	return tagged_enum_datatype
 end
 
-function logging_messages.thread(msg: string, thread: thread, trace_level: number?): string
-	local level = trace_level and trace_level + 2 or 2
-
-	return debug.traceback(thread, `\n[LIGHT]: {msg}\nTHREAD TRACE:`)
-		.. debug.traceback(`\nERROR TRACE:`, level)
-end
-
-return logging_messages
+return tagged

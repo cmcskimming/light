@@ -449,11 +449,11 @@ datatypes.u48 = u48 :: Datatype<number> end
 
 do
 	local static_size = 7
-	local u56 = new_datatype(static_size)
-	metadata.is_number[u56] = true
+	local u53 = new_datatype(static_size)
+	metadata.is_number[u53] = true
 
 	@native
-	local function u56_ser_no_realloc(buff: buffer, byte_ptr: number, input: any): (number)
+	local function u53_ser_no_realloc(buff: buffer, byte_ptr: number, input: any): (number)
 		buffer.writeu8(buff, byte_ptr, input)
 		input //= 2^8
 		byte_ptr += 1
@@ -469,7 +469,7 @@ do
 	end
 
 	@native
-	local function u56_ser_static(buff: buffer, byte_ptr: number, input: any): ()
+	local function u53_ser_static(buff: buffer, byte_ptr: number, input: any): ()
 		buffer.writeu8(buff, byte_ptr, input)
 		input //= 2^8
 		byte_ptr += 1
@@ -482,7 +482,7 @@ do
 	end
 
 	@native
-	local function u56_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
+	local function u53_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 		local len = buffer.len(buff)
 
 		local target_ptr = byte_ptr + static_size
@@ -506,7 +506,7 @@ do
 	end
 
 	@native
-	local function u56_des(buff: buffer, byte_ptr: number): (number, number)
+	local function u53_des(buff: buffer, byte_ptr: number): (number, number)
 		local output = buffer.readu8(buff, byte_ptr)
 		byte_ptr += 1
 
@@ -519,12 +519,12 @@ do
 		return byte_ptr, output
 	end
 
-	metadata.ser_no_realloc[u56] = u56_ser_no_realloc
-	metadata.ser_static[u56] = u56_ser_static
-	metadata.ser[u56] = u56_ser
-	metadata.des[u56] = u56_des
+	metadata.ser_no_realloc[u53] = u53_ser_no_realloc
+	metadata.ser_static[u53] = u53_ser_static
+	metadata.ser[u53] = u53_ser
+	metadata.des[u53] = u53_des
 
-datatypes.u56 = u56 :: Datatype<number> end
+datatypes.u53 = u53 :: Datatype<number> end
 
 CONST_LOOKUPS.uint = {
 	type = {
@@ -534,7 +534,7 @@ CONST_LOOKUPS.uint = {
 		[4] = datatypes.u32,
 		[5] = datatypes.u40,
 		[6] = datatypes.u48,
-		[7] = datatypes.u56,
+		[7] = datatypes.u53,
 	} :: Set<number, Datatype<number>>,
 	ser_no_realloc = {
 		[1] = metadata.ser_no_realloc[datatypes.u8],
@@ -543,7 +543,7 @@ CONST_LOOKUPS.uint = {
 		[4] = metadata.ser_no_realloc[datatypes.u32],
 		[5] = metadata.ser_no_realloc[datatypes.u40],
 		[6] = metadata.ser_no_realloc[datatypes.u48],
-		[7] = metadata.ser_no_realloc[datatypes.u56],
+		[7] = metadata.ser_no_realloc[datatypes.u53],
 	} :: Set<number, SerNoRealloc>,
 	ser_static = {
 		[1] = metadata.ser_static[datatypes.u8],
@@ -552,7 +552,7 @@ CONST_LOOKUPS.uint = {
 		[4] = metadata.ser_static[datatypes.u32],
 		[5] = metadata.ser_static[datatypes.u40],
 		[6] = metadata.ser_static[datatypes.u48],
-		[7] = metadata.ser_static[datatypes.u56],
+		[7] = metadata.ser_static[datatypes.u53],
 	} :: Set<number, SerStatic>,
 	ser = {
 		[1] = metadata.ser[datatypes.u8],
@@ -561,7 +561,7 @@ CONST_LOOKUPS.uint = {
 		[4] = metadata.ser[datatypes.u32],
 		[5] = metadata.ser[datatypes.u40],
 		[6] = metadata.ser[datatypes.u48],
-		[7] = metadata.ser[datatypes.u56],
+		[7] = metadata.ser[datatypes.u53],
 	} :: Set<number, Ser>,
 	des = {
 		[1] = metadata.des[datatypes.u8],
@@ -570,7 +570,7 @@ CONST_LOOKUPS.uint = {
 		[4] = metadata.des[datatypes.u32],
 		[5] = metadata.des[datatypes.u40],
 		[6] = metadata.des[datatypes.u48],
-		[7] = metadata.des[datatypes.u56],
+		[7] = metadata.des[datatypes.u53],
 	} :: Set<number, Des>,
 }
 
@@ -907,11 +907,11 @@ datatypes.i48 = i48 :: Datatype<number> end
 
 do
 	local static_size = 7
-	local i53 = new_datatype(static_size)
-	metadata.is_number[i53] = true
+	local i54 = new_datatype(static_size)
+	metadata.is_number[i54] = true
 
 	@native
-	local function i53_ser_no_realloc(buff: buffer, byte_ptr: number, input: any): (number)
+	local function i54_ser_no_realloc(buff: buffer, byte_ptr: number, input: any): (number)
 		if input < 0 then
 			input += 2^53
 		end
@@ -931,7 +931,7 @@ do
 	end
 
 	@native
-	local function i53_ser_static(buff: buffer, byte_ptr: number, input: any): ()
+	local function i54_ser_static(buff: buffer, byte_ptr: number, input: any): ()
 		if input < 0 then
 			input += 2^53
 		end
@@ -948,7 +948,7 @@ do
 	end
 
 	@native
-	local function i53_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
+	local function i54_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 		local len = buffer.len(buff)
 
 		local target_ptr = byte_ptr + static_size
@@ -973,7 +973,7 @@ do
 	end
 
 	@native
-	local function i53_des(buff: buffer, byte_ptr: number): (number, number)
+	local function i54_des(buff: buffer, byte_ptr: number): (number, number)
 		local output = buffer.readu8(buff, byte_ptr)
 		byte_ptr += 1
 
@@ -990,12 +990,12 @@ do
 		return byte_ptr, output
 	end
 
-	metadata.ser_no_realloc[i53] = i53_ser_no_realloc
-	metadata.ser_static[i53] = i53_ser_static
-	metadata.ser[i53] = i53_ser
-	metadata.des[i53] = i53_des
+	metadata.ser_no_realloc[i54] = i54_ser_no_realloc
+	metadata.ser_static[i54] = i54_ser_static
+	metadata.ser[i54] = i54_ser
+	metadata.des[i54] = i54_des
 
-datatypes.i53 = i53 :: Datatype<number> end
+datatypes.i54 = i54 :: Datatype<number> end
 
 CONST_LOOKUPS.int = {
 	type = {
@@ -1005,7 +1005,7 @@ CONST_LOOKUPS.int = {
 		[4] = datatypes.i32,
 		[5] = datatypes.i40,
 		[6] = datatypes.i48,
-		[7] = datatypes.i53,
+		[7] = datatypes.i54,
 	} :: Set<number, Datatype<number>>,
 	ser_no_realloc = {
 		[1] = metadata.ser_no_realloc[datatypes.i8],
@@ -1014,7 +1014,7 @@ CONST_LOOKUPS.int = {
 		[4] = metadata.ser_no_realloc[datatypes.i32],
 		[5] = metadata.ser_no_realloc[datatypes.i40],
 		[6] = metadata.ser_no_realloc[datatypes.i48],
-		[7] = metadata.ser_no_realloc[datatypes.i53],
+		[7] = metadata.ser_no_realloc[datatypes.i54],
 	} :: Set<number, SerNoRealloc>,
 	ser_static = {
 		[1] = metadata.ser_static[datatypes.i8],
@@ -1023,7 +1023,7 @@ CONST_LOOKUPS.int = {
 		[4] = metadata.ser_static[datatypes.i32],
 		[5] = metadata.ser_static[datatypes.i40],
 		[6] = metadata.ser_static[datatypes.i48],
-		[7] = metadata.ser_static[datatypes.i53],
+		[7] = metadata.ser_static[datatypes.i54],
 	} :: Set<number, SerStatic>,
 	ser = {
 		[1] = metadata.ser[datatypes.i8],
@@ -1032,7 +1032,7 @@ CONST_LOOKUPS.int = {
 		[4] = metadata.ser[datatypes.i32],
 		[5] = metadata.ser[datatypes.i40],
 		[6] = metadata.ser[datatypes.i48],
-		[7] = metadata.ser[datatypes.i53],
+		[7] = metadata.ser[datatypes.i54],
 	} :: Set<number, Ser>,
 	des = {
 		[1] = metadata.des[datatypes.i8],
@@ -1041,7 +1041,7 @@ CONST_LOOKUPS.int = {
 		[4] = metadata.des[datatypes.i32],
 		[5] = metadata.des[datatypes.i40],
 		[6] = metadata.des[datatypes.i48],
-		[7] = metadata.des[datatypes.i53],
+		[7] = metadata.des[datatypes.i54],
 	} :: Set<number, Des>,
 }
 
