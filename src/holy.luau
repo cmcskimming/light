@@ -1,7 +1,4 @@
---[[
-MIT License
-
-Copyright (c) 2025 @hardlyardi
+--[[MIT License Copyright (c) 2025 @hardlyardi
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -3249,7 +3246,7 @@ do
 		return struct_datatype
 	end
 
-datatypes.struct = struct end
+datatypes.struct = struct :: <Template>(Template) -> (Datatype<Template>) end
 
 do
 	local cache = {} :: { [Datatype]: Datatype<vector> }
