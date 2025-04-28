@@ -1,6 +1,8 @@
 # Strings
 
-Represents a string value. Includes an optional parameter for length which will default to
+Represents a string value.
+
+Includes an optional parameter for length which will default to
 [`#!luau datatypes.vlq(3)`](./vlq.md#size-index).
 
 The length datatype should NOT be a regular number—instead: use a
@@ -15,7 +17,7 @@ function str(
 ): Datatype<string>
 ```
 
-First argument represents how the length is encoded. A couple of ways you could use the optional `length` parameter:
+A couple of ways you could use the optional `length` parameter:
 
 ```luau
 local ty = light.datatypes

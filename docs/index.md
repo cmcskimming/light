@@ -60,8 +60,8 @@ experiencing this.
 ### Q: Why only allow one callback?
 
 "Message" in Light indicates that there's an intended target or consumer, meaning the message "knows" about its
-callback. Handling it this way solves a lot of edge cases. To make an event instead, you can make a wrapper which pipes
-the message into a signal implementation, which is why I believe it'd be bloated to include. If you're interested in
+callback. Handling it this way solves a lot of edge cases. To make an event instead, you (can) make a wrapper which pipes
+the message into a signal implementation or set of known callbacks. If you're interested in
 profiling, the docs for [`#!luau light.disconnect()`](./api/network/messages/listening/disconnect.md) have a decent
 example of an event profiler.
 
@@ -82,3 +82,4 @@ as anyone else who contributes to light:
 
 - <a href="https://github.com/alicesaidhi/" target="_blank">Alice</a>: Holy-Light Icon
 - <a href="https://github.com/lewisakura/" target="_blank">Lewi</a>: Helped develop docs :pray:
+- <a href="https://github.com/gurrrrrrett3/" target="_blank">Max</a>: Ported docs/types to roblox-ts
