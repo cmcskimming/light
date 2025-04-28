@@ -13,6 +13,6 @@ Light is currently in development. The full source is not public at the moment, 
 
 ## Credits
 
-[alicesaidhi](https://github.com/alicesaidhi/) - Holy-Light logo
-
-[lewi](https://github.com/lewisakura/) - Helped develop docs
+- <a href="https://github.com/alicesaidhi/" target="_blank">Alice</a>: Holy-Light Icon
+- <a href="https://github.com/lewisakura/" target="_blank">Lewi</a>: Helped develop docs :pray:
+- <a href="https://github.com/gurrrrrrett3/" target="_blank">Max</a>: Ported docs/types to roblox-ts
