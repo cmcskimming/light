@@ -82,3 +82,4 @@ as anyone else who contributes to light:
 
 - <a href="https://github.com/alicesaidhi/" target="_blank">Alice</a>: Holy-Light Icon
 - <a href="https://github.com/lewisakura/" target="_blank">Lewi</a>: Helped develop docs :pray:
+- - <a href="https://github.com/gurrrrrrett3/" target="_blank">Max</a>: Ported docs/types to roblox-ts
