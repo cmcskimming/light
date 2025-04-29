@@ -25,10 +25,10 @@ SOFTWARE.
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
 --!nocheck
+local datatypes = require("../../include/datatypes/main.h")
 
 local _any = require("./any")
 local _instance_classes = require("../instance_classes/main")
-local datatypes = require("../../include/datatypes/main.h")
 local holy = require("../../holy")
 local instance_class_types = require("../../include/instance_classes/types")
 local instance_classes = require("../../include/instance_classes/main.h")
