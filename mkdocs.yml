@@ -246,9 +246,11 @@ nav:
       - Begin Replication: api/begin_replication.md
       - Step Replication: api/step_replication.md
       - Messages:
-          - Creation:
-              - container: api/network/messages/creation/container.md
-              - message: api/network/messages/creation/message.md
+          - container: api/network/messages/creation/container.md
+          - message: api/network/messages/creation/message.md
+          - connect: api/network/messages/listening/connect.md
+          - disconnect: api/network/messages/listening/disconnect.md
+          - connect_sync: api/network/messages/listening/connect_sync.md
           - Sending:
               - send: api/network/messages/sending/send.md
               - broadcast: api/network/messages/sending/broadcast.md
@@ -258,10 +260,6 @@ nav:
               - broadcast_unreliably: api/network/messages/sending/broadcast_unreliably.md
               - broadcast_unreliably_to_all: api/network/messages/sending/broadcast_unreliably_to_all.md
               - broadcast_unreliably_to_all_except: api/network/messages/sending/broadcast_unreliably_to_all_except.md
-          - Listening:
-              - connect: api/network/messages/listening/connect.md
-              - disconnect: api/network/messages/listening/disconnect.md
-              - connect_sync: api/network/messages/listening/connect_sync.md
       - Internal API:
           - api/internals/index.md
           - Datatypes API:
