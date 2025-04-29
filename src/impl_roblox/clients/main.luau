@@ -31,13 +31,50 @@ local clients = require("../../include/clients/main.h")
 local _context = require("../context/main")
 local clients_types = require("../../include/clients/types")
 local context = require("../../include/context/main.h")
+local luausignal = require("../../utils/luau_signal")
 
 type Client = clients_types.Identity
 
+local a_descendantof_b = game.IsDescendantOf :: (a: Instance, b: Instance) -> boolean
+local get_players = Players.GetPlayers
+
 if context.runcontext == "client" then clients.local_client = Players.LocalPlayer end
 
+-- metatable is a slow-path to avoid checking if a player is ingame every time there's a new player
+local function __is_connected__index(self: { [Client]: true? }, index: Client): true?
+	if a_descendantof_b(index, Players) then
+		self[index] = true
+		return true
+	end
+	return nil
+end
+local is_connected = setmetatable({}, { __index = __is_connected__index }) :: { [Client]: true? }
+clients.is_connected = is_connected
+
+local client_added_signal = luausignal() :: luausignal.Identity<Client>
+local client_removed_signal = luausignal() :: luausignal.Identity<Client>
+
+--[[
+I kinda despise this, but, for once, immediate signalbehavior is our problem-child. You can't use PlayerRemoving because
+descendants index isn't updated until after the signal, and, it would lead to leaked players if fallback to __index
+returns descendant = true after we've already "Removed" the player. This is almost entirely an edge case that will only
+happen if you try to index is_ingame from a PlayerRemoving callback after the internal one. PlayerAdded is replaced with
+ChildAdded for consistency with the ChildRemoved pattern
+]]
+Players.ChildRemoved:Connect(function(plr: Instance): ()
+	if not plr:IsA("Player") then return end
+	is_connected[plr] = nil
+	client_removed_signal:fire(plr)
+end)
+
+Players.ChildAdded:Connect(function(plr: Instance): ()
+	if not plr:IsA("Player") then return end
+	is_connected[plr] = true
+	client_added_signal:fire(plr)
+end)
+
 function clients.all_clients(): { Client }
-	return Players:GetPlayers()
+	return get_players(Players)
 end
 
 return nil

@@ -35,7 +35,10 @@ export type ApiIdentity = {
 	local_client: Client,
 
 	all_clients: () -> { Client },
+	is_connected: { [Client]: true? },
+
 	client_added: luau_signal.Identity<Client>,
+	client_removed: luau_signal.Identity<Client>,
 }
 
 local identity = setmetatable({}, {
