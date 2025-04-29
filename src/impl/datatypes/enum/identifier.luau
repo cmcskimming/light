@@ -24,8 +24,18 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
-local impl_roblox = require(script:WaitForChild("impl_roblox"):WaitForChild("main"))
+local holy = require("../../../holy")
 
-impl_roblox.init()
+type HolyDatatype<T = any> = holy.Datatype<T>
 
-return require(script:WaitForChild("main"))
+local ty = holy.datatypes
+
+local function identifier<Identifier>(identifiers: { Identifier }): HolyDatatype<Identifier>
+	local identifier_enum_datatype = holy.new_datatype()
+
+	-- TODO
+
+	return identifier_enum_datatype
+end
+
+return identifier

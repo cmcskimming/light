@@ -25,7 +25,7 @@ SOFTWARE.
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
 local holy = require("./holy")
-local library_datatypes = require("./datatypes/main")
+local library_datatypes = require("./include/datatypes/main.h")
 local message_id = require("./messages/id")
 local message_types = require("./messages/types")
 

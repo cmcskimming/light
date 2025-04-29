@@ -24,8 +24,20 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
-local impl_roblox = require(script:WaitForChild("impl_roblox"):WaitForChild("main"))
+local Players = game:GetService("Players")
 
-impl_roblox.init()
+local clients = require("../../include/clients/main.h")
 
-return require(script:WaitForChild("main"))
+local _context = require("../context/main")
+local clients_types = require("../../include/clients/types")
+local context = require("../../include/context/main.h")
+
+type Client = clients_types.Identity
+
+if context.runcontext == "client" then clients.local_client = Players.LocalPlayer end
+
+function clients.all_clients(): { Client }
+	return Players:GetPlayers()
+end
+
+return nil

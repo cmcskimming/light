@@ -24,8 +24,27 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
-local impl_roblox = require(script:WaitForChild("impl_roblox"):WaitForChild("main"))
+local _datatype_cached = require("./cached")
+local datatypes = require("../../include/datatypes/main.h")
+local holy = require("../../holy")
 
-impl_roblox.init()
+type HolyDatatype<T = any> = holy.Datatype<T>
 
-return require(script:WaitForChild("main"))
+local ty = holy.datatypes
+
+--[=[
+struct mirror with datatype caching
+]=]
+function datatypes.struct<FieldValues>(
+	fields: { [string]: FieldValues }
+): HolyDatatype<{ [string]: FieldValues }>
+	local cached_fields = table.clone(fields) :: { [string]: HolyDatatype<FieldValues> }
+
+	for field_name, field_datatype in fields do
+		cached_fields[field_name] = datatypes.cached(field_datatype)
+	end
+
+	return ty.struct(cached_fields)
+end
+
+return nil

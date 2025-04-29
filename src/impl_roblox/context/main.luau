@@ -24,8 +24,18 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
-local impl_roblox = require(script:WaitForChild("impl_roblox"):WaitForChild("main"))
+local RunService = game:GetService("RunService")
 
-impl_roblox.init()
+local context = require("../../include/context/main.h")
 
-return require(script:WaitForChild("main"))
+local report = require("../../report")
+
+if RunService:IsServer() then
+	context.runcontext = "server"
+elseif RunService:IsClient() then
+	context.runcontext = "client"
+else
+	error(report.bug(report.problem("RunService is not in Server or Client")))
+end
+
+return nil

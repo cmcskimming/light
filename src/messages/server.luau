@@ -26,7 +26,8 @@ SOFTWARE.
 ]]
 local clients = require("../include/clients/main.h")
 local clients_types = require("../include/clients/types")
-local datatype_cached = require("../datatypes/cached")
+local datatypes = require("../include/datatypes/main.h")
+local datatypes_types = require("../include/datatypes/types")
 local holy = require("../holy")
 local id = require("./id")
 local internal_bridges = require("../internal_bridges")
@@ -81,12 +82,14 @@ end
 
 local function message_constructor(
 	message_name: string,
-	datatype: datatype_cached.AcceptableSchema
+	datatype: datatypes_types.AcceptableCachedSchema
 ): MessageId
+	local cached_datatype = datatypes.cached(datatype)
+
 	local message_id = id.new()
 
 	message_linking.link_name(message_name, message_id)
-	message_linking.link_serdes(message_name, datatype)
+	message_linking.link_serdes(message_name, cached_datatype)
 
 	send_message_sync_one(message_name, message_id)
 

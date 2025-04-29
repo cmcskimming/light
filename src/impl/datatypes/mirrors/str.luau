@@ -24,8 +24,18 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
-local impl_roblox = require(script:WaitForChild("impl_roblox"):WaitForChild("main"))
+local datatypes = require("../../../include/datatypes/main.h")
+local holy = require("../../../holy")
 
-impl_roblox.init()
+type HolyDatatype<T = any> = holy.Datatype<T>
 
-return require(script:WaitForChild("main"))
+local ty = holy.datatypes
+
+--[=[
+1:1 mirror of str (length_datatype vlq(3))
+]=]
+function datatypes.str(length_datatype: HolyDatatype<number>): HolyDatatype<string>
+	return ty.str(length_datatype or ty.vlq(3))
+end
+
+return nil

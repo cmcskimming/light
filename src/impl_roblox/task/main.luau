@@ -24,8 +24,12 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
-local impl_roblox = require(script:WaitForChild("impl_roblox"):WaitForChild("main"))
+local header = require("../../include/task/main.h")
 
-impl_roblox.init()
+header.wait = task.wait :: any
+header.spawn = task.spawn :: any
+header.defer = task.defer :: any
+header.delay = task.delay :: any
+header.close = task.cancel :: any
 
-return require(script:WaitForChild("main"))
+return nil

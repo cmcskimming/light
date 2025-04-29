@@ -24,8 +24,43 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
-local impl_roblox = require(script:WaitForChild("impl_roblox"):WaitForChild("main"))
+local bridge = require("../../include/bridge/main.h")
 
-impl_roblox.init()
+local bridge_types = require("../../include/bridge/types")
+local clients_types = require("../../include/clients/types")
+local report = require("../../report")
+local roblox_storage = require("../utils/roblox_storage")
 
-return require(script:WaitForChild("main"))
+function bridge.new<BridgeData...>(name: string, unreliable: boolean?): bridge_types.Bridge<BridgeData...>
+	local remote_event = roblox_storage.inst:WaitForChild(name) :: RemoteEvent
+
+	if remote_event:IsA("BaseRemoteEvent") == false then
+		error(report.problem("remote event inst was not a base remote event"))
+	end
+
+	local impl = {} :: bridge_types.Bridge<BridgeData...>
+
+	function impl.server_event(callback: bridge_types.ServerCallback<BridgeData...>): ()
+		remote_event.OnServerEvent:Connect(callback :: any)
+	end
+
+	function impl.client_event(callback: bridge_types.ClientCallback<BridgeData...>): ()
+		remote_event.OnClientEvent:Connect(callback :: any)
+	end
+
+	function impl.fire_server(...: BridgeData...): ()
+		remote_event:FireServer(...)
+	end
+
+	function impl.fire_all_clients(...: BridgeData...): ()
+		remote_event:FireAllClients(...)
+	end
+
+	function impl.fire_client(client: clients_types.Identity, ...: BridgeData...): ()
+		remote_event:FireClient(client, ...)
+	end
+
+	return impl
+end
+
+return nil

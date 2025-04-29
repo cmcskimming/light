@@ -24,8 +24,7 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
-
-local datatypes = require("./datatypes/main")
+local datatypes = require("./include/datatypes/main.h")
 
 return {
 	shared = {

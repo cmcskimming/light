@@ -24,8 +24,17 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
-local impl_roblox = require(script:WaitForChild("impl_roblox"):WaitForChild("main"))
+local datatypes = require("../../../include/datatypes/main.h")
+local identifier_enum = require("./identifier")
+local tagged_enum = require("./tagged")
 
-impl_roblox.init()
+function datatypes.enum(first: any, second: any): any
+	if second == nil then
+		return identifier_enum(first)
+	else
+		-- Luau
+		return tagged_enum(first, second :: any)
+	end
+end
 
-return require(script:WaitForChild("main"))
+return nil

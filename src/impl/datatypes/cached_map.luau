@@ -24,8 +24,27 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
-local impl_roblox = require(script:WaitForChild("impl_roblox"):WaitForChild("main"))
+local _datatype_cached = require("./cached")
+local datatypes = require("../../include/datatypes/main.h")
+local holy = require("../../holy")
 
-impl_roblox.init()
+type HolyDatatype<T = any> = holy.Datatype<T>
 
-return require(script:WaitForChild("main"))
+local ty = holy.datatypes
+
+--[=[
+map mirror with datatype caching
+]=]
+function datatypes.map<Key, Value>(
+	key_datatype: HolyDatatype<Key>,
+	value_datatype: HolyDatatype<Value>,
+	length_datatype: HolyDatatype<number>?
+): HolyDatatype<{ [Key]: Value }>
+	return ty.map(
+		datatypes.cached(key_datatype),
+		datatypes.cached(value_datatype),
+		length_datatype or ty.u16
+	)
+end
+
+return nil

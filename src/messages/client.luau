@@ -24,7 +24,8 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
-local datatype_cached = require("../datatypes/cached")
+local datatypes = require("../include/datatypes/main.h")
+local datatypes_types = require("../include/datatypes/types")
 local holy = require("../holy")
 local internal_bridges = require("../internal_bridges")
 local internal_datatypes = require("../internal_datatypes")
@@ -44,12 +45,14 @@ local awaiting_sync = {} :: { [string]: thread }
 
 local function message_constructor(
 	message_name: string,
-	datatype: datatype_cached.AcceptableSchema
+	datatype: datatypes_types.AcceptableCachedSchema
 ): MessageId
+	local cached_datatype = datatypes.cached(datatype)
+
 	local message_id = message_linking.ids[message_name]
 
 	if message_id ~= nil then
-		message_linking.link_serdes(message_name, datatype)
+		message_linking.link_serdes(message_name, cached_datatype)
 		return message_id
 	end
 
@@ -73,7 +76,7 @@ local function message_constructor(
 		message_id = coroutine.yield()
 	end
 
-	message_linking.link_serdes(message_name, datatype)
+	message_linking.link_serdes(message_name, cached_datatype)
 
 	return message_id
 end

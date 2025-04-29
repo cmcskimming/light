@@ -24,8 +24,50 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
-local impl_roblox = require(script:WaitForChild("impl_roblox"):WaitForChild("main"))
+local datatype_cached = require("../cached")
+local holy = require("../../../holy")
 
-impl_roblox.init()
+type HolyDatatype<T = any> = holy.Datatype<T>
 
-return require(script:WaitForChild("main"))
+local ty = holy.datatypes
+
+export type function tagged_enum(tag: type, identifier_map: type)
+	assert(identifier_map:is("table"), "Must take in a table datatype")
+	assert(tag:is("singleton"), "Tag must be a singleton")
+	assert(type(tag:value()) == "string", "Tag must be a string singleton")
+
+	local props = identifier_map:properties()
+
+	local output = {}
+
+	for key, readwrite in props do
+		local read = readwrite.read :: type
+
+		if not read:is("table") then
+			error(`Expected a "table" at key "{key:value()}" of identifier map, got tag "{read.tag}"`)
+		end
+
+		read:setproperty(tag, key)
+
+		table.insert(output, read)
+	end
+
+	return types.unionof(unpack(output))
+end
+
+local function tagged<IdentifierName, Identifier, PossibleData>(
+	tag_name: IdentifierName, -- string
+	datatypes: {
+		[Identifier]: HolyDatatype<PossibleData>,
+	}
+): HolyDatatype<
+	PossibleData & { [IdentifierName]: Identifier }
+>
+	local tagged_enum_datatype = holy.new_datatype()
+
+	-- TODO
+
+	return tagged_enum_datatype
+end
+
+return tagged

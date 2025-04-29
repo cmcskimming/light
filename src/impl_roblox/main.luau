@@ -24,8 +24,21 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
-local impl_roblox = require(script:WaitForChild("impl_roblox"):WaitForChild("main"))
+local function implement(module: any): ()
+	if not module:IsA("ModuleScript") then return end
+	if module == script then return end
+	(require)(module)
+end
 
-impl_roblox.init()
+local impl_roblox = {}
 
-return require(script:WaitForChild("main"))
+function impl_roblox.init(): ()
+	for _, module: ModuleScript in script.Parent.Parent.impl:GetDescendants() do
+		implement(module)
+	end
+	for _, module: ModuleScript in script.Parent:GetDescendants() do
+		implement(module)
+	end
+end
+
+return impl_roblox
