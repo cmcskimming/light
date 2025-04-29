@@ -1,7 +1,6 @@
 # Broadcast To All
 
-[`#!luau light.broadcast_to_all()`](./broadcast_to_all.md) sends a message to all players who are ingame when the
-network batch is stepped.
+[`#!luau light.broadcast_to_all()`](./broadcast_to_all.md) sends a message to all players who are ingame.
 
 ## `#!luau function light.broadcast_to_all`
 
