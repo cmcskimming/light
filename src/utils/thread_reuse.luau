@@ -1,3 +1,6 @@
+--[[
+TODO: stop relying on this file, since luau can inline reused_spawn if open_thread / spawner are defined inline.
+]]
 local open_thread: thread?
 
 local function runner<Arguments..., Returns...>(func: (Arguments...) -> Returns..., ...: Arguments...): ()

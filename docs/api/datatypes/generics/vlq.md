@@ -7,10 +7,10 @@ A VLQ takes less space for generally "smaller" numbers, so it can allow you to s
 of a number ahead of time. There is an optional `max_bytes` parameter to limit the number of bytes it can occupy,
 defaulting to 7.
 
-## `#!luau function light.vlq`
+## `#!luau function light.datatypes.vlq`
 
-```luau title='<!-- client --> <!-- server --> <!-- shared --> <!-- sync -->'
-function light.vlq(
+```luau title='<!-- shared --> <!-- sync -->'
+function vlq(
     max_bytes: number?
 ): Datatype<number>
 ```

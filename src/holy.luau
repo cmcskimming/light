@@ -25,9 +25,9 @@ type Set<K, V = true?> = { [K]: V }
 
 export type Datatype<T = any> = number & { __HOLY_T: T }
 
-export type SerNoRealloc<Input = any> = (buff: buffer, byte_ptr: number, value: Input) -> (number)
-export type SerStatic<Input = any> = (buff: buffer, byte_ptr: number, value: Input) -> ()
-export type Ser<Input = any> = (buff: buffer, byte_ptr: number, value: Input) -> (number, buffer)
+export type SerNoRealloc<Input = any> = (buff: buffer, byte_ptr: number, input: Input) -> (number)
+export type SerStatic<Input = any> = (buff: buffer, byte_ptr: number, input: Input) -> ()
+export type Ser<Input = any> = (buff: buffer, byte_ptr: number, input: Input) -> (number, buffer)
 export type Des<Output = any> = (buff: buffer, byte_ptr: number) -> (number, Output)
 
 type MetadataSet<Data = true?> = Set<Datatype, Data>
@@ -46,6 +46,28 @@ local metadata = {
 }
 
 local CONST_LOOKUPS = {}
+
+local IS_STFU_MODE = false
+
+local _err = error
+
+local function stfu(shut_up: boolean?): ()
+	if shut_up or shut_up == nil then
+		IS_STFU_MODE = true
+	else
+		IS_STFU_MODE = false
+	end
+end
+
+local function stfu_check(): ()
+	if IS_STFU_MODE then
+		_err()
+	end
+end
+
+local function is_stfu(): boolean
+	return IS_STFU_MODE
+end
 
 local function fetch_ser_no_realloc<T>(
 	datatype: Datatype<T>
@@ -79,14 +101,32 @@ end
 Returns the minimum number of bytes required to encode a given unsigned int.
 ]=]
 local function uint_size_bytes(uint: number): number
-	return math.ceil(math.log(uint + 1, 2) / 8)
+	local check = 2^8
+	for bytes = 1, 7 do
+		if uint >= check then
+			check *= 2^8
+			continue
+		end
+		return bytes
+	end
+	stfu_check()
+	error(debug.traceback("uint size too big"))
 end
 
 --[=[
 Returns the minimum number of bytes required to encode a given unsigned int as a VLQ value.
 ]=]
 local function vlq_size_bytes(uint: number): number
-	return math.ceil(math.log(uint + 1, 2) / 7)
+	local check = 2^7
+	for bytes = 1, 7 do
+		if uint >= check then
+			check *= 2^7
+			continue
+		end
+		return bytes
+	end
+	stfu_check()
+	error(debug.traceback("vlq too big"))
 end
 
 local function check_datatype_exists(datatype: any): boolean
@@ -207,7 +247,7 @@ do
 	@native
 	local function u16_des(buff: buffer, byte_ptr: number): (number, number)
 		local output = buffer.readu16(buff, byte_ptr)
-		byte_ptr += 1
+		byte_ptr += static_size
 		return byte_ptr, output
 	end
 
@@ -1213,6 +1253,89 @@ datatypes.literal = literal end
 do
 	local cache = {} :: Set<string, Datatype>
 
+	local function clamp(minimum: number, maximum: number): Datatype<number>
+		local hash = ordered_hash(minimum, maximum)
+		do
+			local cached = cache[hash]
+			if cached ~= nil then return cached :: any end
+		end
+
+		if typeof(minimum) ~= "number" then
+			error(debug.traceback(`Invalid clamp: Minimum should be a number. Got type: {typeof(minimum)}`))
+		elseif minimum ~= minimum then
+			error(debug.traceback(`Invalid clamp: Minimum should not be nan`))
+		elseif (minimum // 1) ~= minimum then
+			error(debug.traceback(`Invalid clamp: Minimum should be an integer. Got: {minimum}`))
+		elseif typeof(maximum) ~= "number" then
+			error(debug.traceback(`Invalid clamp: Maximum should be a number. Got type: {typeof(maximum)}`))
+		elseif maximum ~= maximum then
+			error(debug.traceback(`Invalid clamp: Maximum should not be nan`))
+		elseif (maximum // 1) ~= maximum then
+			error(debug.traceback(`Invalid clamp: Maximum should be an integer. Got: {maximum}`))
+		elseif minimum > maximum then
+			error(debug.traceback(`Invalid clamp: Minimum should not be higher than Maximum`))
+		elseif minimum == maximum then
+			error(debug.traceback(`Invalid clamp: Minimum should not equal maximum. Use a literal instead.`))
+		end
+
+		local range_bytes = uint_size_bytes(maximum - minimum)
+
+		local clamp_datatype = new_datatype(range_bytes)
+		cache[hash] = clamp_datatype
+
+		local uint_ser_static, uint_ser, uint_des =
+			CONST_LOOKUPS.uint.ser_static[range_bytes],
+			CONST_LOOKUPS.uint.ser[range_bytes],
+			CONST_LOOKUPS.uint.des[range_bytes]
+
+		@native --dynamic_ncgen
+		local function clamp_ser_no_realloc(buff: buffer, byte_ptr: number, input: any): (number)
+			input = math.clamp(input, minimum, maximum)
+			input -= minimum
+
+			uint_ser_static(buff, byte_ptr, input)
+			byte_ptr += range_bytes
+
+			return byte_ptr
+		end
+
+		@native --dynamic_ncgen
+		local function clamp_static_ser(buff: buffer, byte_ptr: number, input: any): ()
+			input = math.clamp(input, minimum, maximum)
+			input -= minimum
+			uint_ser_static(buff, byte_ptr, input)
+		end
+
+		@native --dynamic_ncgen
+		local function clamp_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
+			input = math.clamp(input, minimum, maximum)
+			input -= minimum
+			return uint_ser(buff, byte_ptr, input)
+		end
+
+		@native --dynamic_ncgen
+		local function clamp_des(buff: buffer, byte_ptr: number): (number, number)
+			local output
+			byte_ptr, output = uint_des(buff, byte_ptr)
+			output += minimum
+			return byte_ptr, math.clamp(output, minimum, maximum)
+		end
+
+		metadata.is_number[clamp_datatype] = true
+
+		metadata.ser_no_realloc[clamp_datatype] = clamp_ser_no_realloc
+		metadata.ser_static[clamp_datatype] = clamp_static_ser
+		metadata.ser[clamp_datatype] = clamp_ser
+		metadata.des[clamp_datatype] = clamp_des
+		
+		return clamp_datatype :: any
+	end
+
+datatypes.clamp = clamp end
+
+do
+	local cache = {} :: Set<string, Datatype>
+
 	local function range(minimum: number, maximum: number): Datatype<number>
 		local hash = ordered_hash(minimum, maximum)
 		do
@@ -1234,13 +1357,12 @@ do
 			error(debug.traceback(`Invalid range: Maximum should be an integer. Got: {maximum}`))
 		elseif minimum > maximum then
 			error(debug.traceback(`Invalid range: Minimum should not be higher than Maximum`))
-		end
-
-		if minimum == maximum then
-			return datatypes.literal(minimum)
+		elseif minimum == maximum then
+			error(debug.traceback(`Invalid range: Minimum should not equal maximum.`))
 		end
 
 		local delta_bytes = uint_size_bytes(maximum - minimum)
+		local output_maximum = maximum - minimum
 
 		local range_datatype = new_datatype(delta_bytes)
 		cache[hash] = range_datatype
@@ -1252,9 +1374,16 @@ do
 
 		@native --dynamic_ncgen
 		local function range_ser_no_realloc(buff: buffer, byte_ptr: number, input: any): (number)
-			input = math.clamp(input, minimum, maximum)
-			input -= minimum
+			if (input < minimum) or (input > maximum) then
+				stfu_check()
+				if input < 0 then
+					error(`Failed to ser range: input below minimum: {minimum} (input {input})`)
+				else
+					error(`Failed to ser range: input below maximum: {maximum} (input {input})`)
+				end
+			end
 
+			input -= minimum
 			uint_ser_static(buff, byte_ptr, input)
 			byte_ptr += delta_bytes
 
@@ -1263,14 +1392,30 @@ do
 
 		@native --dynamic_ncgen
 		local function range_static_ser(buff: buffer, byte_ptr: number, input: any): ()
-			input = math.clamp(input, minimum, maximum)
+			if (input < minimum) or (input > maximum) then
+				stfu_check()
+				if input < 0 then
+					error(`Failed to ser range: input below minimum: {minimum} (input {input})`)
+				else
+					error(`Failed to ser range: input below maximum: {maximum} (input {input})`)
+				end
+			end
+
 			input -= minimum
 			uint_ser_static(buff, byte_ptr, input)
 		end
 
 		@native --dynamic_ncgen
 		local function range_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
-			input = math.clamp(input, minimum, maximum)
+			if (input < minimum) or (input > maximum) then
+				stfu_check()
+				if input < 0 then
+					error(`Failed to ser range: input below minimum: {minimum} (input {input})`)
+				else
+					error(`Failed to ser range: input below maximum: {maximum} (input {input})`)
+				end
+			end
+			
 			input -= minimum
 			return uint_ser(buff, byte_ptr, input)
 		end
@@ -1279,8 +1424,19 @@ do
 		local function range_des(buff: buffer, byte_ptr: number): (number, number)
 			local output
 			byte_ptr, output = uint_des(buff, byte_ptr)
+
+			if output > output_maximum then
+				stfu_check()
+				error(
+					debug.traceback(
+						`Invalid range deserialized: output exceeded the maximum of {maximum}`
+					)
+				)
+			end
+
 			output += minimum
-			return byte_ptr, math.clamp(output, minimum, maximum)
+
+			return byte_ptr, output
 		end
 
 		metadata.is_number[range_datatype] = true
@@ -1356,6 +1512,7 @@ do
 				return target_ptr, buff
 			end
 
+			stfu_check()
 			error(debug.traceback(`Invalid vlq serialized: Expected length <= {0b10000000^max_bytes}`))
 		end
 
@@ -1756,7 +1913,7 @@ do
 			local length_ser_static = metadata.ser_static[length_datatype]
 			local item_ser_static = metadata.ser_static[item_datatype]
 
-			---- @native --dynamic_ncgen
+			@native --dynamic_ncgen
 			function array_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 				local arr_len = #input
 
@@ -1782,7 +1939,7 @@ do
 			local length_ser = metadata.ser[length_datatype]
 			local item_ser_static = metadata.ser_static[item_datatype]
 
-			---- @native --dynamic_ncgen
+			@native --dynamic_ncgen
 			function array_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 				local arr_len = #input
 
@@ -1808,7 +1965,7 @@ do
 			local length_ser = metadata.ser[length_datatype]
 			local item_ser = metadata.ser[item_datatype]
 
-			---- @native --dynamic_ncgen
+			@native --dynamic_ncgen
 			function array_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 				local arr_len = #input
 
@@ -1836,7 +1993,7 @@ do
 				local output: { any } = table_create(arr_len)
 	
 				for index = 1, arr_len do
-					output[index], byte_ptr = des_item(buff, byte_ptr)
+					byte_ptr, output[index] = des_item(buff, byte_ptr)
 				end
 	
 				return byte_ptr, output
@@ -2091,7 +2248,7 @@ do
 			local output = {}
 
 			local key, value
-			for idx = 1, map_len do
+			for _ = 1, map_len do
 				byte_ptr, key = key_des(buff, byte_ptr)
 				byte_ptr, value = value_des(buff, byte_ptr)
 				output[key] = value
@@ -2821,7 +2978,7 @@ do
 
 			local dynamic_portion_ser
 			local dynamic_portion_decode
-			if num_static_keys == 1 then
+			if num_dynamic_keys == 1 then
 				@native --dynamic_ncgen
 				function dynamic_portion_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 					byte_ptr, buff = dynamic_field_a_ser(buff, byte_ptr, input[dynamic_field_a_name])
@@ -2832,7 +2989,7 @@ do
 					byte_ptr, output[dynamic_field_a_name] = dynamic_field_a_des(buff, byte_ptr)
 					return byte_ptr
 				end
-			elseif num_static_keys == 2 then
+			elseif num_dynamic_keys == 2 then
 				@native --dynamic_ncgen
 				function dynamic_portion_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 					byte_ptr, buff = dynamic_field_a_ser(buff, byte_ptr, input[dynamic_field_a_name])
@@ -2845,7 +3002,7 @@ do
 					byte_ptr, output[dynamic_field_b_name] = dynamic_field_b_des(buff, byte_ptr)
 					return byte_ptr
 				end
-			elseif num_static_keys == 3 then
+			elseif num_dynamic_keys == 3 then
 				@native --dynamic_ncgen
 				function dynamic_portion_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 					byte_ptr, buff = dynamic_field_a_ser(buff, byte_ptr, input[dynamic_field_a_name])
@@ -2860,7 +3017,7 @@ do
 					byte_ptr, output[dynamic_field_c_name] = dynamic_field_c_des(buff, byte_ptr)
 					return byte_ptr
 				end
-			elseif num_static_keys == 4 then
+			elseif num_dynamic_keys == 4 then
 				@native --dynamic_ncgen
 				function dynamic_portion_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 					byte_ptr, buff = dynamic_field_a_ser(buff, byte_ptr, input[dynamic_field_a_name])
@@ -2877,7 +3034,7 @@ do
 					byte_ptr, output[dynamic_field_d_name] = dynamic_field_d_des(buff, byte_ptr)
 					return byte_ptr
 				end
-			elseif num_static_keys == 5 then
+			elseif num_dynamic_keys == 5 then
 				@native --dynamic_ncgen
 				function dynamic_portion_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 					byte_ptr, buff = dynamic_field_a_ser(buff, byte_ptr, input[dynamic_field_a_name])
@@ -2896,7 +3053,7 @@ do
 					byte_ptr, output[dynamic_field_e_name] = dynamic_field_e_des(buff, byte_ptr)
 					return byte_ptr
 				end
-			elseif num_static_keys == 6 then
+			elseif num_dynamic_keys == 6 then
 				@native --dynamic_ncgen
 				function dynamic_portion_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 					byte_ptr, buff = dynamic_field_a_ser(buff, byte_ptr, input[dynamic_field_a_name])
@@ -2917,7 +3074,7 @@ do
 					byte_ptr, output[dynamic_field_f_name] = dynamic_field_f_des(buff, byte_ptr)
 					return byte_ptr
 				end
-			elseif num_static_keys == 7 then
+			elseif num_dynamic_keys == 7 then
 				@native --dynamic_ncgen
 				function dynamic_portion_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 					byte_ptr, buff = dynamic_field_a_ser(buff, byte_ptr, input[dynamic_field_a_name])
@@ -2940,7 +3097,7 @@ do
 					byte_ptr, output[dynamic_field_g_name] = dynamic_field_g_des(buff, byte_ptr)
 					return byte_ptr
 				end
-			elseif num_static_keys == 8 then
+			elseif num_dynamic_keys == 8 then
 				@native --dynamic_ncgen
 				function dynamic_portion_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 					byte_ptr, buff = dynamic_field_a_ser(buff, byte_ptr, input[dynamic_field_a_name])
@@ -3331,6 +3488,7 @@ do
 				return byte_ptr, buff
 			end
 		else
+			stfu_check()
 			error(debug.traceback("unreachable"))
 		end
 
@@ -3438,6 +3596,7 @@ do
 				return byte_ptr, buff
 			end
 		else
+			stfu_check()
 			error(debug.traceback("unreachable"))
 		end
 
@@ -3485,6 +3644,8 @@ datatypes.computed = computed end
 
 local holy = {
 	_datatype_metadata = metadata,
+	_stfu_check = stfu_check,
+	_is_stfu = is_stfu,
 
 	fetch = {
 		ser_no_realloc = fetch_ser_no_realloc,
@@ -3504,6 +3665,8 @@ local holy = {
 
 	uint_size = uint_size_bytes,
 	vlq_size = vlq_size_bytes,
+
+	stfu = stfu,
 }
 
 return holy

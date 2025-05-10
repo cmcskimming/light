@@ -6,10 +6,10 @@
 ## `#!luau function light.internal.output`
 
 ```luau title='<!-- errors --> <!-- client --> <!-- server --> <!-- shared --> <!-- experimental --> <!-- sync -->'
-function output<T>(
+function output<Data>(
     writer: DynamicWriter,
-    type: Datatype<T>
-): T
+    type: Datatype<Data>
+): (Data)
 ```
 
 You'll need to provide a valid [DynamicWriter](./writer/index.md), and [Datatype](../../datatypes/index.md#what-is-a-datatype). You can

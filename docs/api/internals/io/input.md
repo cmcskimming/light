@@ -10,7 +10,7 @@ function input<T>(
     writer: DynamicWriter,
     type: Datatype<T>,
     data: T
-)
+): ()
 ```
 
 You'll need to provide a valid [DynamicWriter](./writer/index.md), [Datatype](../../datatypes/index.md#what-is-a-datatype), and some
@@ -23,5 +23,5 @@ data to serialize. You can deserialize the data with [Output](./output.md).
 !!! danger "The buffer may change"
 
     After calling light.input, the buffer the writer contains may change because it had to be resized. Do not hold onto
-    buffers when using this API, each time you call it assume the only safe way to get the buffer is with
-    [`#!luau light.io.get_writer_buff()`](./writer/get_writer_buff.md).
+    buffers when using this API, each time you call it assume the only safe way to get the buffer directly is with
+    [`#!luau light.internal.get_writer_buff()`](./writer/get_writer_buff.md).

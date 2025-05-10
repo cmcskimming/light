@@ -24,36 +24,22 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
+--!optimize 2
 local bitpack = require("../bitpack")
 local message_types = require("../messages/types")
 local stream_types = require("./types")
 
-type Bitpacker = bitpack.Packer
+type Bitpacker = bitpack.Identity
 type MessageId = message_types.MessageId
 
 local function stream_constructor(): stream_types.OutgoingStream
 	local created = {
-		state_current_bitpack = nil :: Bitpacker?,
+		message_buffs = {} :: { [MessageId]: buffer },
+		message_bitpacks = {} :: { [MessageId]: Bitpacker },
 
-		message_writers = {} :: { [MessageId]: buffer },
-		message_bitpacks = {} :: { [MessageId]: Bitpacker? },
-
-		batch_low_messages = {
-			buffs = {} :: { [MessageId]: buffer },
-			cursors = {} :: { [MessageId]: number },
-			unique_message_ids = 0,
-		},
-
-		batch_high_messages = {
-			buffs = {} :: { [MessageId]: buffer },
-			cursors = {} :: { [MessageId]: number },
-			unique_message_ids = 0,
-		},
-
-		batch_unknown = {
-			table = {} :: { unknown },
-			top = 1,
-		},
+		batched_cursor_and_send_count = {} :: { [MessageId]: vector },
+		batch_unknown = {} :: { unknown },
+		batch_unknown_len = 0,
 	}
 
 	return created

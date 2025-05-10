@@ -6,7 +6,7 @@ sending.
 
 ## `#!luau function light.datatypes.optional`
 
-```luau title='<!-- client --> <!-- server --> <!-- shared --> <!-- sync -->'
+```luau title='<!-- shared --> <!-- sync -->'
 function optional<Inner>(
     inner: Datatype<Inner>
 ): Datatype<Inner?>

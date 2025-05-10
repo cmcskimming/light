@@ -41,7 +41,7 @@ local range = ty.range
 local struct = ty.struct
 local arr = ty.arr
 
-local function make_holy<Type>(Datatype: Type): holy.Datatype<Type>
+local function make_holy_t<Type>(Datatype: Type): holy.Datatype<Type>
 	-- Luau
 	return Datatype :: any
 end
@@ -60,13 +60,13 @@ do -- messages
 		name = str(u8),
 		message_id = any_message,
 	})
-	local message_sync_many = arr(message_sync_one, ty.vlq(3))
+	local message_sync_many = arr(message_sync_one, ty.u32)
 
-	internal_datatypes.low_message = make_holy(low_message)
-	internal_datatypes.high_message = make_holy(high_message)
-	internal_datatypes.any_message = make_holy(any_message)
-	internal_datatypes.message_sync_one = make_holy(message_sync_one)
-	internal_datatypes.message_sync_many = make_holy(message_sync_many)
+	internal_datatypes.low_message = make_holy_t(low_message)
+	internal_datatypes.high_message = make_holy_t(high_message)
+	internal_datatypes.any_message = make_holy_t(any_message)
+	internal_datatypes.message_sync_one = make_holy_t(message_sync_one)
+	internal_datatypes.message_sync_many = make_holy_t(message_sync_many)
 end
 
 return internal_datatypes

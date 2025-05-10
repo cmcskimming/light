@@ -6,20 +6,20 @@ one.
 ## `#!luau function light.disconnect`
 
 ```luau title='<!-- client --> <!-- sync -->'
-function disconnect<T>(
-   message: Message<T>
+function disconnect<Data>(
+   message: Message<Data>
 ) -> (
-   ((T) -> ())?
+   ((Data) -> ())?
 )
 ```
 
 ## `#!luau function light.disconnect`
 
 ```luau title='<!-- server --> <!-- sync -->'
-function disconnect<T>(
-   message: Message<T>
+function disconnect<Data>(
+   message: Message<Data>
 ) -> (
-   ((Player, T) -> ())?
+   ((Player, Data) -> ())?
 )
 ```
 

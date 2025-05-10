@@ -33,7 +33,7 @@ local report = require("../../report")
 
 export type InstanceStorageClass = Folder
 
-local INSTANCE_STORAGE_CLASSNAME = "FOLDER"
+local INSTANCE_STORAGE_CLASSNAME = "Folder"
 local INSTANCE_STORAGE_PARENT = game:GetService("ReplicatedStorage")
 local INSTANCE_STORAGE_NAME = "__LIGHT_STORAGE_"
 
@@ -46,6 +46,7 @@ export type ApiIdentity = typeof(roblox_storage)
 function roblox_storage.init(): ()
 	if context.runcontext == "server" then
 		local new_storage = Instance.new(INSTANCE_STORAGE_CLASSNAME)
+		new_storage.Name = INSTANCE_STORAGE_NAME
 
 		new_storage.Parent = INSTANCE_STORAGE_PARENT
 

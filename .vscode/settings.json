@@ -30,5 +30,9 @@
     "editor.insertSpaces": true,
     "prettier.useTabs": false,
     "editor.detectIndentation": false,
-    "stylua.targetReleaseVersion": "latest"
+    "stylua.targetReleaseVersion": "latest",
+    "workbench.editor.customLabels.enabled": true,
+    "workbench.editor.customLabels.patterns": {
+        "**/*.luau": "${dirname}/${filename}.${extname}"
+    }
 }

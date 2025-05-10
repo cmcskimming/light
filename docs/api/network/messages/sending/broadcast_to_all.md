@@ -8,5 +8,5 @@
 function broadcast_to_all<T>(
    message: Message<T>,
    data: T
-)
+): ()
 ```

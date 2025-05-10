@@ -10,10 +10,10 @@ ID if it isn't one already, rendering it unusable for anything other than ser/de
 
 ## `#!luau function light.datatypes.cached`
 
-```luau title='<!-- client --> <!-- server --> <!-- shared --> <!-- sync -->'
+```luau title='<!-- shared --> <!-- sync -->'
 function cached<T>(
    value: Datatype<T>
-): Datatype<T>
+): (Datatype<T>)
 ```
 
 An example

@@ -24,7 +24,12 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
-
+--[[
+Bitpacking utility object
+TODO: Consider adding caching to packer fields on push
+TODO: Investigate bitpack perf of numeric index instead of hash (rip maintainability)
+]]
+local PACK_DEFAULT_INCREMENT = 1
 local U32_BYTES = 4
 
 local holy = require("./holy")
@@ -32,7 +37,6 @@ local holy = require("./holy")
 local metadata = holy._datatype_metadata
 local uint_size = holy.uint_size
 local vlq_size = holy.vlq_size
-
 local lookup_uint_ser_static = holy.const_lookups.uint.ser_static
 
 type u32 = number
@@ -40,15 +44,15 @@ type u8 = number
 type u16 = number
 type u24 = number
 
-export type Packer = {
+export type Identity = {
 	array: { u32 },
 	current: u8 | u16 | u24 | u32,
 	increment: u32,
 }
 
-export type Unpacker = {
+export type UnpackerIdentity = {
 	array: { boolean },
-	pos: number,
+	read_index: number,
 }
 
 type function negate(T: type): type
@@ -62,28 +66,28 @@ local des_vlq2 = metadata.des[vlq2]
 --[=[
 Construct a new bitpacker.
 ]=]
-local function packer(): Packer
+local function constructor(): Identity
 	return {
 		array = {} :: { u32 },
 		current = 0 :: u32,
-		increment = 1 :: u32,
+		increment = PACK_DEFAULT_INCREMENT :: u32,
 	}
 end
 
 --[=[
 Reset a bitpacker's bit array, current progress, and increment, so it can be reused.
 ]=]
-local function reset(packer: Packer): ()
+local function reset(packer: Identity): ()
 	packer.array = {} :: { u32 }
 	packer.current = 0 :: u32
-	packer.increment = 1 :: u32
+	packer.increment = PACK_DEFAULT_INCREMENT :: u32
 end
 
 --[=[
 Push false to the most significant bit.
 ]=]
 @native
-local function push_false(packer: Packer): ()
+local function push_false(packer: Identity): ()
 	local increment = packer.increment
 
 	if increment < 2 ^ 32 then
@@ -91,7 +95,7 @@ local function push_false(packer: Packer): ()
 	else
 		table.insert(packer.array, packer.current)
 
-		packer.increment = 1
+		packer.increment = PACK_DEFAULT_INCREMENT
 		packer.current = 0
 	end
 end
@@ -100,7 +104,7 @@ end
 Push true to the most significant bit.
 ]=]
 @native
-local function push_true(packer: Packer): ()
+local function push_true(packer: Identity): ()
 	local increment = packer.increment
 
 	packer.current += increment
@@ -110,7 +114,7 @@ local function push_true(packer: Packer): ()
 	else
 		table.insert(packer.array, packer.current)
 
-		packer.increment = 1
+		packer.increment = PACK_DEFAULT_INCREMENT
 		packer.current = 0
 	end
 end
@@ -119,21 +123,21 @@ end
 Push a boolean to the most significant bit.
 ]=]
 @native
-local function push(packer: Packer, bool: boolean): ()
+local function push(packer: Identity, bool: boolean): ()
 	(bool and push_true or push_false)(packer)
 end
 
 --[=[
 Evaluate the size, in bytes, of a bitpacker's array portion.
 ]=]
-local function evaluate_array(packer: Packer): number
+local function evaluate_array(packer: Identity): number
 	return #packer.array * U32_BYTES
 end
 
 --[=[
 Evaluate the size, in bytes, of a bitpacker's remainder portion.
 ]=]
-local function evaluate_remainder(packer: Packer): number
+local function evaluate_remainder(packer: Identity): number
 	local next_increment = packer.increment
 
 	-- default increment
@@ -147,7 +151,7 @@ end
 --[=[
 Evaluate the size, in bytes, that a bitpacker will occupy once exported.
 ]=]
-local function evaluate_packer(packer: Packer): number
+local function evaluate_packer(packer: Identity): number
 	local data_bytes = evaluate_array(packer) + evaluate_remainder(packer)
 
 	local vlq_bytes = vlq_size(data_bytes)
@@ -156,10 +160,17 @@ local function evaluate_packer(packer: Packer): number
 end
 
 --[=[
+Check if a bitpack has had any fields pushed to it.
+]=]
+local function bitpacker_contains_data(packer: Identity): boolean
+	return packer.increment ~= PACK_DEFAULT_INCREMENT or #packer.array > 0
+end
+
+--[=[
 Export a bitpacker into a buffer. Encodes length in bytes as vlq(2)
 ]=]
 @native
-local function export(buff: buffer, byte_ptr: number, packer: Packer): (number, buffer)
+local function export(buff: buffer, byte_ptr: number, packer: Identity): (number, buffer)
 	local array_bytes = evaluate_array(packer)
 	local remainder_bytes = evaluate_remainder(packer)
 
@@ -185,6 +196,7 @@ local function export(buff: buffer, byte_ptr: number, packer: Packer): (number, 
 end
 
 local import
+local import_byte
 do
 	local bitfield_const_lookup = table.create((2 ^ 8 - 1)) :: { [number]: { [number]: boolean } }
 	do
@@ -210,7 +222,7 @@ do
 	Import a bitunpacker from a buffer.
 	]=]
 	@native
-	function import(buff: buffer, byte_ptr: number): (number, Unpacker)
+	function import(buff: buffer, byte_ptr: number): (number, UnpackerIdentity)
 		local byte_count
 		byte_ptr, byte_count = des_vlq2(buff, byte_ptr)
 
@@ -229,8 +241,42 @@ do
 
 		return byte_ptr, {
 			array = bits_output,
-			pos = 1,
+			read_index = 1,
 		}
+	end
+
+	--[=[
+	Import a series of bits from a u8
+	]=]
+	@native
+	function import_byte(
+		buff: buffer,
+		byte_ptr: number
+	): (
+		number,
+		boolean,
+		boolean,
+		boolean,
+		boolean,
+		boolean,
+		boolean,
+		boolean,
+		boolean
+	)
+		local decoded = buffer.readu8(buff, byte_ptr)
+		byte_ptr += 1
+
+		local decoded_tbl = bitfield_const_lookup[decoded]
+
+		return byte_ptr,
+			decoded_tbl[1],
+			decoded_tbl[2],
+			decoded_tbl[3],
+			decoded_tbl[4],
+			decoded_tbl[5],
+			decoded_tbl[6],
+			decoded_tbl[7],
+			decoded_tbl[8]
 	end
 end
 
@@ -238,16 +284,18 @@ end
 Read the next boolean from a bitunpacker.
 ]=]
 @native
-local function read(unpacker: Unpacker): boolean
-	local pos = unpacker.pos
+local function read(unpacker: UnpackerIdentity): boolean
+	local read = unpacker.read_index
 
-	unpacker.pos = pos + 1
+	unpacker.read_index = read + 1
 
-	return unpacker.array[pos]
+	local output = unpacker.array[read]
+
+	return output
 end
 
 local api = {
-	packer = packer,
+	new = constructor,
 	reset = reset,
 	push_false = push_false,
 	push_true = push_true,
@@ -255,8 +303,10 @@ local api = {
 	evaluate_array = evaluate_array,
 	evaluate_remainder = evaluate_remainder,
 	evaluate_packer = evaluate_packer,
+	contains_data = bitpacker_contains_data,
 	export = export,
 	import = import,
+	import_byte = import_byte,
 	read = read,
 }
 

@@ -29,17 +29,26 @@ local datatypes_types = require("../include/datatypes/types")
 local holy = require("../holy")
 local internal_bridges = require("../internal_bridges")
 local internal_datatypes = require("../internal_datatypes")
-local message_linking = require("./linking")
+local message_metadata_linking = require("./metadata_linking")
+local message_queue = require("../messages/client_queue")
 local message_types = require("./types")
 local report = require("../report")
 local task = require("../include/task/main.h")
-
-local task_spawn = task.spawn
+local thread_reuse = require("../utils/thread_reuse")
 
 type HolyDatatype = holy.Datatype
-type MessageId = message_types.MessageId
+type MessageId<T = any> = message_types.MessageId<T>
+type Callback<T = any> = message_types.ClientCallback<T>
 
-local des_message_sync = holy.fetch.des(internal_datatypes.message_sync_one)
+local reused_spawn = thread_reuse.reused_spawn
+local invoke_message_queue = message_queue.invoke
+local task_spawn = task.spawn
+local callbacks = message_queue.callbacks
+local message_sync_one = internal_datatypes.message_sync_one
+local message_sync_many = internal_datatypes.message_sync_many
+
+local des_message_sync_one = holy.fetch.des(message_sync_one)
+local des_message_sync_many = holy.fetch.des(message_sync_many)
 
 local awaiting_sync = {} :: { [string]: thread }
 
@@ -49,10 +58,10 @@ local function message_constructor(
 ): MessageId
 	local cached_datatype = datatypes.cached(datatype)
 
-	local message_id = message_linking.ids[message_name]
+	local message_id = message_metadata_linking.ids[message_name]
 
 	if message_id ~= nil then
-		message_linking.link_serdes(message_name, cached_datatype)
+		message_metadata_linking.link_serdes(message_name, cached_datatype)
 		return message_id
 	end
 
@@ -76,34 +85,82 @@ local function message_constructor(
 		message_id = coroutine.yield()
 	end
 
-	message_linking.link_serdes(message_name, cached_datatype)
+	message_metadata_linking.link_serdes(message_name, cached_datatype)
 
 	return message_id
 end
 
-local function init_messages(): ()
-	internal_bridges.to_client.sync_one_id.client_event(function(buff: buffer): ()
-		local _, sync = des_message_sync(buff, 0)
+local function sync_connection<MessageData>(
+	message_id: MessageId<MessageData>,
+	callback: Callback<MessageData>
+): ()
+	local existing_callback = callbacks[message_id]
 
-		local message_name = sync.name
-		local message_id = sync.message_id
+	if existing_callback then
+		error(
+			report.problem(
+				`Message of id {message_id} already has a connection, `
+					.. "consider using light.disconnect(message)"
+			)
+		)
+	end
 
-		message_linking.link_name(message_name, message_id)
+	callbacks[message_id] = callback
 
-		local waiting_thread = awaiting_sync[message_name]
-
-		if waiting_thread then
-			task_spawn(waiting_thread, message_id)
-			awaiting_sync[message_name] = nil
-			return
-		end
-	end)
+	invoke_message_queue(message_id, callback)
 end
 
-local client_messages = {
-	init = init_messages,
+local function async_connection<MessageData>(
+	message_id: MessageId<MessageData>,
+	callback: Callback<MessageData>
+): ()
+	local function async_connection_wrapper(data: MessageData): ()
+		reused_spawn(callback, data)
+	end
 
+	sync_connection(message_id, async_connection_wrapper)
+end
+
+local function disconnect<MessageData>(message_id: MessageId<MessageData>): Callback<MessageData>?
+	local existing_callback = callbacks[message_id]
+
+	callbacks[message_id] = nil
+
+	return existing_callback
+end
+
+local function sync_message_from_remote(sync: typeof(holy.export(message_sync_one))): ()
+	local message_name = sync.name
+	local message_id = sync.message_id
+
+	message_metadata_linking.link_name(message_name, message_id)
+
+	local waiting_thread = awaiting_sync[message_name]
+
+	if waiting_thread then
+		task_spawn(waiting_thread, message_id)
+		awaiting_sync[message_name] = nil
+		return
+	end
+end
+
+internal_bridges.to_client.sync_one_id.client_event(function(buff: buffer): ()
+	local _, decoded_sync = des_message_sync_one(buff, 0)
+	sync_message_from_remote(decoded_sync)
+end)
+internal_bridges.to_client.sync_many_ids.client_event(function(buff: buffer): ()
+	local _, decoded_list = des_message_sync_many(buff, 0)
+	for a, decoded_sync in decoded_list do
+		sync_message_from_remote(decoded_sync)
+	end
+end)
+
+local client_messages = {
 	new = message_constructor,
+
+	sync_connect = sync_connection,
+	async_connect = async_connection,
+	disconnect = disconnect,
 }
 
 return client_messages

@@ -6,10 +6,10 @@ default networking is used, you still get proper type validation & annotation.
 
 ## `#!luau function light.datatypes.checked`
 
-```luau title='<!-- client --> <!-- server --> <!-- shared --> <!-- sync -->'
+```luau title='<!-- shared --> <!-- sync -->'
 function checked<Input, Checked>(
     sanity_check: (Input) -> (Checked)
-): Datatype<Checked>
+): (Datatype<Checked>)
 ```
 
 ## Example

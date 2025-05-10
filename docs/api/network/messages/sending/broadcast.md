@@ -13,5 +13,5 @@ function broadcast<T>(
     message: Message<T>,
     to: { Player },
     data: T
-)
+): ()
 ```

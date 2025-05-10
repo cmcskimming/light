@@ -18,11 +18,11 @@ Using the above table syntax will behave the same as passing the table into the 
 
 ## `#!luau function light.datatypes.arr`
 
-```luau title='<!-- client --> <!-- server --> <!-- shared --> <!-- sync -->'
+```luau title='<!-- shared --> <!-- sync -->'
 function arr<Item>(
     item: Datatype<Item>,
     length: Datatype<number>?
-): Datatype<{T}>
+): (Datatype<{T}>)
 ```
 
 First argument should be any [Datatype](../../index.md#what-is-a-datatype) which cannot be `#!luau nil`. The `length`

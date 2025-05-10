@@ -82,7 +82,7 @@ function datatypes.cframe(position_datatype: Datatype<number>?): Datatype<CFrame
 		local cframe_static_size = U16_BYTES + I16_BYTES + pos_static_size * 3
 		metadata.static_size[cframe_datatype] = cframe_static_size
 
-		---- @native --dynamic_ncgen
+		@native --dynamic_ncgen
 		function cframe_ser_static(buff: buffer, byte_ptr: number, input: any): ()
 			local axis, angle = to_axis_angle(input)
 			local pos = CFrame__index(input, "Position")
@@ -113,7 +113,7 @@ function datatypes.cframe(position_datatype: Datatype<number>?): Datatype<CFrame
 			byte_ptr += pos_static_size
 		end
 
-		---- @native --dynamic_ncgen
+		@native --dynamic_ncgen
 		function cframe_ser_no_realloc(buff: buffer, byte_ptr: number, input: any): number
 			local axis, angle = to_axis_angle(input)
 			local pos = CFrame__index(input, "Position")
@@ -146,8 +146,8 @@ function datatypes.cframe(position_datatype: Datatype<number>?): Datatype<CFrame
 			return byte_ptr
 		end
 
-		---- @native --dynamic_ncgen
-		function cframe_ser(buff: buffer, byte_ptr: number, input: any): number
+		@native --dynamic_ncgen
+		function cframe_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 			local axis, angle = to_axis_angle(input)
 			local pos = CFrame__index(input, "Position")
 
@@ -183,11 +183,11 @@ function datatypes.cframe(position_datatype: Datatype<number>?): Datatype<CFrame
 			pos_ser_static(buff, byte_ptr, pos.z)
 			byte_ptr += pos_static_size
 
-			return byte_ptr
+			return byte_ptr, buff
 		end
 	else
 		@native --dynamic_ncgen
-		function cframe_ser(buff: buffer, byte_ptr: number, input: any): number
+		function cframe_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 			local axis, angle = to_axis_angle(input)
 			local pos = CFrame__index(input, "Position")
 
@@ -220,7 +220,7 @@ function datatypes.cframe(position_datatype: Datatype<number>?): Datatype<CFrame
 			byte_ptr, buff = pos_ser(buff, byte_ptr, pos.y)
 			byte_ptr, buff = pos_ser(buff, byte_ptr, pos.z)
 
-			return byte_ptr
+			return byte_ptr, buff
 		end
 	end
 

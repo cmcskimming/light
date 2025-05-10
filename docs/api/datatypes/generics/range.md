@@ -1,15 +1,19 @@
 # Range
 
-Represents a range of possible integers by providing a minimum and maximum, then <nobr>encoding / decoding</nobr> the equivalent of
-<a href="https://create.roblox.com/docs/reference/engine/libraries/math#clamp" target="_blank"><nobr>`#!luau math.clamp(input, minimum, maximum)`</nobr></a>.
+Represents a range of possible integers by providing a minimum and maximum.
+
+!!! danger "Serialization can error"
+
+    If the number serialized is outside the range provided, serialization will error. If you instead want to clamp the
+    input/output, use [`#!luau datatypes.clamp()`](./clamp.md)
 
 ## `#!luau function light.datatypes.range`
 
-```luau title='<!-- client --> <!-- server --> <!-- shared --> <!-- sync -->'
+```luau title='<!-- shared --> <!-- sync -->'
 function range(
     minimum: number,
     maximum: number
-): Datatype<number>
+): (Datatype<number>)
 ```
 
 ## Size

@@ -11,10 +11,10 @@ datatype that represents a number, like a [`uint`](../numbers/uints.md), or a
 
 ## `#!luau function light.datatypes.buff`
 
-```luau title='<!-- client --> <!-- server --> <!-- shared --> <!-- sync -->'
+```luau title='<!-- shared --> <!-- sync -->'
 function buff(
     length: Datatype<number>?
-): Datatype<buffer>
+): (Datatype<buffer>)
 ```
 
 A couple of ways you could use the optional `length` parameter:

@@ -7,7 +7,8 @@ If you call it later on, all of the messages you try to send will still get queu
 ## `#!luau function light.begin_replication`
 
 ```luau title='<!-- client --> <!-- server --> <!-- shared --> <!-- sync -->'
-function begin_replication(): ()
+function begin_replication(
+): ()
 ```
 
 You can use [`#!luau light.step_replication()`](./step_replication.md) instead of this if you prefer a manual

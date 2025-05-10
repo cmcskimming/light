@@ -10,22 +10,22 @@ I.e., `#!luau { light.datatypes.u8 }`
 
     The server defines the messages immediately, so `#!luau container {...}` will never yield on the server.
 
-## `#!luau function light.container`
+## `#!luau function light.container` <small>(On The Client)</small>
 
-```luau title='<!-- client --> <!-- shared --> <!-- sync --> <!-- async -->'
-function container<T>(
-    message_names: T & { [string]: Datatype },
+```luau title='<!-- shared --> <!-- sync --> <!-- async -->'
+function container<MessageNames>(
+    message_names: MessageNames, -- { [string]: Datatype }
     namespace: string? --(1)!
-): (T)
+): (MessageNames)
 ```
 
 1. The "namespace" parameter exists to allow you to have multiple containers with overlapping message names.
 
-## `#!luau function light.container`
+## `#!luau function light.container` <small>(On The Server)</small>
 
-```luau title='<!-- server --> <!-- sync -->'
+```luau title='<!-- shared --> <!-- sync -->'
 function container<T>(
-    message_names: T & { [string]: Datatype },
+    message_names: T, -- { [string]: Datatype }
     namespace: string? --(1)!
 ): (T)
 ```

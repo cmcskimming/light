@@ -34,7 +34,7 @@ type Bridge<BridgeData...> = bridge_types.Bridge<BridgeData...>
 return {
 	to_client = {
 		reliable_messaging = bridge.new("TO_CLIENT_RELIABLE") :: Bridge<...MessagingBridgeData>,
-		unreliable_messaging = bridge.new("TO_CLIENT_UNRELIABLE") :: Bridge<...MessagingBridgeData>,
+		unreliable_messaging = bridge.new("TO_CLIENT_UNRELIABLE") :: Bridge<MessagingBridgeData, buffer?>,
 		sync_one_id = bridge.new("TO_CLIENT_SYNC_ONE") :: Bridge<buffer>,
 		sync_many_ids = bridge.new("TO_CLIENT_SYNC_MANY") :: Bridge<buffer>,
 	},

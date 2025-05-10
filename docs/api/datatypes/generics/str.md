@@ -11,7 +11,7 @@ datatype that represents a number, like a [`uint`](../numbers/uints.md), or a
 
 ## `#!luau function light.datatypes.str`
 
-```luau title='<!-- client --> <!-- server --> <!-- shared --> <!-- sync -->'
+```luau title='<!-- shared --> <!-- sync -->'
 function str(
     length: Datatype<number>?
 ): Datatype<string>

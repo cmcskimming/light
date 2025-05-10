@@ -31,10 +31,10 @@ Computed [Datatypes](../index.md) are similar to [`#!luau light.literal()`](./li
 
 ## `#!luau function light.datatypes.computed`
 
-```luau title='<!-- client --> <!-- server --> <!-- shared --> <!-- experimental --> <!-- sync -->'
+```luau title='<!-- shared --> <!-- experimental --> <!-- sync -->'
 function computed<Output>(
     lambda: () -> (Datatype<Output>)
-): Datatype<Output>
+): (Datatype<Output>)
 ```
 
 An example <a href="https://en.wikipedia.org/wiki/Linked_list" target="_blank">LinkedList</a> [Datatype](../index.md#what-is-a-datatype)

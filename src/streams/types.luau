@@ -28,30 +28,16 @@ local bitpacker = require("../bitpack")
 local message_types = require("../messages/types")
 
 type MessageId = message_types.MessageId
-type Bitpacker = bitpacker.Packer
+type Bitpacker = bitpacker.Identity
+type BitUnpacker = bitpacker.UnpackerIdentity
 
 export type OutgoingStream = {
-	state_current_bitpack: Bitpacker?,
+	read message_buffs: { [MessageId]: buffer },
+	read message_bitpacks: { [MessageId]: Bitpacker },
 
-	message_writers: { [MessageId]: buffer },
-	message_bitpacks: { [MessageId]: Bitpacker? },
-
-	batch_low_messages: {
-		buffs: { [MessageId]: buffer },
-		cursors: { [MessageId]: number },
-		unique_message_ids: number,
-	},
-
-	batch_high_messages: {
-		buffs: { [MessageId]: buffer },
-		cursors: { [MessageId]: number },
-		unique_message_ids: number,
-	},
-
-	batch_unknown: {
-		table: { unknown },
-		top: number,
-	},
+	read batched_cursor_and_send_count: { [MessageId]: vector },
+	read batch_unknown: { unknown },
+	batch_unknown_len: number,
 }
 
 return nil

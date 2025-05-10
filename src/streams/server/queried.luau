@@ -24,9 +24,6 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
---[[
-TODO: Clean-up this file
-]]
 local clients = require("../../include/clients/main.h")
 local clients_types = require("../../include/clients/types")
 local new_stream = require("../constructor")
@@ -38,37 +35,27 @@ type ClientSet = { [Client]: true? }
 
 local client_is_connected = clients.is_connected
 
-local stream_client_sets_per_len = setmetatable({}, {
-	__index = function(self: any, index: number): { ClientSet }
-		local client_sets = {} :: { ClientSet }
-
-		self[index] = client_sets
-
-		return client_sets
-	end,
-}) :: { [number]: { ClientSet } }
-
-local stream_locators_per_len = setmetatable({}, {
-	__index = function(self: any, index: number): { OutgoingStream }
-		local outgoing_streams = {}
-
-		self[index] = outgoing_streams
-
-		return outgoing_streams
-	end,
-}) :: { [number]: { OutgoingStream } }
+--- subscribed_client_sets_by_length stores a set of all connected clients subscribed to the queryable stream based on
+--- the length of clients the queryable stream was constructed with.
+local subscribed_client_sets_by_length = {} :: { [number]: { ClientSet } }
+--- mapped_locators_by_length is a 1:1 map, matching the subscribed client sets, again, by length.
+local mapped_locators_by_length = {} :: { [number]: { OutgoingStream } }
 
 clients.client_removed:connect(function(client: Client): ()
-	for client_count, stream_client_set in stream_client_sets_per_len do
-		local streams_len = #stream_client_set
+	for client_count, stream_client_sets in subscribed_client_sets_by_length do
+		local locator = mapped_locators_by_length[client_count]
 
-		for streams_index = streams_len, 1, -1 do
-			local stream = stream_client_set[streams_index]
-			stream[client] = nil
+		-- reverse iter since i call table.remove here
+		for stream_client_sets_index = #stream_client_sets, 1, -1 do
+			local stream_client_set = stream_client_sets[stream_client_sets_index]
+			stream_client_set[client] = nil
 
-			if next(stream) then continue end
+			local stream_isnt_empty = next(stream_client_set)
 
-			table.remove(stream_client_set, streams_index)
+			if stream_isnt_empty then continue end
+
+			table.remove(stream_client_sets, stream_client_sets_index)
+			table.remove(locator, stream_client_sets_index)
 		end
 	end
 end)
@@ -79,6 +66,8 @@ This is a slow path, constructs a new stream from a list of players and makes it
 local function new_queried_stream(clients: { Client }): OutgoingStream?
 	local clients_len = #clients
 
+	if not clients[1] then return nil end
+
 	local clients_as_set = {} :: { [Client]: true? }
 	for clients_index = 1, clients_len do
 		local client = clients[clients_index]
@@ -87,11 +76,20 @@ local function new_queried_stream(clients: { Client }): OutgoingStream?
 			clients_as_set[client] = true --
 		end
 	end
-	if not next(clients_as_set) then return nil end
 
-	local stream_client_sets = stream_client_sets_per_len[clients_len]
+	local stream_client_sets = subscribed_client_sets_by_length[clients_len]
 
-	local stream_locator_table = stream_locators_per_len[clients_len]
+	if stream_client_sets == nil then
+		stream_client_sets = {}
+		subscribed_client_sets_by_length[clients_len] = stream_client_sets
+	end
+
+	local stream_locator_table = mapped_locators_by_length[clients_len]
+
+	if stream_locator_table == nil then
+		stream_locator_table = {}
+		mapped_locators_by_length[clients_len] = stream_locator_table
+	end
 
 	local num_existing_streams = #stream_client_sets
 
@@ -109,36 +107,46 @@ end
 local function query(clients: { Client }): OutgoingStream?
 	local clients_len = #clients
 
-	local stream_client_sets = stream_client_sets_per_len[clients_len]
+	local stream_client_sets = subscribed_client_sets_by_length[clients_len]
+
+	if stream_client_sets == nil then
+		if clients_len == 0 then return nil end
+		stream_client_sets = {}
+		subscribed_client_sets_by_length[clients_len] = stream_client_sets
+	end
 
 	local stream_client_sets_len = #stream_client_sets
 
 	for candidate_index = 1, stream_client_sets_len do
 		local candidate_client_set = stream_client_sets[candidate_index]
 
-		local has_all_members = true
+		local candidate_matches_all_clients = true
 
-		for client_index = 1, clients_len do
+		--[[
+		Reverse iterating clients table, my thought here is that the "unique" clients are going to tend to be towards 
+		]]
+		for client_index = clients_len, 1, -1 do
 			local selected_client = clients[client_index]
 
 			-- do not run checks for clients that aren't ingame, as they get removed from the table
-			if client_is_connected[selected_client] ~= true then continue end
+			if not client_is_connected[selected_client] then continue end
 
 			if candidate_client_set[selected_client] ~= true then
-				has_all_members = false
+				candidate_matches_all_clients = false
 				break
 			end
 		end
 
-		if has_all_members then
-			local stream_locator_table = stream_locators_per_len[stream_client_sets_len]
+		if not candidate_matches_all_clients then continue end
 
-			local outgoing_stream = stream_locator_table[candidate_index]
+		local stream_locator_table = mapped_locators_by_length[clients_len]
 
-			return outgoing_stream
-		end
+		local outgoing_stream = stream_locator_table[candidate_index]
+
+		return outgoing_stream
 	end
 
+	-- slowpath
 	return new_queried_stream(clients)
 end
 
@@ -160,4 +168,7 @@ end)
 return {
 	query = query,
 	per_client_streams = per_client_streams,
+
+	subscribed_client_sets_by_length = subscribed_client_sets_by_length,
+	mapped_locators_by_length = mapped_locators_by_length,
 }

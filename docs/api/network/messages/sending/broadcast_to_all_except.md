@@ -10,5 +10,5 @@ function broadcast_to_all_except<T>(
    message: Message<T>,
    exclude: Player | { Player },
    data: T
-)
+): ()
 ```

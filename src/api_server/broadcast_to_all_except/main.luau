@@ -1,0 +1,94 @@
+--[[MIT License Copyright (c) 2025 @hardlyardi
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+]]
+--[[
+--FOR DESCRIPTIONS OF API & CODE FUNCTION, ETC: https://light.ardi.gg/
+--FOR ISSUES, BUG REPORTS, OR FEATURE REQUESTS: https://light.ardi.gg/github
+--ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
+--MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
+]]
+local clients = require("../../include/clients/main.h")
+local clients_types = require("../../include/clients/types")
+local message_types = require("../../messages/types")
+local queried_streams = require("../../streams/server/queried")
+local write_outgoing_message = require("../../streams/write_outgoing_message")
+
+type MessageId<T = any> = message_types.MessageId<T>
+type Client = clients_types.Identity
+
+local query_for_stream = queried_streams.query
+local all_clients = clients.all_clients
+
+@native
+local function broadcast_to_all_except<Data>(
+	message_id: MessageId<Data>,
+	broadcast_to_except: Client | { Client },
+	input: Data
+): ()
+	local send_to = all_clients()
+	if type(broadcast_to_except) ~= "table" then
+		-- reverse iter since this calls table.remove
+		for clients_index = #send_to, 1, -1 do
+			local client = send_to[clients_index]
+
+			if client ~= broadcast_to_except then continue end
+
+			table.remove(send_to, clients_index)
+			break
+		end
+
+		local broadcasting_stream = query_for_stream(send_to)
+
+		if broadcasting_stream == nil then return end
+
+		write_outgoing_message(message_id, broadcasting_stream, input)
+
+		return
+	end
+
+	local remaining_to_exclude = {}
+	do
+		for except_index = 1, #broadcast_to_except do
+			local client = broadcast_to_except[except_index]
+
+			remaining_to_exclude[client] = true
+		end
+	end
+
+	-- reverse iter since this calls table.remove
+	for clients_index = #send_to, 1, -1 do
+		local client = send_to[clients_index]
+
+		if not remaining_to_exclude[client] then continue end
+
+		table.remove(send_to, clients_index)
+		remaining_to_exclude[client] = nil
+
+		if not next(remaining_to_exclude) then break end
+	end
+
+	local broadcasting_stream = query_for_stream(send_to)
+
+	if broadcasting_stream == nil then return end
+
+	write_outgoing_message(message_id, broadcasting_stream, input)
+end
+
+return broadcast_to_all_except

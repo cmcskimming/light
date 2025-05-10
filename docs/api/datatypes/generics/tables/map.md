@@ -23,12 +23,12 @@ Using the above table syntax will behave the same as passing the table into the 
 
 ## `#!luau function light.datatypes.map`
 
-```luau title='<!-- client --> <!-- server --> <!-- shared --> <!-- sync -->'
+```luau title='<!-- shared --> <!-- sync -->'
 function map<Key, Value>(
     key: Datatype<Key>,
     value: Datatype<Value>,
     length: Datatype<number>?
-): Datatype<{ [Key]: Value }>
+): (Datatype<{ [Key]: Value }>)
 ```
 
 First two arguments should be any [Datatypes](../../index.md#what-is-a-datatype) which cannot be `#!luau nil`. The

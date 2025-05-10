@@ -25,6 +25,8 @@ SOFTWARE.
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
 --!nolint LocalShadow
+do
+end
 local datatypes_types = require("./types")
 local instance_class_types = require("../instance_classes/types")
 local report = require("../../report")
@@ -212,8 +214,8 @@ end
 Represents a range of possible [`uints`](https://light.ardi.gg/api/datatypes/numbers/uints) by providing a minimum
 and maximum value.
 
-If you serialize a number which is larger or smaller than the range, the number will always be clamped to fit the
-range.
+If you serialize a number which is larger or smaller than the range, this datatype will cause an error. To clamp the
+number instead, use [clamp](https://light.ardi.gg/api/datatypes/generics/clamp/)
 
 ```luau
 function range(--Sync--
@@ -225,6 +227,26 @@ function range(--Sync--
 [Learn More](https://light.ardi.gg/api/datatypes/generics/range/)
 ]=]
 function datatypes.range(minimum: number, maximum: number): Datatype<number>
+	return MISSING_IMPL()
+end
+
+--[=[
+Represents a range of possible [`uints`](https://light.ardi.gg/api/datatypes/numbers/uints) by providing a minimum
+and maximum value.
+
+If you serialize a number which is larger or smaller than the range, this datatype will clamp the input to the minimum
+and maximum. If you instead want this to error, you can use [range](https://light.ardi.gg/api/datatypes/generics/range/)
+
+```luau
+function clamp(--Sync--
+	minimum: number,
+	maximum: number
+): Datatype<number>
+```
+
+[Learn More](https://light.ardi.gg/api/datatypes/generics/clamp/)
+]=]
+function datatypes.clamp(minimum: number, maximum: number): Datatype<number>
 	return MISSING_IMPL()
 end
 
@@ -481,8 +503,8 @@ setmetatable(datatypes :: any, {
 	-- Prevent Datatypes from being indexed if implementation isn't there
 	__index = function(_, index_name: any): ()
 		error(
-			report.problem(
-				report.bug(`Error while indexing: key of name "{index_name}" is undefined!`)
+			report.bug(
+				report.problem(`Error while indexing: key of name "{index_name}" is undefined!`)
 			)
 		)
 	end,

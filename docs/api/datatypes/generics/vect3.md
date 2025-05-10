@@ -8,7 +8,7 @@ precision won't apply here, so [`f32`](../numbers/floats.md) is always be better
 
 ## `#!luau function light.datatypes.vect3`
 
-```luau title='<!-- client --> <!-- server --> <!-- shared --> <!-- sync -->'
+```luau title='<!-- shared --> <!-- sync -->'
 function vect3(
     coord: Datatype<number>?
 ): Datatype<vector>

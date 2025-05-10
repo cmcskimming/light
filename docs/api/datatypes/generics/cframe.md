@@ -9,10 +9,10 @@ There is an optional `coord` parameter representing each coordinate (`x`, `y`, `
 
 ## `#!luau function light.datatypes.cframe`
 
-```luau title='<!-- client --> <!-- server --> <!-- shared --> <!-- sync -->'
+```luau title='<!-- shared --> <!-- sync -->'
 function cframe(
     coord: Datatype<number>?
-): Datatype<vector>
+): (Datatype<CFrame>)
 ```
 
 ## Technical Details

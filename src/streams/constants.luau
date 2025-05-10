@@ -1,0 +1,3 @@
+return {
+	DEFAULT_MESSAGE_BUFF_SIZE = 32,
+}

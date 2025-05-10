@@ -41,8 +41,8 @@ Using the above table syntax will behave the same as passing the table into the 
 
 ## `#!luau function light.datatypes.struct`
 
-```luau title='<!-- client --> <!-- server --> <!-- shared --> <!-- sync -->'
+```luau title='<!-- shared --> <!-- sync -->'
 function struct<Fields>(--Sync--
-    map: Fields -- { [string]: Datatype }
-): Datatype<Fields>
+    map: Fields, -- { [string]: Datatype }
+): (Datatype<Fields>)
 ```

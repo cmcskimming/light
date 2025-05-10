@@ -24,15 +24,24 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
+local roblox_storage = require("./utils/roblox_storage")
+
 local function implement(module: any): ()
 	if not module:IsA("ModuleScript") then return end
 	if module == script then return end
+	--print(module.Name);
 	(require)(module)
 end
 
 local impl_roblox = {}
 
 function impl_roblox.init(): ()
+	-- initialize roblox instance storage
+	roblox_storage.init()
+
+	-- needs to implement task early because it's a runtime specific header which is used as a dependency for other
+	-- implementations.
+	implement(script.Parent.task.main)
 	for _, module: ModuleScript in script.Parent.Parent.impl:GetDescendants() do
 		implement(module)
 	end

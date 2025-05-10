@@ -35,6 +35,7 @@ export type ApiIdentity = {
 	local_client: Client,
 
 	all_clients: () -> { Client },
+	all_clients_except: (Client | { Client }) -> (),
 	is_connected: { [Client]: true? },
 
 	client_added: luau_signal.Identity<Client>,
@@ -44,8 +45,8 @@ export type ApiIdentity = {
 local identity = setmetatable({}, {
 	__index = function(_, index_name)
 		error(
-			report.problem(
-				report.bug(`Error while indexing: key of name "{index_name}" is undefined!`)
+			report.bug(
+				report.problem(`Error while indexing: key of name "{index_name}" is undefined!`)
 			)
 		)
 	end,

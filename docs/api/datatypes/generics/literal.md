@@ -7,10 +7,10 @@ validation on inputs; instead, the value will be cast to the literal value on se
 
 ## `#!luau function light.datatypes.literal`
 
-```luau title='<!-- client --> <!-- server --> <!-- shared --> <!-- sync -->'
+```luau title='<!-- shared --> <!-- sync -->'
 function literal<Value>(
     value: Value
-): Datatype<Value>
+): (Datatype<Value>)
 ```
 
 ## Validating

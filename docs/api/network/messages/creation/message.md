@@ -3,22 +3,22 @@
 Message does the same thing as a [`#!luau light.container()`](./container.md), but doesn't force you to put it in a
 string map.
 
-## `#!luau function light.message`
+## `#!luau function light.message` <small>(On The Client)</small>
 
-```luau title='<!-- client --> <!-- shared --> <!-- sync --> <!-- async -->'
-function message<T>(
+```luau title='<!-- shared --> <!-- sync --> <!-- async -->'
+function message<Data>(
     name: string,
-    template: Datatype<T>
-): (Message<T>)
+    template: Datatype<Data>
+): (Message<Data>)
 ```
 
-## `#!luau function light.message`
+## `#!luau function light.message` <small>(On The Server)</small>
 
-```luau title='<!-- server --> <!-- sync -->'
-function message<T>(
+```luau title='<!-- shared --> <!-- sync -->'
+function message<Data>(
     name: string,
-    template: Datatype<T>
-): (Message<T>)
+    template: Datatype<Data>
+): (Message<Data>)
 ```
 
 `template` in both above samples should always be any valid [Datatype](../../../datatypes/index.md#what-is-a-datatype).

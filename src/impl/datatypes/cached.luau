@@ -29,6 +29,7 @@ SOFTWARE.
 local datatypes = require("../../include/datatypes/main.h")
 local datatypes_types = require("../../include/datatypes/types")
 local holy = require("../../holy")
+local report = require("../../report")
 
 type AcceptableSchema = datatypes_types.AcceptableCachedSchema
 
@@ -48,7 +49,7 @@ local function cached<Input>(input: AcceptableSchema): HolyDatatype<Input>
 	local input_type = type(input)
 	if input_type ~= "table" then
 		if holy.check_datatype_exists(input) then return input :: any end
-		error(debug.traceback("Invalid Datatype: Datatype does not exist!"))
+		error(report.problem(`Invalid Datatype: Datatype does not exist with id: {input}`))
 	end
 
 	local input = input :: { [unknown]: AcceptableSchema }
@@ -73,8 +74,8 @@ local function cached<Input>(input: AcceptableSchema): HolyDatatype<Input>
 	for key, value in input do
 		if type(key) ~= "string" then
 			error(
-				debug.traceback(
-					`Invalid cached datatype: Expected a string at key "{key}", got type {typeof(key)}`
+				report.problem(
+					`Invalid cached datatype: Expected a string at key "{key}", got type "{typeof(key)}"`
 				)
 			)
 		end

@@ -28,4 +28,4 @@ local impl_roblox = require(script:WaitForChild("impl_roblox"):WaitForChild("mai
 
 impl_roblox.init()
 
-return require(script:WaitForChild("main"))
+return require(script:WaitForChild("lib_main"))

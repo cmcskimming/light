@@ -53,6 +53,8 @@ clients.is_connected = is_connected
 
 local client_added_signal = luausignal() :: luausignal.Identity<Client>
 local client_removed_signal = luausignal() :: luausignal.Identity<Client>
+clients.client_removed = client_removed_signal
+clients.client_added = client_added_signal
 
 --[[
 I kinda despise this, but, for once, immediate signalbehavior is our problem-child. You can't use PlayerRemoving because

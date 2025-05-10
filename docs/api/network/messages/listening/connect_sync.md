@@ -17,25 +17,25 @@ bounds or cause other unexpected internal issues. If you don't know what that im
 ## `#!luau function light.connect_sync`
 
 ```luau title='<!-- client --> <!-- sync --> <!-- errors -->'
-function connect_sync<T>(
-   message: Message<T>,
-   callback: (T) -> ()
+function connect_sync<Data>(
+   message: Message<Data>,
+   callback: (Data) -> ()
 ): ()
 ```
 
 ## `#!luau function light.connect_sync`
 
 ```luau title='<!-- server --> <!-- sync --> <!-- errors -->'
-function connect_sync<T>(
-   message: Message<T>,
-   callback: (Player, T) -> ()
+function connect_sync<Data>(
+   message: Message<Data>,
+   callback: (Player, Data) -> ()
 ): ()
 ```
 
 An example client-side event polling utility using [`#!luau light.connect_sync()`](./connect_sync.md):
 
 ```luau title="polling.luau"
-local function poll<T>(message: Message<T>)
+local function poll<Data>(message: Message<Data>)
    local data = {}
    local next_insert = 1
 

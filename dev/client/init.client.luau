@@ -1,78 +1,26 @@
+game.Loaded:Wait()
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local EPSILON = 0.023
-
-local light = require(ReplicatedStorage:WaitForChild("light")).client
-local messages = require(ReplicatedStorage:WaitForChild("shared"):WaitForChild("messages"))
-
-local function eqtest<T>(msg: T, data: T)
-	-- Luau
-	local data = data :: any
-	local done = false
-	light.connect_sync(msg, function(recv: any)
-		local eq
-		if typeof(recv) == "CFrame" then
-			eq = recv:FuzzyEq(data, EPSILON)
-		elseif typeof(recv) == "number" then
-			eq = math.abs(recv - data) <= EPSILON
-		elseif type(recv) == "vector" then
-			eq = vector.magnitude(recv - data) <= EPSILON
-		else
-			eq = recv == data
-		end
-		if eq then
-			print(`test success`)
-		else
-			done = true
-			light.disconnect(msg)
-			error(`failure: recieved {recv} expecting {data}`)
-		end
-		light.disconnect(msg)
-		done = true
-	end)
-
-	light.send(msg, data)
-
-	repeat
-		task.wait()
-	until done
-end
+local light = require(ReplicatedStorage.light).client
+local messages = require(ReplicatedStorage.shared.messages)
 
 light.begin_replication()
 
-eqtest(messages.u8, 0)
-eqtest(messages.u8, 1)
-eqtest(messages.u8, 2 ^ 8 - 1)
+task.wait(0.5)
 
-eqtest(messages.cframeu16, CFrame.new(1, 2, 3))
-eqtest(messages.cframeu16, CFrame.new(2 ^ 16 - 1, 0, 1))
-eqtest(messages.cframeu16, CFrame.Angles(0, 0, 0))
-eqtest(messages.cframeu16, CFrame.Angles(math.rad(91), 0, 0))
-eqtest(messages.cframeu16, CFrame.Angles(0, math.rad(180), math.rad(180)))
-eqtest(messages.cframeu16, CFrame.Angles(math.rad(-90), 0, 0))
-eqtest(messages.cframeu16, CFrame.Angles(0, math.rad(180), math.rad(90)))
-eqtest(messages.cframeu16, CFrame.Angles(0, math.rad(90), math.rad(90)))
-eqtest(messages.cframeu16, CFrame.Angles(0, 0, math.rad(90)))
-eqtest(messages.cframeu16, CFrame.Angles(0, math.rad(-90), math.rad(90)))
-eqtest(messages.cframeu16, CFrame.Angles(math.rad(-90), math.rad(-90), 0))
-eqtest(messages.cframeu16, CFrame.Angles(0, math.rad(-90), 0))
-eqtest(messages.cframeu16, CFrame.Angles(math.rad(90), math.rad(-90), 0))
-eqtest(messages.cframeu16, CFrame.Angles(0, math.rad(90), math.rad(180)))
-eqtest(messages.cframeu16, CFrame.Angles(0, math.rad(-90), math.rad(180)))
-eqtest(messages.cframeu16, CFrame.Angles(0, math.rad(180), math.rad(0)))
-eqtest(messages.cframeu16, CFrame.Angles(math.rad(-90), math.rad(-180), math.rad(0)))
-eqtest(messages.cframeu16, CFrame.Angles(0, math.rad(0), math.rad(180)))
-eqtest(messages.cframeu16, CFrame.Angles(math.rad(90), math.rad(180), math.rad(0)))
-eqtest(messages.cframeu16, CFrame.Angles(0, math.rad(0), math.rad(-90)))
-eqtest(messages.cframeu16, CFrame.Angles(0, math.rad(-90), math.rad(-90)))
-eqtest(messages.cframeu16, CFrame.Angles(0, math.rad(-180), math.rad(-90)))
-eqtest(messages.cframeu16, CFrame.Angles(0, math.rad(90), math.rad(-90)))
-eqtest(messages.cframeu16, CFrame.Angles(math.rad(90), math.rad(90), 0))
-eqtest(messages.cframeu16, CFrame.Angles(0, math.rad(90), 0))
-eqtest(messages.cframeu16, CFrame.Angles(math.rad(-90), math.rad(90), 0))
+local I = true
+local O = false
 
-eqtest(messages.roblox_vect2_u16, Vector2.new(2 ^ 16 - 1, 0))
-eqtest(messages.roblox_vect2_u16, Vector2.new(1, 0))
+light.send(messages.foo, { O, O, O, O })
+light.send(messages.foo, { O, O, O, I })
+light.send(messages.foo, { I, O, I, O })
 
-eqtest(messages.bool, true)
-eqtest(messages.bool, false)
+light.connect(messages.foo, function(data: typeof(messages.foo)): ()
+	print(data)
+end)
+
+light.connect(messages.player_connected, function(data: typeof(messages.player_connected)): ()
+	print(data)
+end)
+
+light.send(messages.bar, { 1, 25, 255, 0, 10 })

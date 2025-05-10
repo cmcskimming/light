@@ -12,18 +12,18 @@ create a non-yielding callback you can use [`#!luau light.connect_sync()`](./con
 ## `#!luau function light.connect`
 
 ```luau title='<!-- client --> <!-- sync --> <!-- errors -->'
-function connect<T>(
-    message: Message<T>,
-    callback: (T) -> ()
+function connect<Data>(
+    message: Message<Data>,
+    callback: (Data) -> ()
 ): ()
 ```
 
 ## `#!luau function light.connect`
 
 ```luau title='<!-- server --> <!-- sync --> <!-- errors -->'
-function connect<T>(
-    message: Message<T>,
-    callback: (Player, T) -> ()
+function connect<Data>(
+    message: Message<Data>,
+    callback: (Player, Data) -> ()
 ): ()
 ```
 

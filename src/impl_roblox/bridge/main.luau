@@ -28,13 +28,22 @@ local bridge = require("../../include/bridge/main.h")
 
 local bridge_types = require("../../include/bridge/types")
 local clients_types = require("../../include/clients/types")
+local context = require("../../include/context/main.h")
 local report = require("../../report")
 local roblox_storage = require("../utils/roblox_storage")
 
 function bridge.new<BridgeData...>(name: string, unreliable: boolean?): bridge_types.Bridge<BridgeData...>
-	local remote_event = roblox_storage.inst:WaitForChild(name) :: RemoteEvent
+	local remote_event: RemoteEvent
+	if context.runcontext == "client" then
+		-- Luau
+		remote_event = roblox_storage.inst:WaitForChild(name) :: any
+	elseif context.runcontext == "server" then
+		remote_event = Instance.new("RemoteEvent") :: any
+		remote_event.Name = name
+		remote_event.Parent = roblox_storage.inst
+	end
 
-	if remote_event:IsA("BaseRemoteEvent") == false then
+	if not remote_event:IsA("BaseRemoteEvent") then
 		error(report.problem("remote event inst was not a base remote event"))
 	end
 

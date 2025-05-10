@@ -32,7 +32,7 @@ General functions for reporting errors / problems.
 local logging_messages = {}
 
 function logging_messages.bug(text: string): string
-	return `(BUG, PLEASE REPORT ON THE GITHUB: https://github.com/hardlyardi/light/issues/)\n{text}`
+	return `\n(LIKELY BUG, PLEASE REPORT ON THE GITHUB: https://github.com/hardlyardi/light/issues/)\n{text}`
 end
 
 function logging_messages.problem(msg: string, trace_level: number?): string
