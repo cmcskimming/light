@@ -8,12 +8,15 @@ private = false
 
 workspace_members = ["pkgs/*"]
 
+includes = ["pesde.toml", "README.md", "LICENSE", "src/**/*.luau"]
+
 [engines]
 pesde = "0.7.0-rc.3"
 lune = "^0.9.3"
 
 [target]
 environment = "roblox"
+lib = "src/init.luau"
 
 [indices]
 default = "https://github.com/pesde-pkg/index"
