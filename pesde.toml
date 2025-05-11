@@ -4,9 +4,13 @@ description = "A remote event wrapper for Roblox"
 authors = ["hardlyardi"]
 repository = "https://github.com/hardlyardi/light"
 license = "MIT"
-private = true
+private = false
 
 workspace_members = ["pkgs/*"]
+
+[engines]
+pesde = "0.7.0-rc.3"
+lune = "^0.9.3"
 
 [target]
 environment = "roblox"
