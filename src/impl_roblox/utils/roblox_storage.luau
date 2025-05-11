@@ -26,6 +26,8 @@ SOFTWARE.
 ]]
 --!nolint LocalShadow
 --!optimize 2
+local IMPL = nil :: any
+
 local _context = require("../context/main")
 local context = require("../../include/context/main.h")
 local instance_classes = require("../../instance_classes")
@@ -38,7 +40,7 @@ local INSTANCE_STORAGE_PARENT = game:GetService("ReplicatedStorage")
 local INSTANCE_STORAGE_NAME = "__LIGHT_STORAGE_"
 
 local roblox_storage = {
-	inst = ... :: InstanceStorageClass,
+	inst = IMPL :: InstanceStorageClass,
 }
 
 export type ApiIdentity = typeof(roblox_storage)

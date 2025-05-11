@@ -27,7 +27,7 @@ SOFTWARE.
 --!nocheck
 local datatypes = require("../../include/datatypes/main.h")
 
-local _any = require("../../impl/datatypes/any")
+local _any = require("../datatypes/any")
 local _instance_classes = require("../instance_classes/main")
 local holy = require("../../holy")
 local instance_class_types = require("../../include/instance_classes/types")

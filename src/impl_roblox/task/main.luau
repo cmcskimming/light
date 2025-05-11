@@ -26,10 +26,10 @@ SOFTWARE.
 ]]
 local header = require("../../include/task/main.h")
 
-header.wait = task.wait :: any
-header.spawn = task.spawn :: any
-header.defer = task.defer :: any
-header.delay = task.delay :: any
-header.close = task.cancel :: any
+header.wait = task.wait
+header.spawn = task.spawn
+header.defer = task.defer
+header.delay = task.delay
+header.close = task.cancel
 
 return nil

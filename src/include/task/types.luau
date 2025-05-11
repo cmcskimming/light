@@ -24,23 +24,25 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
+export type Task<Arguments..., Returns...> = thread | (Arguments...) -> Returns...
+
 export type wait = (seconds: number) -> number
 
 export type spawn = <Arguments..., Returns...>(
-	resume: ((Arguments...) -> Returns...) | thread,
+	resume: Task<Arguments..., Returns...>,
 	Arguments...
-) -> ()
+) -> thread
 
 export type defer = <Arguments..., Returns...>(
-	func: (Arguments...) -> Returns...,
+	task: Task<Arguments..., Returns...>,
 	Arguments...
-) -> ()
+) -> thread
 
 export type delay = <Arguments..., Returns...>(
 	seconds: number,
-	func: (Arguments...) -> Returns...,
+	task: Task<Arguments..., Returns...>,
 	Arguments...
-) -> ()
+) -> thread
 
 export type close = (thread) -> ()
 

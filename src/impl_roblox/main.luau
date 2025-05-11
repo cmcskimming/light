@@ -42,6 +42,7 @@ function impl_roblox.init(): ()
 	-- needs to implement task early because it's a runtime specific header which is used as a dependency for other
 	-- implementations.
 	implement(script.Parent.task.main)
+	implement(script.Parent.context.main)
 	for _, module: ModuleScript in script.Parent.Parent.impl:GetDescendants() do
 		implement(module)
 	end

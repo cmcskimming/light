@@ -32,29 +32,39 @@ local context = require("../../include/context/main.h")
 local report = require("../../report")
 local roblox_storage = require("../utils/roblox_storage")
 
-function bridge.new<BridgeData...>(name: string, unreliable: boolean?): bridge_types.Bridge<BridgeData...>
+type Client = clients_types.Identity
+type Bridge<BridgeData...> = bridge_types.Bridge<BridgeData...>
+type ServerCallback<BridgeData...> = bridge_types.ServerCallback<BridgeData...>
+type ClientCallback<BridgeData...> = bridge_types.ClientCallback<BridgeData...>
+
+function bridge.new<BridgeData...>(name: string, unreliable: boolean?): Bridge<BridgeData...>
 	local remote_event: RemoteEvent
 	if context.runcontext == "client" then
-		-- Luau
-		remote_event = roblox_storage.inst:WaitForChild(name) :: any
+		local found_inst = roblox_storage.inst:WaitForChild(name)
+		assert(found_inst:IsA("BaseRemoteEvent"))
+		remote_event = found_inst :: RemoteEvent
 	elseif context.runcontext == "server" then
-		remote_event = Instance.new("RemoteEvent") :: any
+		remote_event = Instance.new("RemoteEvent")
 		remote_event.Name = name
 		remote_event.Parent = roblox_storage.inst
+	else
+		error(`{context.runcontext}`)
 	end
 
 	if not remote_event:IsA("BaseRemoteEvent") then
 		error(report.problem("remote event inst was not a base remote event"))
 	end
 
-	local impl = {} :: bridge_types.Bridge<BridgeData...>
+	local impl = {} :: Bridge<BridgeData...>
 
-	function impl.server_event(callback: bridge_types.ServerCallback<BridgeData...>): ()
-		remote_event.OnServerEvent:Connect(callback :: any)
+	function impl.server_event(callback: ServerCallback<BridgeData...>): ()
+		local connection_function: (...any) -> () = callback
+		remote_event.OnServerEvent:Connect(connection_function)
 	end
 
-	function impl.client_event(callback: bridge_types.ClientCallback<BridgeData...>): ()
-		remote_event.OnClientEvent:Connect(callback :: any)
+	function impl.client_event(callback: ClientCallback<BridgeData...>): ()
+		local connection_function: (...any) -> () = callback
+		remote_event.OnClientEvent:Connect(connection_function)
 	end
 
 	function impl.fire_server(...: BridgeData...): ()
@@ -65,7 +75,7 @@ function bridge.new<BridgeData...>(name: string, unreliable: boolean?): bridge_t
 		remote_event:FireAllClients(...)
 	end
 
-	function impl.fire_client(client: clients_types.Identity, ...: BridgeData...): ()
+	function impl.fire_client(client: Client, ...: BridgeData...): ()
 		remote_event:FireClient(client, ...)
 	end
 

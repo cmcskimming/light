@@ -49,11 +49,11 @@ local LOW_MESSAGES_END = message_id.LOW_MESSAGES_END
 
 local allocated = 0
 
-local function allocate_low_message()
+local function allocate_low_message(): ()
 	allocated += U8_BYTES
 end
 
-local function allocate_high_message()
+local function allocate_high_message(): ()
 	allocated += U16_BYTES
 end
 

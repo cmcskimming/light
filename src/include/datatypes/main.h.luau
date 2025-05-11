@@ -27,6 +27,8 @@ SOFTWARE.
 --!nolint LocalShadow
 do
 end
+local IMPL = nil :: any
+
 local datatypes_types = require("./types")
 local instance_class_types = require("../instance_classes/types")
 local report = require("../../report")
@@ -38,24 +40,24 @@ local function MISSING_IMPL(): any
 end
 
 local datatypes = {
-	u8 = ... :: Datatype<number>,
-	u16 = ... :: Datatype<number>,
-	u24 = ... :: Datatype<number>,
-	u32 = ... :: Datatype<number>,
-	u40 = ... :: Datatype<number>,
-	u48 = ... :: Datatype<number>,
-	u53 = ... :: Datatype<number>,
+	u8 = IMPL :: Datatype<number>,
+	u16 = IMPL :: Datatype<number>,
+	u24 = IMPL :: Datatype<number>,
+	u32 = IMPL :: Datatype<number>,
+	u40 = IMPL :: Datatype<number>,
+	u48 = IMPL :: Datatype<number>,
+	u53 = IMPL :: Datatype<number>,
 
-	i8 = ... :: Datatype<number>,
-	i16 = ... :: Datatype<number>,
-	i24 = ... :: Datatype<number>,
-	i32 = ... :: Datatype<number>,
-	i40 = ... :: Datatype<number>,
-	i48 = ... :: Datatype<number>,
-	i54 = ... :: Datatype<number>,
+	i8 = IMPL :: Datatype<number>,
+	i16 = IMPL :: Datatype<number>,
+	i24 = IMPL :: Datatype<number>,
+	i32 = IMPL :: Datatype<number>,
+	i40 = IMPL :: Datatype<number>,
+	i48 = IMPL :: Datatype<number>,
+	i54 = IMPL :: Datatype<number>,
 
-	f32 = ... :: Datatype<number>,
-	f64 = ... :: Datatype<number>,
+	f32 = IMPL :: Datatype<number>,
+	f64 = IMPL :: Datatype<number>,
 }
 
 --[=[
@@ -63,7 +65,7 @@ Instances are generally [Any](http://light.ardi.gg/api/datatypes/any/) [Datatype
 which represent a Roblox Instance Classname. Using these datatypes while sending unreliably can cause consistent
 packet dropping issues if the packet is too large.
 ]=]
-datatypes.instances = ... :: instance_class_types.InstanceClassnameTable
+datatypes.instances = IMPL :: instance_class_types.InstanceClassnameTable
 
 --[=[
 In light, you can use luau
@@ -402,7 +404,7 @@ local function enum_tagged_overload<Tag, IdentifierMap>(
 	return MISSING_IMPL()
 end
 
-datatypes.enum = ... :: typeof(enum_identifier_overload) & typeof(enum_tagged_overload)
+datatypes.enum = IMPL :: typeof(enum_identifier_overload) & typeof(enum_tagged_overload)
 
 --[=[
 Literals represent a value which is "literally" something. Any value you pass to a literal will become a constant and
@@ -487,7 +489,7 @@ network.
 
 [Learn More](http://light.ardi.gg/api/datatypes/bool/)
 ]=]
-datatypes.bool = ... :: Datatype<boolean>
+datatypes.bool = IMPL :: Datatype<boolean>
 
 --[=[
 ### Consider using [Instances](http://light.ardi.gg/api/datatypes/instances/) or [Checked](http://light.ardi.gg/api/datatypes/checked/) instead of `any`. `any` can not validate that the type sent over the network is correct, and can be manipulated by exploiters.
@@ -496,7 +498,7 @@ Using this while sending unreliably can cause issues if the packet is too large.
 
 [Learn More](http://light.ardi.gg/api/datatypes/any/)
 ]=]
-datatypes.any = ... :: Datatype<any>
+datatypes.any = IMPL :: Datatype<any>
 
 -- Prevent datatypes from inferring a metatable
 setmetatable(datatypes :: any, {
