@@ -35,30 +35,33 @@ function connect_sync<Data>(
 An example client-side event polling utility using [`#!luau light.connect_sync()`](./connect_sync.md):
 
 ```luau title="polling.luau"
-local function poll<Data>(message: Message<Data>)
-   local data = {}
-   local next_insert = 1
+local function poll<Data>(message: Data)
+    local data_table = {}
+    local next_insert = 1
 
-   light.connect_sync(message, function(data)
-      data[next_insert] = data
-      next_insert += 1
-   end)
+    light.connect_sync(message, function(data)
+        data_table[next_insert] = data
+        next_insert += 1
+    end)
 
-   local next_index = 1
-   local function iter_next(): T?
-      if next_index >= next_insert then
+    local next_index = 1
+    local function iter_next(): Data?
+        if next_index < next_insert then
+            local data = data_table[next_index]
+            next_index += 1
 
-         next_index = 1
-         next_insert = 1
-         data = {}
+            return data
+        end
 
-         return nil
-      end
+        -- end iterator / reset
+        next_index = 1
+        next_insert = 1
+        data_table = {}
 
-      return data[next_index]
-   end
+        return nil
+    end
 
-   return iter_next
+    return iter_next
 end
 ```
 
