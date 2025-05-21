@@ -35,6 +35,8 @@ if context.runcontext == "client" then
 elseif context.runcontext == "server" then
 	local init_server = require("./lib_server")
 	init_server()
+else
+	error("context not initialized wtf")
 end
 
 require("./lib_shared")

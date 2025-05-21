@@ -26,16 +26,13 @@ SOFTWARE.
 ]]
 --!optimize 2
 local message_types = require("./types")
-local thread_reuse = require("../utils/thread_reuse")
 
 type MessageId<MessageData = any> = message_types.MessageId<MessageData>
 type Callback<MessageData = any> = message_types.ClientCallback<MessageData>
 
-local reused_spawn = thread_reuse.reused_spawn
-
 type QueuedMessages<MessageData = any> = {
 	length: number,
-	queued_data: { MessageData },
+	data: { MessageData },
 }
 
 local message_callbacks = {} :: { [MessageId]: Callback }
@@ -46,20 +43,35 @@ local client_queue = {
 	callbacks = message_callbacks,
 }
 
-function client_queue.invoke<MessageData>(
-	message_id: MessageId<MessageData>,
-	message_callback: Callback<MessageData>
-): ()
+--[=[
+this logic is totally not a mess trust ahahaha
+]=]
+function client_queue.read<MessageData>(message_id: MessageId<MessageData>): () -> (true?, MessageData?)
 	local queue = message_queues[message_id]
-	if queue == nil then return end
-	message_queues[message_id] = nil
-
-	local queue_data = queue.queued_data
-
-	for queue_index = 1, queue.length do
-		-- spawning in async to avoid invoking queue behaving unexpectedly
-		reused_spawn(message_callback, queue_data[queue_index])
+	if queue == nil then
+		return function()
+			return nil, nil
+		end
 	end
+
+	local function queue_iterator<MessageData>(): (true?, MessageData?)
+		local queue_length = queue.length
+
+		if queue_length <= 0 then
+			message_queues[message_id] = nil
+			return nil, nil
+		end
+
+		local queue_data = queue.data
+
+		local removed_data = table.remove(queue_data, 1)
+		queue_length -= 1
+		queue.length = queue_length
+
+		return true, removed_data
+	end
+
+	return queue_iterator
 end
 
 function client_queue.insert_one<MessageData>(message_id: MessageId<MessageData>, data: MessageData): ()
@@ -68,7 +80,7 @@ function client_queue.insert_one<MessageData>(message_id: MessageId<MessageData>
 	if queue == nil then
 		queue = {
 			length = 1,
-			queued_data = { data },
+			data = { data },
 		}
 		message_queues[message_id] = queue
 		return
@@ -78,7 +90,7 @@ function client_queue.insert_one<MessageData>(message_id: MessageId<MessageData>
 	length += 1
 	queue.length = length
 
-	queue.queued_data[length] = data
+	queue.data[length] = data
 end
 
 function client_queue.insert_many<MessageData>(
@@ -92,16 +104,17 @@ function client_queue.insert_many<MessageData>(
 	if queue == nil then
 		queue = {
 			length = 0,
-			queued_data = {},
+			data = {},
 		}
 		message_queues[message_id] = queue
 	end
 
-	local length: number = queue.length
-	length += 1
-	queue.length = length
+	local length = queue.length
 
-	table.move(data_table, insert_start, insert_end, length, queue.queued_data)
+	table.move(data_table, insert_start, insert_end, length + 1, queue.data)
+
+	length += insert_end - insert_start + 1
+	queue.length = length
 end
 
 return client_queue

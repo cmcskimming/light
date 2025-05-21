@@ -1907,6 +1907,7 @@ do
 					byte_ptr += static_item_size
 				end
 
+				
 				return byte_ptr, buff
 			end
 		elseif case_fully_static then
@@ -1921,7 +1922,7 @@ do
 
 				--stylua: ignore
 				do -- alloc
-					local increment = static_length_size + arr_len * static_item_size
+					local increment = static_length_size + static_item_size * arr_len
 					local target_ptr = byte_ptr + increment; if target_ptr > buff_len then local old_buff = buff; buff_len *= 2; while target_ptr > buff_len do buff_len *= 2 end; buff = buffer.create(buff_len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
 				end
 
@@ -2183,7 +2184,7 @@ do
 			@native --dynamic_ncgen
 			function map_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 				local key, value
-				for i = 1, length_literal_value do
+				for _ = 1, length_literal_value do
 					key, value = next(input, key)
 					byte_ptr, buff = key_ser(buff, byte_ptr, key)
 					byte_ptr, buff = value_ser(buff, byte_ptr, value)

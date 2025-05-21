@@ -64,7 +64,7 @@ your players.
 What [ByteNet](https://github.com/ffrostfall/ByteNet) does to combat this fact is to create a separate "stream" for
 events fired to everyone, and individual streams for each player. Then, on the replication step, send the global stream
 with :FireAllClients() first. This creates an undocumented event ordering discrepancy, because events fired to all users
-will always be recieved first. [ByteNet](https://github.com/ffrostfall/ByteNet) also has bad performance firing to a
+will always be received first. [ByteNet](https://github.com/ffrostfall/ByteNet) also has bad performance firing to a
 specific list of players, because there is no singular stream it can write to.
 
 ## An (Even) Smarter Way

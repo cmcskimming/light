@@ -30,7 +30,7 @@ local write_outgoing_message = require("../../streams/write_outgoing_message")
 
 type MessageId<T = any> = message_types.MessageId<T>
 
-local function send<Data>(message_id: MessageId<Data>, input: Data)
+local function send<Data>(message_id: MessageId<Data>, input: Data): ()
 	write_outgoing_message(message_id, global_stream, input)
 end
 

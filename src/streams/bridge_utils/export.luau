@@ -63,7 +63,6 @@ local bitpack_contains_data = bitpack.contains_data
 local stfu_check = holy._stfu_check
 
 local send_buff: buffer
-local send_size = -1
 local send_ptr = -1
 
 local function export_opts(
@@ -149,13 +148,8 @@ local function export(stream: OutgoingStream): buffer?
 		allocate_bitpack_boundary_array(bitpack_boundary_array :: { number }) --
 	end
 
-	local new_send_size = allocated_size()
-
-	-- buffer reuse
-	if new_send_size ~= send_size then
-		send_buff = buffer.create(new_send_size)
-		send_size = new_send_size
-	end
+	local send_size = allocated_size()
+	send_buff = buffer.create(send_size)
 	send_ptr = 0
 
 	local low_messages_exists = low_message_ids ~= nil

@@ -28,7 +28,7 @@ local lib_shared = require("./lib_shared.h")
 
 local datatypes = require("./include/datatypes/main.h")
 local holy = require("./holy")
-local messages = require("./messages/main")
+local messages = require("./messages/shared")
 local messages_container = require("./messages/utils/container")
 
 lib_shared.stfu = holy.stfu

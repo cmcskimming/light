@@ -26,7 +26,7 @@ SOFTWARE.
 ]]
 --!nolint LocalShadow
 --!optimize 2
-local IMPL = nil :: any
+local IMPL: any = nil
 
 local _context = require("../context/main")
 local context = require("../../include/context/main.h")

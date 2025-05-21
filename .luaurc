@@ -1,6 +1,13 @@
 {
     "languageMode": "strict",
     "aliases": {
-        "lune": "~/.lune/.typedefs/0.9.0/"
+        "root": "./",
+        "lune": "~/.lune/.typedefs/0.9.0/",
+        "light": "src/",
+        "include": "src/include/",
+        "test": "tests/",
+        "specs": "tests/specs/",
+        "import": "tests/import/",
+        "runtest": "tests/runtest/"
     }
 }

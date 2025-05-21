@@ -29,7 +29,7 @@ SOFTWARE.
 --!optimize 2
 
 --- Merge properties of `from` into table `into`, unioning overlaps.
-export type function table_merge(from: type, into: type): type
+export type function table_merge_union(from: type, into: type): type
 	assert(from:is("table"), [[Expected "from" to be table when merging.]])
 	assert(into:is("table"), [[Expected "to" to be table when merging.]])
 
@@ -88,10 +88,10 @@ export type function table_merge(from: type, into: type): type
 end
 
 --[=[
-Merge properties of table `from` into table `into`.
+Merge properties of table `from` into table `into`, unioning overlaps.
 Does not clone `into`.
 ]=]
-function table_merge<From, Into>(from: From, into: Into): table_merge<From, Into>
+function table_merge_union<From, Into>(from: From, into: Into): table_merge_union<From, Into>
 	local from = from :: { [unknown]: unknown }
 	local into = into :: { [unknown]: unknown }
 
@@ -103,8 +103,6 @@ function table_merge<From, Into>(from: From, into: Into): table_merge<From, Into
 	return into :: any
 end
 
-local utils = {
-	table_merge = table_merge,
+return {
+	union = table_merge_union,
 }
-
-return utils

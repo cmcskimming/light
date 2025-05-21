@@ -74,8 +74,8 @@ Light requires a minimal set of external tools to make contributing smooth:
 ## Testing
 
 Testing for most changes to the library is done through a set of
-[Lune](https://github.com/lune-org/lune) scripts found in `tests/cases/*`, and will be run on a pull request or with the
-command `lune run tests`. However, for some runtime-specific features of light
+[Lune](https://github.com/lune-org/lune) scripts found in `tests/specs/**/*.spec.luau`, and will be run on a pull
+request or with the command `lune run tests`. However, for some runtime-specific features of light
 (such as changes to the impl_roblox folder), tests are run in Roblox Studio with [Rojo](https://rojo.space/). Make sure
 you've followed the steps in [Setup](#setup), and run the following command in the project's root directory:
 

@@ -36,16 +36,38 @@ local message_metadata_linking = require("./metadata_linking")
 local message_queue = require("./server_queue")
 local message_types = require("./types")
 local report = require("../report")
-local thread_reuse = require("../utils/thread_reuse")
+local task = require("../include/task/main.h")
 
 type HolyDatatype = holy.Datatype
 type Client = clients_types.Identity
 type MessageId<T = any> = message_types.MessageId<T>
 type Callback<T = any> = message_types.ServerCallback<T>
 
-local reused_spawn = thread_reuse.reused_spawn
-local invoke_message_queue = message_queue.invoke
+local read_message_queue = message_queue.read
 local callbacks = message_queue.callbacks
+local task_spawn = task.spawn
+
+local open_thread: thread?
+local spawner: <Arguments..., Returns...>(func: (Arguments...) -> Returns..., Arguments...) -> ()
+do
+	local function runner<Arguments..., Returns...>(func: (Arguments...) -> Returns..., ...: Arguments...): ()
+		local closed_thread = open_thread
+		open_thread = nil
+		func(...)
+		open_thread = closed_thread
+	end
+
+	function spawner<Arguments..., Returns...>(func: (Arguments...) -> Returns..., ...: Arguments...): ()
+		local closed_thread = open_thread
+		open_thread = nil
+		func(...)
+		open_thread = closed_thread
+
+		while true do
+			runner(coroutine.yield())
+		end
+	end
+end
 
 local send_message_sync_one
 local send_message_sync_all
@@ -121,7 +143,11 @@ local function sync_connection<MessageData>(
 
 	callbacks[message_id] = callback
 
-	invoke_message_queue(message_id, callback)
+	for client, message_queue_data in read_message_queue(message_id) do
+		task_spawn(open_thread or spawner, callback, client, message_queue_data)
+		callback = callbacks[message_id]
+		if not callback then break end
+	end
 end
 
 local function async_connection<MessageData>(
@@ -129,7 +155,7 @@ local function async_connection<MessageData>(
 	callback: Callback<MessageData>
 ): ()
 	local function async_connection_wrapper(client: Client, data: MessageData): ()
-		reused_spawn(callback, client, data)
+		task_spawn(open_thread or spawner, callback, client, data)
 	end
 
 	sync_connection(message_id, async_connection_wrapper)

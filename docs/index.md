@@ -7,7 +7,7 @@ hide:
 # <span style="font-family:Comic Neue; font-weight:900">:3c</span>
 
 Light is a *light*weight, robust, and secure remote wrapper for roblox. Read below, or [get started](quick-start/index.md).
-<br>If you like Light or find it interesting, consider [leaving a ⭐](https://github.com/hardlyardi/light/) to save it for later, or watching the repository.
+<br>If you like Light or find it interesting, consider [leaving a ⭐](https://light.ardi.gg/github) to save it for later, or watching the repository.
 
 ## What Light does
 
@@ -53,7 +53,7 @@ send(message_b)
 send(message_a)
 ```
 
-The other side will recieve the first call to message a, the second call to message a, and then the call(s) to message
+The other side will receive the first call to message a, the second call to message a, and then the call(s) to message
 b. If you use <a href="https://github.com/ffrostfall/BridgeNet2" target="_blank">BridgeNet2</a>, you're already
 experiencing this.
 

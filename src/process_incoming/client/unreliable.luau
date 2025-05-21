@@ -34,7 +34,7 @@ local function on_incoming_unreliable(first: MessagingBridgeData, second: buffer
 end
 
 --[=[
-Start recieving unreliable messages on the client.
+Start receiving unreliable messages on the client.
 ]=]
 local function init(): ()
 	internal_bridges.to_client.unreliable_messaging.client_event(on_incoming_unreliable)

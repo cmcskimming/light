@@ -24,7 +24,8 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
-local datatype_cached = require("../datatypes/cached")
+local datatypes = require("../include/datatypes/main.h")
+local datatypes_types = require("../include/datatypes/types")
 local holy = require("../holy")
 local message_types = require("./types")
 local report = require("../report")
@@ -44,8 +45,11 @@ local function link_name(name: string, id: MessageId): ()
 	message_names[id] = name
 end
 
-local function link_serdes(message_name: string, input_type: datatype_cached.AcceptableSchema): ()
-	local cached = datatype_cached(input_type)
+local function link_serdes(
+	message_name: string,
+	input_type: datatypes_types.AcceptableCachedSchema
+): ()
+	local cached = datatypes.cached(input_type)
 
 	if holy.check_datatype_exists(cached) == false then
 		error(
@@ -77,7 +81,8 @@ local function link_serdes(message_name: string, input_type: datatype_cached.Acc
 		)
 	end
 
-	holy.copy_datatype(cached, message_id)
+	-- Luau
+	holy.copy_datatype(cached :: any, message_id)
 
 	message_ser[message_id] = metadata.ser[message_id]
 	message_des[message_id] = metadata.des[message_id]

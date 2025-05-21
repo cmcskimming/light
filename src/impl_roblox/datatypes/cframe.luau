@@ -92,7 +92,7 @@ function datatypes.cframe(position_datatype: Datatype<number>?): Datatype<CFrame
 			local axis_x = axis.X
 			local max_y = (1 - axis_x ^ 2) ^ 0.5
 
-			local mapped_x = math.map(axis_x, -1, 1, 0, 2 ^ 16 - 1)
+			local mapped_x = math.map(axis_x, -1, 1, 0, 2 ^ 16 - 1) -- u16
 			local mapped_y = math.map(axis.Y, -max_y, max_y, 0, 2 ^ 15 - 1) * z_sign
 
 			buffer.writeu16(buff, byte_ptr, mapped_x)

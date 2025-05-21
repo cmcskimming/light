@@ -27,7 +27,7 @@ SOFTWARE.
 --!nolint LocalShadow
 do
 end
-local IMPL = nil :: any
+local IMPL: any = nil
 
 local datatypes_types = require("./types")
 local instance_class_types = require("../instance_classes/types")

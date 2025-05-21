@@ -24,11 +24,11 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
-local GLOBAL_NAMESPACE_NAME = "|__GLOBAL|"
+local GLOBAL_NAMESPACE_NAME = "|_GLOBAL_|"
 
 local holy = require("../../holy")
 local message_types = require("../../messages/types")
-local messages = require("../main")
+local messages = require("../shared")
 local report = require("../../report")
 
 type HolyDatatype = holy.Datatype

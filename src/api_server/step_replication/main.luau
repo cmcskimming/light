@@ -40,7 +40,7 @@ type MessagingBridgeData = light_types.MessagingBridgeData
 
 local reliable_messaging = internal_bridges.to_client.reliable_messaging
 local subscribed_client_sets_by_length = queried_streams.subscribed_client_sets_by_length
-local stream_set_to_locator_by_length = queried_streams.mapped_locators_by_length
+local mapped_locators_by_length = queried_streams.mapped_locators_by_length
 local get_all_clients = clients.all_clients
 
 local defer_reset = {} :: { [OutgoingStream]: true? }
@@ -85,7 +85,7 @@ local function step_replication(): ()
 	local per_client_send_lists: { [Client]: { MessagingBridgeData } } = global_replication() or {}
 
 	for client_count, stream_client_sets in subscribed_client_sets_by_length do
-		local stream_locator_table = stream_set_to_locator_by_length[client_count]
+		local stream_locator_table = mapped_locators_by_length[client_count]
 
 		for stream_client_sets_index = 1, #stream_client_sets do
 			local outgoing_stream = stream_locator_table[stream_client_sets_index]

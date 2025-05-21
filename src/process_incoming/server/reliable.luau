@@ -73,7 +73,7 @@ local function process_incoming(client: Client, first: MessagingBridgeData, seco
 end
 
 --[=[
-Start recieving reliable messages on the server.
+Start receiving reliable messages on the server.
 ]=]
 local function init(): ()
 	internal_bridges.to_server.reliable_messaging.server_event(process_incoming)

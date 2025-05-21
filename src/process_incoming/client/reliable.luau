@@ -101,7 +101,7 @@ local function on_incoming_reliable(...: MessagingBridgeData): ()
 end
 
 --[=[
-Start recieving reliable messages on the client.
+Start receiving reliable messages on the client.
 ]=]
 local function init(): ()
 	internal_bridges.to_client.reliable_messaging.client_event(on_incoming_reliable)
