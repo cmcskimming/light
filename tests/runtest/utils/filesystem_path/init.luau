@@ -46,9 +46,7 @@ local function path_to_nav(path: string): PathNav
 end
 
 local function nav_to_path(nav: PathNav): string
-	local output = (table.concat(nav, "/"))
-	print(output)
-	return output
+	return (table.concat(nav, "/"))
 end
 
 local filesystem_path = {}
@@ -236,18 +234,18 @@ end
 Returns whether the path is a directory. Exclusive with `filesystem_path:is_directory()`
 ]=]
 function filesystem_path.is_file(self: Identity): boolean
-	local path_metadata = filesystem.metadata(self:as_str())
+	local exists_kind = self:exists()
 
-	return path_metadata.kind == "file"
+	return exists_kind == "File"
 end
 
 --[=[
 Returns whether the path is a directory. Exclusive with `filesystem_path:is_file()`
 ]=]
 function filesystem_path.is_directory(self: Identity): boolean
-	local path_metadata = filesystem.metadata(self:as_str())
+	local exists_kind = self:exists()
 
-	return path_metadata.kind == "dir"
+	return exists_kind == "Directory"
 end
 
 --[=[
