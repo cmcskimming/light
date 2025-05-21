@@ -46,7 +46,9 @@ local function path_to_nav(path: string): PathNav
 end
 
 local function nav_to_path(nav: PathNav): string
-	return (table.concat(nav, "/"))
+	local output = (table.concat(nav, "/"))
+	print(output)
+	return output
 end
 
 local filesystem_path = {}
@@ -65,6 +67,7 @@ local function internal_constructor(nav: PathNav): Identity
 end
 
 local function constructor(path: string): Identity
+	print(`constructing: {path}`)
 	local as_nav = path_to_nav(path)
 
 	return (internal_constructor(as_nav))
