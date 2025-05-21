@@ -12,7 +12,7 @@ on:
     branches:
       - main
     paths:
-      - .github/workflows/test.yml
+      - .github/workflows/tests.yml
       - lune/**
       - src/**
       - tests/**
