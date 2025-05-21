@@ -5,8 +5,8 @@ local task = require("@lune/task")
 local timeout = require("@specs/utils/timeout")
 
 type TestInterface = runtest.TestInterface
-type Client = typeof(require("@specs/client_to_server/send/client"))
-type Server = typeof(require("@specs/client_to_server/send/server"))
+type Client = typeof(require("@specs/client/send/client"))
+type Server = typeof(require("@specs/client/send/server"))
 
 light_instance.init()
 
@@ -19,9 +19,9 @@ server_vm:connect_client(client_vm)
 spec.test("send", function(interface: TestInterface): ()
 	local tthread = timeout(interface, 5)
 
-	local server = server_vm.import("@specs/client_to_server/send/server") :: Server
+	local server = server_vm.import("@specs/client/send/server") :: Server
 
-	local client = client_vm.import("@specs/client_to_server/send/client") :: Client
+	local client = client_vm.import("@specs/client/send/client") :: Client
 
 	async(server.listen, interface)
 	async(client.send)
@@ -34,9 +34,9 @@ end)
 spec.test("send (queued)", function(interface: TestInterface): ()
 	local tthread = timeout(interface, 5)
 
-	local server = server_vm.import("@specs/client_to_server/send/server") :: Server
+	local server = server_vm.import("@specs/client/send/server") :: Server
 
-	local client = client_vm.import("@specs/client_to_server/send/client") :: Client
+	local client = client_vm.import("@specs/client/send/client") :: Client
 
 	async(client.send)
 
