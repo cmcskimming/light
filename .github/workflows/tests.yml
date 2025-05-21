@@ -32,6 +32,7 @@ jobs:
         with:
           # only checkout files which are needed for running tests
           sparse-checkout: |
+            rokit.toml
             .luaurc
             lune/
             src/
