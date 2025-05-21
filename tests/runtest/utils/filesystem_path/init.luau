@@ -67,7 +67,6 @@ local function internal_constructor(nav: PathNav): Identity
 end
 
 local function constructor(path: string): Identity
-	print(`constructing: {path}`)
 	local as_nav = path_to_nav(path)
 
 	return (internal_constructor(as_nav))
@@ -258,7 +257,9 @@ Returns:
 <br>`nil` - if the path is not a file or directory that exists
 ]=]
 function filesystem_path.exists(self: Identity): ExistsKind?
-	local path_metadata = filesystem.metadata(self:as_str())
+	local success, path_metadata = pcall(filesystem.metadata, self:as_str())
+
+	if not success then return nil end
 
 	local path_kind = path_metadata.kind
 
