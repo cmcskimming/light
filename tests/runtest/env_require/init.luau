@@ -29,7 +29,6 @@ local filesystem_path = require("@runtest/utils/filesystem_path")
 local luau = require("@lune/luau")
 local resolver = require("@runtest/env_require/resolver")
 local resolver_types = require("@self/resolver/types")
-local stdio = require("@lune/stdio")
 
 type FilesystemPath = filesystem_path.Identity
 type LuaurcAliases = resolver_types.LuaurcAliases
@@ -69,8 +68,7 @@ local function _require_constructor(
 		end)
 
 		if not success then
-			stdio.ewrite(`{result}\n`)
-			error("requested module experienced an error while loading", 2)
+			error(`{result}\nRequested module experienced an error while loading.`, 2)
 		end
 
 		result_cache[resolved_file] = result

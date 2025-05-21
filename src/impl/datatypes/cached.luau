@@ -58,6 +58,23 @@ local function cached<Input>(input: AcceptableSchema): HolyDatatype<Input>
 
 	if first_index == 1 then return holy_datatypes.arr(cached(first_value)) end
 
+	if type(first_index) == "string" then
+		local output = table.clone(input) :: { [string]: any }
+
+		for key, value in input do
+			if type(key) ~= "string" then
+				error(
+					report.problem(
+						`Invalid cached datatype: Expected a string at key "{key}", got type "{typeof(key)}"`
+					)
+				)
+			end
+			output[key] = cached(value)
+		end
+
+		return holy_datatypes.struct(output)
+	end
+
 	-- Luau
 	local cached_first_index = cached(first_index :: any)
 
@@ -67,22 +84,7 @@ local function cached<Input>(input: AcceptableSchema): HolyDatatype<Input>
 		return holy_datatypes.map(cached_first_index, cached(first_value))
 	end
 
-	local input = input :: { [string]: AcceptableSchema }
-
-	local output = {} :: { [string]: any }
-
-	for key, value in input do
-		if type(key) ~= "string" then
-			error(
-				report.problem(
-					`Invalid cached datatype: Expected a string at key "{key}", got type "{typeof(key)}"`
-				)
-			)
-		end
-		output[key] = cached(value)
-	end
-
-	return holy_datatypes.struct(output)
+	error("unreachable")
 end
 
 datatypes.cached = cached :: any

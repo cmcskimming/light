@@ -26,13 +26,14 @@ SOFTWARE.
 ]]
 local clients = require("../../include/clients/main.h")
 local clients_types = require("../../include/clients/types")
-local new_stream = require("../constructor")
+local stream = require("../main")
 local stream_types = require("../types")
 
 type Client = clients_types.Identity
 type OutgoingStream = stream_types.OutgoingStream
 type ClientSet = { [Client]: true? }
 
+local stream_constructor = stream.new
 local client_is_connected = clients.is_connected
 
 --- subscribed_client_sets_by_length stores a set of all connected clients subscribed to the queryable stream based on
@@ -95,7 +96,7 @@ local function new_queried_stream(clients: { Client }): OutgoingStream?
 
 	local new_index = num_existing_streams + 1
 
-	local output = new_stream()
+	local output = stream_constructor()
 
 	stream_client_sets[new_index] = clients_as_set
 	stream_locator_table[new_index] = output

@@ -28,8 +28,8 @@ SOFTWARE.
 On the client, this should be the only stream written to. On the server, this is the stream used to broadcast to all
 clients.
 ]]
-local new_stream = require("./constructor")
+local stream = require("./main")
 
-local global_stream = new_stream()
+local global_stream = stream.new()
 
 return global_stream

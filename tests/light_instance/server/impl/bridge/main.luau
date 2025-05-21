@@ -34,6 +34,7 @@ local server_vm = require("@test/light_instance/server/vm.h").identity
 local clients_types = require("@include/clients/types")
 local light_instance_types = require("@test/light_instance/types")
 local luausignal = require("@light/utils/luau_signal")
+local recursively_remove_userdatas = require("@test/light_instance/recursively_remove_userdatas")
 
 type Bridge<BridgeData...> = bridge_types.Bridge<BridgeData...>
 type Client = clients_types.Identity
@@ -62,7 +63,13 @@ server_vm.to_server_signals.send_bridge_data:connect(
 			error(`bridge with name {bridge_name} does not exist, dropping message`)
 		end
 
-		bridge_signal:fire(client, ...)
+		local data_table = { ... }
+
+		for index = #data_table, 1, -1 do
+			data_table[index] = recursively_remove_userdatas(data_table[index])
+		end
+
+		bridge_signal:fire(client, table.unpack(data_table))
 	end
 )
 

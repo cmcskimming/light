@@ -45,4 +45,6 @@ local function stream_constructor(): stream_types.OutgoingStream
 	return created
 end
 
-return stream_constructor
+return {
+	new = stream_constructor,
+}

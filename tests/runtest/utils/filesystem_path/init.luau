@@ -33,7 +33,10 @@ local filesystem_path_types = require("@self/types")
 type ExistsKind = filesystem_path_types.ExistsKind
 type PathNav = filesystem_path_types.PathNav
 
+local CACHE_path_to_nav = {} :: { [string]: PathNav }
 local function path_to_nav(path: string): PathNav
+	if CACHE_path_to_nav[path] then return CACHE_path_to_nav[path] end
+
 	local path_only_forward_slashes = path:gsub("[\\]", "/")
 	local nav = path_only_forward_slashes:split("/")
 	local nav_len = #nav
@@ -42,11 +45,17 @@ local function path_to_nav(path: string): PathNav
 		if nav[nav_index] == NULL_CHAR then table.remove(nav, nav_index) end
 	end
 
+	CACHE_path_to_nav[path] = nav
+
 	return nav
 end
 
+local CACHE_nav_to_path = {} :: { [PathNav]: string }
 local function nav_to_path(nav: PathNav): string
-	return (table.concat(nav, "/"))
+	if CACHE_nav_to_path[nav] then return CACHE_nav_to_path[nav] end
+	local output = table.concat(nav, "/")
+	CACHE_nav_to_path[nav] = output
+	return output
 end
 
 local filesystem_path = {}
@@ -56,10 +65,14 @@ export type Identity = setmetatable<{
 	_nav: PathNav,
 }, typeof(metatable)>
 
+local CACHE_internal_constructor = {} :: { [PathNav]: Identity }
 local function internal_constructor(nav: PathNav): Identity
+	if CACHE_internal_constructor[nav] then return CACHE_internal_constructor[nav] end
+
 	local self = setmetatable({
 		_nav = nav,
 	}, metatable)
+	CACHE_internal_constructor[nav] = self
 
 	return self
 end
@@ -234,18 +247,18 @@ end
 Returns whether the path is a directory. Exclusive with `filesystem_path:is_directory()`
 ]=]
 function filesystem_path.is_file(self: Identity): boolean
-	local exists_kind = self:exists()
+	local metadata = filesystem.metadata(self:as_str())
 
-	return exists_kind == "File"
+	return metadata.kind == "file"
 end
 
 --[=[
 Returns whether the path is a directory. Exclusive with `filesystem_path:is_file()`
 ]=]
 function filesystem_path.is_directory(self: Identity): boolean
-	local exists_kind = self:exists()
+	local metadata = filesystem.metadata(self:as_str())
 
-	return exists_kind == "Directory"
+	return metadata.kind == "dir"
 end
 
 --[=[
@@ -255,9 +268,7 @@ Returns:
 <br>`nil` - if the path is not a file or directory that exists
 ]=]
 function filesystem_path.exists(self: Identity): ExistsKind?
-	local success, path_metadata = pcall(filesystem.metadata, self:as_str())
-
-	if not success then return nil end
+	local path_metadata = filesystem.metadata(self:as_str())
 
 	local path_kind = path_metadata.kind
 

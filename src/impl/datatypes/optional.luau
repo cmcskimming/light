@@ -77,6 +77,7 @@ function datatypes.optional<Inner>(inner_datatype: HolyDatatype<Inner>): HolyDat
 	local inner_des = metadata.des[inner_cached]
 
 	local optional_datatype = holy.new_datatype()
+	cache[inner_cached] = optional_datatype
 
 	@native --dynamic_ncgen
 	local function optional_ser_io(buff: buffer, byte_ptr: number, input: any): (number, buffer)

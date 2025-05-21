@@ -94,7 +94,16 @@ local function fetch_des<T>(
 end
 
 local function ordered_hash(...: any): string
-	return table.concat({ ... }, "\126\002")
+	local list = {...}
+	local list_len = #list
+
+	local output = ""
+
+	for index = 1, list_len do
+		output ..= `{tostring(list[index])}\126\002`
+	end
+
+	return output
 end
 
 --[=[
@@ -1191,10 +1200,12 @@ CONST_LOOKUPS.float = {
 }
 
 do
+	local null = newproxy()
+
 	local cache = {} :: Set<string, Datatype>
 
 	local function literal<Value>(literal_value: Value): Datatype<Value>
-		local literal_value = literal_value :: any
+		local literal_value = (if literal_value :: any == nil then null else literal_value) :: any
 
 		-- hashing because value passed could be nil
 		local hash = ordered_hash(literal_value, "__LIGHT_LITERAL")
