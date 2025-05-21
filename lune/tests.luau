@@ -40,10 +40,15 @@ local blue = color.blue
 local green_bright = color.green_bright
 local red_bright = color.red_bright
 
+-- this is so hacky lmao im not making a command line parser
+local user_allows = ".*"
+if process.args[1] == "--match" then user_allows = process.args[2] end
+
 local any_failed = false
 
 for _, filename in files_under_directory(SPEC_DIRECTORY) do
 	if not filename:match(MATCH_SPEC_FILE) then continue end
+	if not filename:match(user_allows) then continue end
 	print(blue(`Running Spec "{filename}"`))
 
 	local num_success = 0
