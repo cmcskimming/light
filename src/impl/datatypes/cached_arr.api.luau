@@ -24,22 +24,22 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
-local test_types = require("@runtest/spec/test/types")
+local _datatype_cached = require("./cached.api")
+local datatypes = require("../../include/datatypes/main.h")
+local holy = require("../../holy")
 
-type TestDefinition = test_types.TestDefinition
+type HolyDatatype<T = any> = holy.Datatype<T>
 
-export type LoadedSpec = {
-	kind: "init",
-	test_names: { string },
-} | {
-	kind: "test",
-	name: string,
-	definition: TestDefinition,
-}
+local ty = holy.datatypes
 
-export type SpecResults = {
-	status: { [string]: boolean },
-	outputs: { [string]: string },
-}
+--[=[
+array mirror with datatype caching
+]=]
+function datatypes.arr<Item>(
+	item_datatype: holy.Datatype<Item>,
+	length_datatype: holy.Datatype<number>?
+): holy.Datatype<{ Item }>
+	return ty.arr(datatypes.cached(item_datatype), length_datatype or ty.u16)
+end
 
 return nil

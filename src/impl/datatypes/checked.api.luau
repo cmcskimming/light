@@ -24,7 +24,7 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
-local _any = require("./any")
+local _any = require("./any.api")
 local datatypes = require("../../include/datatypes/main.h")
 local holy = require("../../holy")
 local report = require("../../report")

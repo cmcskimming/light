@@ -27,8 +27,8 @@ SOFTWARE.
 --!nocheck
 local datatypes = require("@include/datatypes/main.h")
 
-local _any = require("@light/impl/datatypes/any")
-local _instance_classes = require("@light/impl/instance_classes/main")
+local _any = require("@light/impl/datatypes/any.api")
+local _instance_classes = require("@light/impl/instance_classes/main.api")
 local holy = require("@light/holy")
 local instance_class_types = require("@include/instance_classes/types")
 local instance_classes = require("@include/instance_classes/main.h")

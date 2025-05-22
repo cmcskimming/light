@@ -24,7 +24,7 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
-local SPEC_DIRECTORY = "tests/specs/"
+local SPEC_DIRECTORY = "tests/_specs/"
 local MATCH_SPEC_FILE = "%.spec%.luau$"
 
 local files_under_directory = require("@test/utils/files_under_dir")

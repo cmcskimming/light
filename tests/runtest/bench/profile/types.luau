@@ -24,22 +24,14 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
-local test_types = require("@runtest/spec/test/types")
+do
+end
+export type ProfileDefinition<Parameters...> = (Parameters...) -> ()
 
-type TestDefinition = test_types.TestDefinition
-
-export type LoadedSpec = {
-	kind: "init",
-	test_names: { string },
-} | {
-	kind: "test",
-	name: string,
-	definition: TestDefinition,
-}
-
-export type SpecResults = {
-	status: { [string]: boolean },
-	outputs: { [string]: string },
+export type ProfileInterface = {
+	_tag: string,
+	open: () -> (),
+	close: () -> (),
 }
 
 return nil

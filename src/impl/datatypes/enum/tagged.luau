@@ -26,7 +26,7 @@ SOFTWARE.
 ]]
 do
 end
-local _datatype_cached = require("../cached")
+local _datatype_cached = require("../cached.api")
 local datatypes = require("../../../include/datatypes/main.h")
 local holy = require("../../../holy")
 local report = require("../../../report")

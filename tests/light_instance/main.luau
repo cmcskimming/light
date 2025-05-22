@@ -27,7 +27,7 @@ SOFTWARE.
 local CLIENT_CODE_MODULE = "tests/light_instance/client/main.luau"
 local SERVER_CODE_MODULE = "tests/light_instance/server/main.luau"
 
-local _task = require("@test/impl_lune/task/main")
+local _task = require("@test/impl_lune/task/main.api")
 
 local clients_types = require("@include/clients/types")
 local env_require = require("@runtest/env_require")

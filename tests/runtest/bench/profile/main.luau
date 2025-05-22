@@ -24,22 +24,27 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
-local test_types = require("@runtest/spec/test/types")
+do
+end
+local bench_runner_types = require("@runtest/bench/runner/types")
+local bench_types = require("@runtest/bench/types")
+local profile_types = require("@runtest/bench/profile/types")
 
-type TestDefinition = test_types.TestDefinition
+type ProfileRunner = bench_runner_types.ProfileRunner
+type Profiler = profile_types.ProfileInterface
+type LoadedBench<Parameters...> = bench_types.LoadedBench<Parameters...>
+type ProfileDefinition<Parameters...> = profile_types.ProfileDefinition<Parameters...>
 
-export type LoadedSpec = {
-	kind: "init",
-	test_names: { string },
-} | {
-	kind: "test",
-	name: string,
-	definition: TestDefinition,
+local function init<Parameters...>(
+	passed_runner: ProfileRunner,
+	parameter_generator: () -> Parameters...,
+	time: number?
+): {
+	profiler: (tag: string) -> Profiler,
+	profile: (name: string, definition: ProfileDefinition<Parameters...>) -> (),
+	done: () -> LoadedBench<Parameters...>,
 }
+	error("TODO")
+end
 
-export type SpecResults = {
-	status: { [string]: boolean },
-	outputs: { [string]: string },
-}
-
-return nil
+return { init = init }

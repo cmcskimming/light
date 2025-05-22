@@ -26,7 +26,7 @@ SOFTWARE.
 ]]
 local U8_BYTES = 1
 
-local _datatype_cached = require("./cached")
+local _datatype_cached = require("./cached.api")
 local bitpack = require("../../bitpack")
 local datatypes = require("../../include/datatypes/main.h")
 local holy = require("../../holy")

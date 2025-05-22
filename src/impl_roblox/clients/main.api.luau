@@ -28,7 +28,7 @@ local Players = game:GetService("Players")
 
 local clients = require("../../include/clients/main.h")
 
-local _context = require("../context/main")
+local _context = require("../context/main.api")
 local clients_types = require("../../include/clients/types")
 local context = require("../../include/context/main.h")
 local luausignal = require("../../utils/luau_signal")

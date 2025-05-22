@@ -30,7 +30,7 @@ allowing me to make breaking changes.
 ]]
 do
 end
-local lib_internal_types = require("./lib_internal_types")
+local lib_internal_types = require("./lib_internal.types")
 local light_types = require("./types")
 local report = require("./report")
 

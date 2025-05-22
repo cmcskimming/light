@@ -24,27 +24,18 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
-local _datatype_cached = require("./cached")
-local datatypes = require("../../include/datatypes/main.h")
-local holy = require("../../holy")
+local profile_types = require("@runtest/bench/profile/types")
 
-type HolyDatatype<T = any> = holy.Datatype<T>
+type ProfileDefinition<Parameters...> = profile_types.ProfileDefinition<Parameters...>
 
-local ty = holy.datatypes
-
---[=[
-map mirror with datatype caching
-]=]
-function datatypes.map<Key, Value>(
-	key_datatype: HolyDatatype<Key>,
-	value_datatype: HolyDatatype<Value>,
-	length_datatype: HolyDatatype<number>?
-): HolyDatatype<{ [Key]: Value }>
-	return ty.map(
-		datatypes.cached(key_datatype),
-		datatypes.cached(value_datatype),
-		length_datatype or ty.u16
-	)
-end
+export type LoadedBench<Parameters...> = {
+	kind: "init",
+	parameter_gen: () -> Parameters...,
+	test_names: { string },
+} | {
+	kind: "profile",
+	name: string,
+	definition: ProfileDefinition<Parameters...>,
+}
 
 return nil

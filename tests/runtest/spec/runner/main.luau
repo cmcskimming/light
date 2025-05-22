@@ -32,11 +32,11 @@ local luau = require("@lune/luau")
 local pretty_print = require("@runtest/utils/pretty_print/main")
 local process = require("@lune/process")
 local spec_runner_types = require("@runtest/spec/runner/types")
+local spec_types = require("@runtest/spec/types")
 local task = require("@lune/task")
 local test_interface = require("@runtest/spec/test/interface")
-local test_types = require("@runtest/spec/test/types")
 
-type LoadedSpec = test_types.LoadedSpec
+type LoadedSpec = spec_types.LoadedSpec
 type SpecRunner = spec_runner_types.SpecRunner
 type SpecResults = spec_runner_types.Results
 

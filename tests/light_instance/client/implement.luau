@@ -37,7 +37,7 @@ end
 local impl_client = {}
 
 function impl_client.init_lune(): ()
-	require("@test/impl_lune/task/main")
+	local _task = require("@test/impl_lune/task/main.api")
 
 	for _, path in files_under_dir("tests/impl_lune/") do
 		implement(`@root/tests/impl_lune/{path}`)

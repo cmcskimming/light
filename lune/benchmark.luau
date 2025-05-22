@@ -24,22 +24,4 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
-local _datatype_cached = require("./cached")
-local datatypes = require("../../include/datatypes/main.h")
-local holy = require("../../holy")
-
-type HolyDatatype<T = any> = holy.Datatype<T>
-
-local ty = holy.datatypes
-
---[=[
-array mirror with datatype caching
-]=]
-function datatypes.arr<Item>(
-	item_datatype: holy.Datatype<Item>,
-	length_datatype: holy.Datatype<number>?
-): holy.Datatype<{ Item }>
-	return ty.arr(datatypes.cached(item_datatype), length_datatype or ty.u16)
-end
-
 return nil

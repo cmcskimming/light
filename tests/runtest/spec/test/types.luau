@@ -31,14 +31,6 @@ local luausignal = require("@runtest/utils/luausignal")
 type Signal<T...> = luausignal.Identity<T...>
 
 export type TestDefinition = (interface: TestInterface) -> ()
-export type LoadedSpec = {
-	kind: "init",
-	test_names: { string },
-} | {
-	kind: "test",
-	name: string,
-	definition: TestDefinition,
-}
 
 export type TestInterface = setmetatable<{
 	_output: string,

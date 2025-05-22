@@ -25,11 +25,12 @@ SOFTWARE.
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
 local spec_runner_types = require("@runtest/spec/runner/types")
+local spec_types = require("@runtest/spec/types")
 local test_types = require("@runtest/spec/test/types")
 
 type TestInterface = test_types.TestInterface
 type TestDefinition = test_types.TestDefinition
-type LoadedSpec = test_types.LoadedSpec
+type LoadedSpec = spec_types.LoadedSpec
 type SpecRunner = spec_runner_types.SpecRunner
 
 local using_runner: SpecRunner

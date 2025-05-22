@@ -30,16 +30,16 @@ local lib_server = require("./lib_server.h")
 local lib_shared = require("./lib_shared.h")
 
 if context.runcontext == "client" then
-	local init_client = require("./lib_client")
+	local init_client = require("./lib_client.api")
 	init_client()
 elseif context.runcontext == "server" then
-	local init_server = require("./lib_server")
+	local init_server = require("./lib_server.api")
 	init_server()
 else
 	error("context not initialized wtf")
 end
 
-require("./lib_shared")
+require("./lib_shared.api")
 
 return {
 	client = lib_client,

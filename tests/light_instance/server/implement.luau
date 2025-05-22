@@ -40,8 +40,8 @@ end
 local impl_server = {}
 
 function impl_server.init_lune(): ()
-	require("@test/impl_lune/task/main")
-	require("@test/impl_lune/schedule/main")
+	require("@test/impl_lune/task/main.api")
+	require("@test/impl_lune/schedule/main.api")
 	for _, path in files_under_dir("tests/impl_lune/") do
 		implement(`@root/tests/impl_lune/{path}`)
 	end

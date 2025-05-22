@@ -156,11 +156,14 @@ local function sync_message_from_remote(sync: typeof(holy.export(message_sync_on
 	local message_name = sync.name
 	local message_id = sync.message_id
 
+	--print(`syncing from remote: "{message_name}" - {message_id}`)
+
 	message_metadata_linking.link_name(message_name, message_id)
 
 	local waiting_thread = awaiting_sync[message_name]
 
 	if waiting_thread then
+		--print(`spawning waiting thread "{message_name}"`)
 		task_spawn(waiting_thread, message_id)
 		awaiting_sync[message_name] = nil
 		return

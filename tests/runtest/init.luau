@@ -26,19 +26,21 @@ SOFTWARE.
 ]]
 --[[runtest
 A flexible, robust testing framework built with lune.
-v0.1.0
+v0.1.1
 ]]
 do
 end
 local colorful = require("@runtest/utils/colorful")
 local pretty_print = require("@runtest/utils/pretty_print/main")
+local profile = require("@runtest/bench/profile/main")
+local profile_types = require("@runtest/bench/profile/types")
 local spec_runner = require("@runtest/spec/runner/main")
 local table_merge = require("@runtest/utils/table_merge")
 local test = require("@runtest/spec/test/main")
 local test_types = require("@runtest/spec/test/types")
 
 export type TestInterface = test_types.TestInterface
-export type BenchInterface = { TODO: never }
+export type ProfileInterface = profile_types.ProfileInterface
 
 return {
 	style = table_merge.union({
@@ -53,7 +55,7 @@ return {
 			init = test.init,
 		},
 		bench = {
-			init = nil,
+			init = profile.init,
 		},
 	},
 }

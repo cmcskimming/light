@@ -6,7 +6,8 @@
         "light": "./src/",
         "include": "./src/include/",
         "test": "./tests/",
-        "specs": "./tests/specs/",
+        "specs": "./tests/_specs/",
+        "benches": "./tests/_benchmarks/",
         "import": "./tests/import/",
         "runtest": "./tests/runtest/"
     }

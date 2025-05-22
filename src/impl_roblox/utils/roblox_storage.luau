@@ -28,7 +28,7 @@ SOFTWARE.
 --!optimize 2
 local IMPL: any = nil
 
-local _context = require("../context/main")
+local _context = require("../context/main.api")
 local context = require("../../include/context/main.h")
 local instance_classes = require("../../instance_classes")
 local report = require("../../report")
