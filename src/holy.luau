@@ -49,7 +49,7 @@ local CONST_LOOKUPS = {}
 
 local IS_STFU_MODE = false
 
-local _err = error
+local sybau = error
 
 local function stfu(shut_up: boolean?): ()
 	if shut_up or shut_up == nil then
@@ -61,7 +61,7 @@ end
 
 local function stfu_check(): ()
 	if IS_STFU_MODE then
-		_err()
+		sybau()
 	end
 end
 
