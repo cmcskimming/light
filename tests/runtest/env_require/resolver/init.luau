@@ -36,7 +36,7 @@ local resolver_types = require("@self/types")
 type RequireAliases = resolver_types.RequireAliases
 type ResolverResult = resolver_types.ResolverResult
 
-local SEPARATOR = if process.os == "windows" then "\\" else "/"
+local SEPARATOR = filesystem_path.SEPARATOR
 local get_aliases_from_luaurc = get_aliases.from_luaurc
 local process_cwd = process.cwd
 local string_match = string.match

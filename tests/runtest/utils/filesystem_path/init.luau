@@ -24,6 +24,10 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
+--[[filesystem_path (🇨🇦)
+A performant OS agnostic filesystem path object written in luau.
+v0.1.0
+]]
 local NAVIGATE_BACK = ".."
 local NAVIGATE_HERE = "."
 local ROOT_PATTERN = "^([/\\]?[^/\\]+[/\\])"
@@ -226,6 +230,7 @@ function matches_root(input: string, cwd: string): boolean
 end
 
 return {
+	SEPARATOR = SEPARATOR,
 	to_nav = to_nav,
 	from_nav = from_nav,
 	navigate = navigate,
