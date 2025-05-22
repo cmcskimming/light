@@ -46,6 +46,8 @@ if process.args[1] == "--match" then user_allows = process.args[2] end
 
 local any_failed = false
 
+--local started = os.clock()
+
 for _, filename in files_under_directory(SPEC_DIRECTORY) do
 	if not filename:match(MATCH_SPEC_FILE) then continue end
 	if not filename:match(user_allows) then continue end
@@ -54,7 +56,7 @@ for _, filename in files_under_directory(SPEC_DIRECTORY) do
 	local num_success = 0
 	local num_failed = 0
 
-	local spec = run.spec(`{SPEC_DIRECTORY}{filename}`)
+	local spec = run.spec(`{SPEC_DIRECTORY}{filename}`, filename)
 	local results = spec:test()
 
 	for _ in results.success do
@@ -80,6 +82,8 @@ for _, filename in files_under_directory(SPEC_DIRECTORY) do
 		print(green_bright(`No tests failed.`))
 	end
 end
+
+--print(`total time: {os.clock() - started}`)
 
 if any_failed then process.exit(1) end
 

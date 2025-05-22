@@ -26,12 +26,12 @@ SOFTWARE.
 ]]
 do
 end
-local colorful = require("@self/utils/colorful")
-local pretty_print = require("@self/pretty_print/main")
-local spec_runner = require("@self/spec/runner/main")
-local table_merge = require("@self/utils/table_merge")
-local test = require("@self/spec/test/main")
-local test_types = require("@self/spec/test/types")
+local colorful = require("@runtest/utils/colorful")
+local pretty_print = require("@runtest/utils/pretty_print/main")
+local spec_runner = require("@runtest/spec/runner/main")
+local table_merge = require("@runtest/utils/table_merge")
+local test = require("@runtest/spec/test/main")
+local test_types = require("@runtest/spec/test/types")
 
 export type TestInterface = test_types.TestInterface
 export type BenchInterface = { TODO: never }

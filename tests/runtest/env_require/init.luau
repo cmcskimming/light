@@ -25,33 +25,39 @@ SOFTWARE.
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
 local filesystem = require("@lune/fs")
-local filesystem_path = require("@runtest/utils/filesystem_path")
 local luau = require("@lune/luau")
 local resolver = require("@runtest/env_require/resolver")
 local resolver_types = require("@self/resolver/types")
 
-type FilesystemPath = filesystem_path.Identity
-type LuaurcAliases = resolver_types.LuaurcAliases
+type RequireAliases = resolver_types.RequireAliases
+
+local resolver_from_path = resolver.from_path
 
 local function _require_constructor(
-	module_path: FilesystemPath,
+	requiring_path: string,
 	result_cache: { [string]: any }
 ): (string) -> any
-	local require_resolver = resolver.new(module_path)
+	local require_resolver = resolver_from_path(requiring_path, {
+		"@lune/",
+		"@runtest/env_require",
+		"@runtest/utils",
+	})
 
-	@native
-	local function TEST_require(requested_str: string): any
-		local requested_path = filesystem_path.from_str(requested_str)
+	local function TEST_require(requested_path: string): any
+		local resolved = require_resolver:resolve_path(requested_path)
 
-		local resolved = require_resolver(requested_path)
-
-		if resolved.use_lune then return (require)(requested_str) end
+		if resolved.use_fallback_resolver then
+			return (require)(requested_path) --
+		end
 
 		local resolved_path = resolved.path
 
-		local resolved_file = resolved_path:normalize():as_str()
+		local resolved_file = resolved_path
 
-		if result_cache[resolved_file] then return result_cache[resolved_file] end
+		do
+			local cached = result_cache[resolved_file]
+			if cached ~= nil then return cached end
+		end
 
 		local resolved_code = filesystem.readFile(resolved_file)
 		local resolved_bytecode = luau.compile(resolved_code)
@@ -80,16 +86,9 @@ local function _require_constructor(
 end
 
 local function require_constructor(module: string): (string) -> any
-	local module_path = filesystem_path.from_str(module)
-
-	return _require_constructor(module_path, {})
-end
-
-local function require_constructor_from_path(module: FilesystemPath): (string) -> any
 	return _require_constructor(module, {})
 end
 
 return {
 	new = require_constructor,
-	from_path = require_constructor_from_path,
 }

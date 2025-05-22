@@ -24,181 +24,240 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
---[[TODO
-- Comply Spec
-Currently, this resolver does not meet the specification for luau requires (likely for a few reasons), but the most
-egregious of which is the inability to correctly resolve ./init.luau/foo or ./init/foo
-]]
-local MATCH_FILENAME = '[^<>:"/\\|%?%*%.]+'
-local ALIAS_PATTERN = `^@({MATCH_FILENAME})`
+local ALIAS_PATTERN = `^@(.+)`
+local FILENAME_PATTERN = `[/\\]?([^/\\]+)$`
 
-local filesystem = require("@lune/fs")
 local filesystem_path = require("@runtest/utils/filesystem_path")
-local resolve_types = require("@self/types")
-local serdes = require("@lune/serde")
+local get_aliases = require("@self/get_aliases")
+local pretty_print = require("@runtest/utils/pretty_print/main")
+local process = require("@lune/process")
+local resolver_types = require("@self/types")
 
-type LuaurcAliases = resolve_types.LuaurcAliases
-type FilesystemPath = filesystem_path.Identity
-type ResolvedPath = resolve_types.ResolvedPath
+type RequireAliases = resolver_types.RequireAliases
+type ResolverResult = resolver_types.ResolverResult
 
-local function get_require_aliases(current_module: FilesystemPath): LuaurcAliases
-	local all_aliases: LuaurcAliases = {}
+local SEPARATOR = if process.os == "windows" then "\\" else "/"
+local get_aliases_from_luaurc = get_aliases.from_luaurc
+local process_cwd = process.cwd
+local string_match = string.match
+local table_remove = table.remove
+local fsp_normalize = filesystem_path.normalize
+local fsp_to_nav = filesystem_path.to_nav
+local fsp_from_nav = filesystem_path.from_nav
+local fsp_matches_root = filesystem_path.matches_root
+local fsp_navigate = filesystem_path.navigate
+local fsp_file_eh = filesystem_path.file_eh
+local fsp_exists = filesystem_path.exists
+local fsp_directory_eh = filesystem_path.directory_eh
 
-	local filename = current_module:filename()
+local resolver = {}
+local metatable = { __index = resolver }
+
+export type Identity = setmetatable<{
+	_aliases: RequireAliases,
+	_directory: string,
+	_fallback_matches: { string },
+}, typeof(metatable)>
+
+local function resolver_from_path(
+	requiring_path: string,
+	fallback_match: (string | { string })?
+): Identity
+	requiring_path = requiring_path:gsub("[/\\]+", SEPARATOR)
+	do
+		local requiring_path_exists = fsp_exists(requiring_path)
+		if not requiring_path_exists then
+			error(`Problem constructing resolver for path "{requiring_path}", path does not exist.`)
+		end
+		local requiring_path_file_eh = fsp_file_eh(requiring_path)
+		if not requiring_path_file_eh then
+			error(`Problem constructing resolver for path "{requiring_path}", path is not a file.`)
+		end
+	end
+
+	local requiring_dir = fsp_normalize(fsp_navigate(requiring_path, ".."))
+	local requiring_dir_matches_cwd_root = fsp_matches_root(requiring_dir, process_cwd)
+
+	if not requiring_dir_matches_cwd_root then
+		error(
+			`Problem constructing resolver for path "{requiring_path}", path parent is beyond the scope of cwd`
+		)
+	end
+
+	local aliases = get_aliases_from_luaurc(requiring_dir)
+
+	local filename: string? = string_match(requiring_path, FILENAME_PATTERN)
+	if filename == nil then
+		error(`Problem constructing resolver for path "{requiring_path}", could not match filename`)
+	end
 
 	if (filename == "init.luau") or (filename == "init.lua") then
-		all_aliases["self"] = current_module:navigate(`../`):normalize()
+		aliases.self = requiring_dir --
 	end
 
-	local navigated_path = current_module
+	local fallback_matches: { string }?
 
-	while navigated_path do
-		local luaurc_parent = navigated_path
-		local possible_luaurc = luaurc_parent:navigate(".luaurc")
-		-- Luau
-		navigated_path = navigated_path:parent() :: FilesystemPath?
-
-		local luaurc_kind = possible_luaurc:exists()
-
-		if luaurc_kind ~= "File" then continue end
-
-		local luaurc_content = filesystem.readFile(possible_luaurc:as_str())
-		local luaurc_data = serdes.decode("json", luaurc_content)
-
-		local luaurc_aliases = luaurc_data.aliases
-
-		if luaurc_aliases == nil then continue end
-
-		for alias, target in luaurc_aliases do
-			if all_aliases[alias] then continue end
-
-			all_aliases[alias] = luaurc_parent:navigate(target):normalize()
+	if fallback_match then
+		if type(fallback_match) == "string" then
+			fallback_matches = { fallback_match }
+		elseif type(fallback_match) == "table" then
+			fallback_matches = fallback_match
+		else
+			error("unreachable")
 		end
 	end
 
-	return all_aliases
+	local self = setmetatable({
+		_aliases = aliases,
+		_directory = requiring_dir,
+		_fallback_matches = fallback_matches or {},
+	}, metatable)
+
+	return self
 end
 
-local function lune_typedefs_path_eh(path: FilesystemPath): boolean
-	local parent = path:parent()
-	if parent == nil then return false end
-	local parent_last = parent:get(parent:len())
-	if parent_last ~= ".typedefs" then return false end
-	local grandparent = parent:parent()
-	if grandparent == nil then return false end
-	local grandparent_last = grandparent:get(grandparent:len())
-	if grandparent_last ~= ".lune" then return false end
-	return true
-end
-
-local function require_resolver_constructor(
-	file_path: FilesystemPath
-): (require_path: FilesystemPath) -> ResolvedPath
-	local aliases = get_require_aliases(file_path)
-
-	local module_path = assert(file_path:parent(), "needs parent")
-
-	@native
-	local function require_resolver(require_path: FilesystemPath): ResolvedPath
-		local current_module = module_path
-
-		local first_nav = require_path:get(1)
-
-		if first_nav == nil then
-			error(debug.traceback("Failed to resolve require path. Path is empty", 2), -1)
-		end
-
-		local alias = first_nav:match(ALIAS_PATTERN)
-
-		if alias then
-			local alias_target = aliases[alias]
-
-			if not alias_target then
-				--stylua: ignore
-				error(debug.traceback(
-					`Could not resolve module for "{require_path:as_str()}".`
-						.. `Failed to resolve require path. "@{alias}" is not a valid alias defined in .luaurc`,
-					2
-				), -1)
-			end
-
-			if lune_typedefs_path_eh(alias_target) then return { use_lune = true } end
-
-			current_module = alias_target
-			require_path = assert(require_path:trim_from_start(), "PATH UTIL BUG")
-		elseif not ((first_nav == "..") or (first_nav == ".")) then
-			--stylua: ignore
-			error(debug.traceback(
-				`Could not resolve module for "{require_path:as_str()}".`
-					.. ` Paths must begin with either "@<alias>/", "./", or "../"`,
-				2
-			), -1)
-		end
-
-		local resolved: FilesystemPath?
-
-		local resolved_try_root = current_module:merge(require_path) :: FilesystemPath
-		local extension = resolved_try_root:extension()
-
-		if extension then
-			if (extension ~= "luau") and (extension ~= "lua") then
-				--stylua: ignore
-				error(debug.traceback(
-					`Could not resolve module for "{require_path:as_str()}".`
-						.. ` Path has an extension ".{extension}" which is not ".luau" or ".lua"`,
-					2
-				), -1)
-			else
-				resolved = resolved_try_root
-			end
-		end
-
-		local resolved_try = {
-			resolved_try_root:navigate("init.luau"),
-			resolved_try_root:navigate("init.lua"),
-			assert(resolved_try_root:append_to_last(".luau")),
-			assert(resolved_try_root:append_to_last(".lua")),
-		}
-
-		for _, try in resolved_try do
-			local is_file = try:is_file()
-
-			if not is_file then continue end
-
-			if resolved then
-				if resolved:equals(try) then
-					continue
-				else
-					--stylua: ignore
-					error(debug.traceback(
-						`Could not resolve module for "{require_path:as_str()}".`
-							.. ` Found multiple matching paths "{resolved:normalize():as_str()}" and "{try:normalize():as_str()}"`,
-						2
-					), -1)
-				end
-			end
-
-			resolved = try
-		end
-
-		if resolved == nil then
-			--stylua: ignore
-			error(debug.traceback(
-				`Could not resolve module for "{require_path:as_str()}".`
-					.. ` Could not find a matching path."`,
-				2
-			), -1)
-		end
-
-		return {
-			path = resolved,
-			use_lune = false,
-		}
-	end
-
-	return require_resolver
-end
-
-return {
-	new = require_resolver_constructor,
+local resolver_result_fallback: ResolverResult = {
+	use_fallback_resolver = true,
 }
+
+function resolver.resolve_path(self: Identity, path: string): ResolverResult
+	local fallback_matches = self._fallback_matches
+	local fallback_matches_len = #fallback_matches
+	for fallback_matches_index = 1, fallback_matches_len do
+		local fallback_match = fallback_matches[fallback_matches_index]
+		if string_match(path, fallback_match) then return resolver_result_fallback end
+	end
+
+	local nav = fsp_to_nav(path)
+
+	local path_begins = table_remove(nav, 1) :: index<typeof(nav), keyof<typeof(nav)>>
+	local alias = string_match(path_begins, ALIAS_PATTERN)
+
+	local resolve_root: string
+
+	if alias ~= nil then
+		local aliases = self._aliases
+
+		local alias_target: string? = aliases[alias]
+
+		if alias_target == nil then
+			error(
+				`Failed to resolve from filesystem path "{path}", could not find alias "{alias}".`
+					.. ` Valid aliases: {pretty_print.from_epsilon(aliases)}`
+			)
+		end
+
+		resolve_root = alias_target
+	elseif path_begins == ".." then
+		local directory_parent = fsp_normalize(fsp_navigate(self._directory, ".."))
+		local directory_matches_cwd_root = fsp_matches_root(directory_parent, process_cwd)
+
+		if not directory_matches_cwd_root then
+			error(
+				`Failed to resolve from filesystem path "{path}", directory's parent is beyond the scope of cwd`
+			)
+		end
+
+		resolve_root = directory_parent
+	elseif path_begins == "." then
+		resolve_root = self._directory
+	else
+		print(path_begins)
+		error(
+			`Could not resolve module for "{path}".`
+				.. ` Paths must begin with either "@<alias>/", "./", or "../"`
+		)
+	end
+
+	local resolve_suffix = fsp_from_nav(nav)
+
+	local full_resolve_path = fsp_normalize(fsp_navigate(resolve_root, resolve_suffix))
+
+	local full_resolve_path_matches_cwd_root = fsp_matches_root(full_resolve_path, process_cwd)
+	if not full_resolve_path_matches_cwd_root then
+		error(
+			`Failed to resolve from filesystem path "{path}", path is beyond the scope of cwd`
+		)
+	end
+
+	local found_file: string
+
+	--print(full_resolve_path:as_str())
+
+	local full_resolve_path_directory_eh = fsp_directory_eh(full_resolve_path)
+
+	--[[
+	gigantic mess of nesting but i can't think of a more performant way to do this atm
+	]]
+	if full_resolve_path_directory_eh then
+		do
+			local try = fsp_navigate(full_resolve_path, "init.luau")
+			--print(try:as_str())
+			local file_eh = fsp_file_eh(try)
+			if file_eh then found_file = try end
+		end
+		do
+			local try = fsp_navigate(full_resolve_path, "init.lua")
+			--print(try:as_str())
+			local file_eh = fsp_file_eh(try)
+			if file_eh then
+				if found_file then
+					--stylua: ignore
+					error(
+						`Could not resolve module for "{path}".`
+							.. ` Found multiple matching paths "{found_file}" and "{try}"`
+					)
+				end
+				found_file = try
+			end
+		end
+	else
+		local full_resolve_path_file_eh = fsp_file_eh(full_resolve_path)
+		if full_resolve_path_file_eh then
+			found_file = full_resolve_path --
+		end
+		do
+			local try = `{full_resolve_path}.luau`
+			--print(try:as_str())
+			local file_eh = fsp_file_eh(try)
+			if file_eh then
+				if found_file then
+					--stylua: ignore
+					error(
+						`Could not resolve module for "{path}".`
+							.. ` Found multiple matching paths "{found_file}" and "{try}"`
+					)
+				end
+				found_file = try
+			end
+		end
+		do
+			local try = `{full_resolve_path}.lua`
+			--print(try:as_str())
+			local file_eh = fsp_file_eh(try)
+			if file_eh then
+				if found_file then
+					--stylua: ignore
+					error(
+						`Could not resolve module for "{path}".`
+							.. ` Found multiple matching paths "{found_file}" and "{try}"`
+					)
+				end
+				found_file = try
+			end
+		end
+	end
+
+	if not found_file then
+		error(
+			`Could not resolve module for "{path}".` .. ` Could not find a matching path."`
+		)
+	end
+
+	return {
+		use_fallback_resolver = false,
+		path = found_file,
+	}
+end
+
+return { from_path = resolver_from_path }

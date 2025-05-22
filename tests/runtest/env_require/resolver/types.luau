@@ -24,17 +24,13 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
-local filesystem_path = require("@runtest/utils/filesystem_path")
+export type RequireAliases = { [string]: string }
 
-type FilesystemPath = filesystem_path.Identity
-
-export type LuaurcAliases = { [string]: FilesystemPath }
-
-export type ResolvedPath = {
-	use_lune: true,
+export type ResolverResult = {
+	use_fallback_resolver: true,
 } | {
-	use_lune: false,
-	path: FilesystemPath,
+	use_fallback_resolver: false,
+	path: string,
 }
 
 return nil

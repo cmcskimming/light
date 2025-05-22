@@ -30,7 +30,7 @@ local colorful = require("@runtest/utils/colorful")
 local epsilon_eq = require("@runtest/utils/equality/from_epsilon")
 local luau_eq = require("@runtest/utils/equality/from_luau")
 local luausignal = require("@runtest/utils/luausignal")
-local pretty_print = require("@runtest/pretty_print/main")
+local pretty_print = require("@runtest/utils/pretty_print/main")
 local test_types = require("@runtest/spec/test/types")
 
 type TestInterface = test_types.TestInterface

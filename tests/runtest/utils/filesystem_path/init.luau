@@ -24,300 +24,216 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
-local EXTENSION_PATTERN = `%.([^<>:"/\\|%?%*%.]+)$`
-local NULL_CHAR = ""
+local NAVIGATE_BACK = ".."
+local NAVIGATE_HERE = "."
+local ROOT_PATTERN = "^([/\\]?[^/\\]+[/\\])"
+local GOLDEN_RATIO = 1.61803398875
 
 local filesystem = require("@lune/fs")
-local filesystem_path_types = require("@self/types")
+local process = require("@lune/process")
 
-type ExistsKind = filesystem_path_types.ExistsKind
-type PathNav = filesystem_path_types.PathNav
+local SEPARATOR = if process.os == "windows" then "\\" else "/"
 
-local CACHE_path_to_nav = {} :: { [string]: PathNav }
-local function path_to_nav(path: string): PathNav
-	if CACHE_path_to_nav[path] then return CACHE_path_to_nav[path] end
+export type PathNav = { string }
 
-	local path_only_forward_slashes = path:gsub("[\\]", "/")
-	local nav = path_only_forward_slashes:split("/")
-	local nav_len = #nav
+local string_gsub = string.gsub
+local string_split = string.split
+local table_concat = table.concat
+local table_create = table.create
+local table_clone = table.clone
+local filesystem_metadata = filesystem.metadata
 
-	for nav_index = nav_len, 1, -1 do
-		if nav[nav_index] == NULL_CHAR then table.remove(nav, nav_index) end
+local to_nav
+local from_nav
+local parent
+local len
+local normalize
+local exists
+local file_eh
+local directory_eh
+
+do
+	local cache = {} :: { [string]: PathNav }
+	function to_nav(input: string): PathNav
+		do
+			local cached = cache[input]
+			if cached ~= nil then return table_clone(cached) end
+		end
+		local corrected_separator = string_gsub(input, "[/\\]", SEPARATOR)
+		local nav = string_split(corrected_separator, SEPARATOR)
+		cache[input] = nav
+		return (table_clone(nav))
 	end
-
-	CACHE_path_to_nav[path] = nav
-
-	return nav
 end
 
-local CACHE_nav_to_path = {} :: { [PathNav]: string }
-local function nav_to_path(nav: PathNav): string
-	if CACHE_nav_to_path[nav] then return CACHE_nav_to_path[nav] end
-	local output = table.concat(nav, "/")
-	CACHE_nav_to_path[nav] = output
-	return output
+do
+	function from_nav(input: PathNav): string
+		local output = table_concat(input, SEPARATOR)
+
+		return output
+	end
 end
 
-local filesystem_path = {}
-local metatable = { __index = filesystem_path }
-
-export type Identity = setmetatable<{
-	_nav: PathNav,
-}, typeof(metatable)>
-
-local CACHE_internal_constructor = {} :: { [PathNav]: Identity }
-local function internal_constructor(nav: PathNav): Identity
-	if CACHE_internal_constructor[nav] then return CACHE_internal_constructor[nav] end
-
-	local self = setmetatable({
-		_nav = nav,
-	}, metatable)
-	CACHE_internal_constructor[nav] = self
-
-	return self
+function navigate(input: string, navigation: string): string
+	return `{input}{SEPARATOR}{navigation}`
 end
 
-local function constructor(path: string): Identity
-	local as_nav = path_to_nav(path)
-
-	return (internal_constructor(as_nav))
+function parent(input: string): string
+	return `{input}{SEPARATOR}..{SEPARATOR}`
 end
 
---[=[
-Returns the string at `index` in the path. I.e.,
-```luau
-local foo = filesystem_path.new("../init.luau")
-foo:get(1) --> ".."
-foo:get(2) --> "init.luau"
-```
-]=]
-function filesystem_path.get(self: Identity, index: number): string?
-	return self._nav[index]
+do
+	local cache = {} :: { [string]: number }
+	function len(input: string): number
+		do
+			local cached = cache[input]
+			if cached ~= nil then return cached end
+		end
+		local nav = to_nav(input)
+		local output = #nav
+		cache[input] = output
+		return output
+	end
 end
 
-function filesystem_path.len(self: Identity): number
-	return #self._nav
-end
-
-function filesystem_path.as_str(self: Identity): string
-	local as_str = nav_to_path(self._nav)
-
-	return as_str
-end
-
-function filesystem_path.parent(self: Identity): Identity?
-	local cloned_nav = table.clone(self._nav)
-
-	if table.remove(cloned_nav, #cloned_nav) then return (internal_constructor(cloned_nav)) end
-
-	return nil
-end
-
---[=[
-removes navigations from the start of the path, optional `amount` will default to 1
-]=]
-function filesystem_path.trim_from_start(self: Identity, amount: number?): Identity?
-	amount = amount or 1
-
-	local nav = self._nav
-	local nav_len = #nav
-
-	if amount > nav_len then return nil end
-
-	local output_nav = table.create(nav_len - amount) :: typeof(nav)
-
-	table.move(nav, amount + 1, nav_len, 1, output_nav)
-
-	return (internal_constructor(output_nav))
-end
-
---[=[
-Remove relative navigations from the path where possible. I.e.,
-```luau
-local foo = filesystem_path.new("C:/Users/meow/Documents/../Downloads/")
-local bar = filesystem_path.new("./init.luau")
-local baz = filesystem_path.new("../meow/./../Documents/")
-foo:normalize() --> "C:/Users/meow/Downloads/"
-bar:normalize() --> "init.luau"
-baz:normalize() --> "../Documents"
-```
-]=]
-function filesystem_path.normalize(self: Identity): Identity
-	local nav = table.clone(self._nav)
-
-	local output_nav = {}
-	local output_nav_len = 0
-
-	for nav_index = 1, #nav do
-		local nav_item = nav[nav_index]
-
-		if nav_item == "." then
-			continue
-		elseif nav_item == ".." then
-			local remove_item = output_nav[output_nav_len]
-
-			if remove_item then
-				output_nav[output_nav_len] = nil
-				output_nav_len -= 1
-				continue
-			end
+do
+	local cache = {} :: { [string]: string }
+	function normalize(input: string): string
+		do
+			local cached = cache[input]
+			if cached ~= nil then return cached end
 		end
 
-		output_nav_len += 1
-		output_nav[output_nav_len] = nav_item
+		local backslashed = string_gsub(input, "[/\\]+", SEPARATOR)
+
+		local original_nav = to_nav(backslashed)
+		local original_len = len(backslashed)
+
+		-- Output nav stack
+		-- Assume shrink factor close to the golden ratio
+		local output_nav = table_create(original_len // GOLDEN_RATIO) :: { string }
+		local output_nav_top = 0
+
+		for nav_index = 1, original_len do
+			local nav_item = original_nav[nav_index]
+
+			if nav_item == NAVIGATE_BACK then
+			--stylua: ignore
+			local should_pop =
+				-- don't pop if there are no items to pop
+				if output_nav_top == 0 then false else
+				-- don't pop if the top of output_nav is a backwards nav
+				-- (only possible if everything prior is also backwards nav)
+				if output_nav[output_nav_top] == NAVIGATE_BACK then false else true
+
+				if should_pop then
+					output_nav[output_nav_top] = nil
+					output_nav_top -= 1
+					continue
+				end
+			elseif nav_item == NAVIGATE_HERE then
+				continue
+			end
+
+			--[[
+			push
+			]]
+			output_nav_top += 1
+			output_nav[output_nav_top] = nav_item
+		end
+
+		local output = from_nav(output_nav)
+		cache[input] = output
+		return output
 	end
-
-	return (internal_constructor(output_nav))
 end
 
---[=[
-returns true if `self:normalized()` and `other:normalized()` have the same navigation items
-]=]
-function filesystem_path.equals(self: Identity, other: Identity): boolean
-	local normalized_a = self:normalize()
-	local normalized_b = other:normalize()
+do
+	local cache = {} :: { [string]: boolean }
+	function exists(input: string): boolean
+		do
+			local cached = cache[input]
+			if cached ~= nil then return cached end
+		end
 
-	local nav_a = normalized_a._nav
-	local nav_b = normalized_b._nav
+		local success, metadata = pcall(filesystem_metadata, input)
+		if not success then
+			cache[input] = false
+			return false
+		end
 
-	local len_a = #nav_a
-	local len_b = #nav_b
+		local metadata_exists = metadata.exists
+		cache[input] = metadata_exists
 
-	if len_a ~= len_b then return false end
-
-	for nav_index = 1, len_a do
-		if nav_a[nav_index] ~= nav_b[nav_index] then return false end
+		return metadata_exists
 	end
-
-	return true
 end
 
---[=[
-Append any navigation to the end of the path. I.e.,
-```luau
-filesystem_path.new("src/test"):append("../meow.luau") --> "src/test/../meow.luau"
-```
-]=]
-function filesystem_path.navigate(self: Identity, navigation_path: string): Identity
-	local output_nav = table.clone(self._nav)
+do
+	local cache = {} :: { [string]: boolean }
+	function file_eh(input: string): boolean
+		do
+			local cached = cache[input]
+			if cached ~= nil then return cached end
+		end
 
-	local append_nav = path_to_nav(navigation_path)
+		local input_exists = exists(input)
+		if not input_exists then
+			cache[input] = false
+			return false
+		end
 
-	local append_len = #append_nav
+		local metadata = filesystem_metadata(input)
 
-	table.move(append_nav, 1, append_len, #output_nav + 1, output_nav)
+		local metadata_kind = metadata.kind
 
-	return (internal_constructor(output_nav))
-end
+		local metadata_kind_is_file = metadata_kind == "file"
+		cache[input] = metadata_kind_is_file
 
---[=[
-Merge two paths together. I.e.,
-```luau
-local path_a = filesystem_path.new("src/test")
-local path_b = filesystem_path.new("../meow.luau")
-path_a:merge(path_b) --> "src/test/../meow.luau"
-```
-]=]
-function filesystem_path.merge(self: Identity, other: Identity): Identity
-	local output_nav = table.clone(self._nav)
-
-	local other_nav = other._nav
-
-	local other_len = #other_nav
-
-	table.move(other_nav, 1, other_len, #output_nav + 1, output_nav)
-
-	return (internal_constructor(output_nav))
-end
-
-function filesystem_path.append_to_last(self: Identity, append: string): Identity?
-	local output_nav = table.clone(self._nav)
-	local nav_len = #output_nav
-
-	if nav_len == 0 then return nil end
-
-	local final_item = output_nav[nav_len]
-
-	output_nav[nav_len] = final_item .. append
-
-	return (internal_constructor(output_nav))
-end
-
---[=[
-Returns whether the path is a directory. Exclusive with `filesystem_path:is_directory()`
-]=]
-function filesystem_path.is_file(self: Identity): boolean
-	local metadata = filesystem.metadata(self:as_str())
-
-	return metadata.kind == "file"
-end
-
---[=[
-Returns whether the path is a directory. Exclusive with `filesystem_path:is_file()`
-]=]
-function filesystem_path.is_directory(self: Identity): boolean
-	local metadata = filesystem.metadata(self:as_str())
-
-	return metadata.kind == "dir"
-end
-
---[=[
-Returns:
-<br>"File" - if the path is a file that exists
-<br>"Directory" - if the path is a directory that exists
-<br>`nil` - if the path is not a file or directory that exists
-]=]
-function filesystem_path.exists(self: Identity): ExistsKind?
-	local path_metadata = filesystem.metadata(self:as_str())
-
-	local path_kind = path_metadata.kind
-
-	if path_kind == "file" then
-		return "File"
-	elseif path_kind == "dir" then
-		return "Directory"
+		return metadata_kind_is_file
 	end
-
-	return nil
 end
 
---[=[
-Gets the name of the file for a path, or returns nil if the path is not a file.
-]=]
-function filesystem_path.filename(self: Identity, exclude_extension: boolean?): string?
-	local is_file = self:is_file()
+do
+	local cache = {} :: { [string]: boolean }
+	function directory_eh(input: string): boolean
+		do
+			local cached = cache[input]
+			if cached ~= nil then return cached end
+		end
 
-	if not is_file then return nil end
+		local input_exists = exists(input)
+		if not input_exists then
+			cache[input] = false
+			return false
+		end
 
-	local nav = self._nav
+		local metadata = filesystem_metadata(input)
 
-	local nav_length = #nav
+		local metadata_kind = metadata.kind
 
-	local filename: string? = nav[nav_length]
+		local metadata_kind_is_directory = metadata_kind == "dir"
+		cache[input] = metadata_kind_is_directory
 
-	if filename == nil then return nil end
-
-	if exclude_extension then filename = filename:gsub(EXTENSION_PATTERN, "") end
-
-	return filename
-end
-
---[=[
-Returns the extension of the path if it is a file that exists and has an extension.
-]=]
-function filesystem_path.extension(self: Identity): string?
-	local as_str = self:as_str()
-
-	local path_metadata = filesystem.metadata(as_str)
-	local path_kind = path_metadata.kind
-
-	if path_kind == "file" then
-		local extension = as_str:match(EXTENSION_PATTERN)
-
-		return extension
+		return metadata_kind_is_directory
 	end
-
-	return nil
 end
 
-return { from_str = constructor }
+function matches_root(input: string, cwd: string): boolean
+	local input_root = normalize(input):match(ROOT_PATTERN)
+	local cwd_root = normalize(cwd):match(ROOT_PATTERN)
+	return input_root == cwd_root
+end
+
+return {
+	to_nav = to_nav,
+	from_nav = from_nav,
+	navigate = navigate,
+	parent = parent,
+	len = len,
+	normalize = normalize,
+	exists = exists,
+	file_eh = file_eh,
+	directory_eh = directory_eh,
+	matches_root = matches_root,
+}

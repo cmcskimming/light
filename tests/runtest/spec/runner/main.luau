@@ -29,7 +29,7 @@ end
 local env_require = require("@runtest/env_require")
 local filesystem = require("@lune/fs")
 local luau = require("@lune/luau")
-local pretty_print = require("@runtest/pretty_print/main")
+local pretty_print = require("@runtest/utils/pretty_print/main")
 local process = require("@lune/process")
 local spec_runner_types = require("@runtest/spec/runner/types")
 local task = require("@lune/task")
