@@ -91,7 +91,7 @@ function datatypes.cframe(position_datatype: Datatype<number>?): Datatype<CFrame
 			local axis_x = axis.X
 			local max_y = (1 - axis_x ^ 2) ^ 0.5
 
-			local mapped_x = math.map(axis_x, -1, 1, 0, 2 ^ 16 - 1)
+			local mapped_x = math.map(axis_x, -1, 1, 0, 2 ^ 16 - 1) -- u16
 			local mapped_y = math.map(axis.Y, -max_y, max_y, 0, 2 ^ 15 - 1) * z_sign
 
 			buffer.writeu16(buff, byte_ptr, mapped_x)
@@ -190,7 +190,7 @@ function datatypes.cframe(position_datatype: Datatype<number>?): Datatype<CFrame
 			local axis, angle = to_axis_angle(input)
 			local pos = input.Position
 
-			local z_sign = ((axis.Z < 0) and -1) or 1
+			local z_sign = sign(axis.Z)
 
 			local axis_x = axis.X
 			local max_y = (1 - axis_x ^ 2) ^ 0.5
@@ -231,7 +231,7 @@ function datatypes.cframe(position_datatype: Datatype<number>?): Datatype<CFrame
 		local mapped_y = buffer.readi16(buff, byte_ptr)
 		byte_ptr += I16_BYTES
 
-		local z_sign = ((mapped_y < 0) and -1) or 1
+		local z_sign = sign(mapped_y)
 		mapped_y *= z_sign
 
 		local decoded_x = math.map(mapped_x, 0, 2 ^ 16 - 1, -1, 1)
