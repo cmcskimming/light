@@ -15,6 +15,7 @@ on:
       - .github/workflows/tests.yml
       - lune/**
       - src/**
+      - .luaurc
       - tests/**
       - pesde.toml
 
