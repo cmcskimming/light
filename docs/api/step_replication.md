@@ -5,7 +5,8 @@ This function will step the network batch.
 ## `#!luau function light.step_replication`
 
 ```luau title='<!-- client --> <!-- server --> <!-- shared --> <!-- sync -->'
-function step_replication(): ()
+function step_replication(
+): ()
 ```
 
 Some example code:

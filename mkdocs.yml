@@ -261,6 +261,7 @@ nav:
               - broadcast_unreliably: api/network/messages/sending/broadcast_unreliably.md
               - broadcast_unreliably_to_all: api/network/messages/sending/broadcast_unreliably_to_all.md
               - broadcast_unreliably_to_all_except: api/network/messages/sending/broadcast_unreliably_to_all_except.md
+      - Stfu: api/stfu.md
       - Internal API:
           - api/internals/index.md
           - Input: api/internals/io/input.md
