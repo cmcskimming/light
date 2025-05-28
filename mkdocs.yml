@@ -262,6 +262,15 @@ nav:
               - broadcast_unreliably_to_all: api/network/messages/sending/broadcast_unreliably_to_all.md
               - broadcast_unreliably_to_all_except: api/network/messages/sending/broadcast_unreliably_to_all_except.md
       - Stfu: api/stfu.md
+      - Security API:
+          - api/security/index.md
+          - Hooks:
+              - api/security/hooks/index.md
+          - Actions:
+              - api/security/actions/index.md
+          - Triggers:
+              - api/security/triggers/index.md
+          - get_active_client: api/security/get_active_client.md
       - Internal API:
           - api/internals/index.md
           - Input: api/internals/io/input.md
@@ -287,10 +296,9 @@ nav:
           - Reallocation Merging: blog/internals/holy/reallocation_merging.md
       - Message Sync: blog/internals/message_sync.md
       - Unreliable Fragmentation: blog/internals/unreliable_fragmentation.md
-      - Replication Batch: blog/internals/replication_batch.md
+      - Replication Batch: blog/internals/replication_format.md
       - CFrame Encoding: blog/internals/cframe_encoding.md
       - Dynamic Streams: blog/internals/dynamic_streams.md
-      - Intern Strings: blog/internals/intern_strings.md
       - Bitpacks: blog/internals/bitpacks.md
   - Contributing:
     - Contributing: contributing/index.md
