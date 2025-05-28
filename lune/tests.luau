@@ -95,7 +95,7 @@ for filename, completed_spec in completed_specs do
 
 	if completed_spec.result ~= "PASS" then any_didnt_pass = true end
 
-	filesystem.writeFile(`{RESULTS_DIRECTORY}/{filename}.runtest.json`, encoded_spec)
+	filesystem.writeFile(`{RESULTS_DIRECTORY}/{filename}.testresult.json`, encoded_spec)
 end
 
 if any_didnt_pass then
