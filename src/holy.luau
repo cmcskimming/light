@@ -21,6 +21,25 @@ SOFTWARE.
 --!strict
 --!optimize 2
 --!nolint LocalShadow
+export type _G = { __SYBAU: boolean }
+local GLOBALCONFIG = _G :: _G
+GLOBALCONFIG.__SYBAU = false
+
+local BYTE = 0b10 ^ 8
+local VLQINPMASK0 = (0b10 ^ 7) ^ 1
+local VLQINPMASK1 = (0b10 ^ 7) ^ 2
+local VLQINPMASK2 = (0b10 ^ 7) ^ 3
+local VLQINPMASK3 = (0b10 ^ 7) ^ 4
+local VLQINPMASK4 = (0b10 ^ 7) ^ 5
+local VLQINPMASK5 = (0b10 ^ 7) ^ 6
+local VLQINPMASK6 = (0b10 ^ 7) ^ 7
+local VLQINPMASK7 = (0b10 ^ 7) ^ 8
+local VLQOUTMASK0 = VLQINPMASK0 * BYTE ^ 0
+local VLQOUTMASK1 = VLQOUTMASK0 + VLQINPMASK0 * BYTE ^ 1
+local VLQOUTMASK2 = VLQOUTMASK1 + VLQINPMASK0 * BYTE ^ 2
+local VLQOUTMASK3 = VLQOUTMASK2 + VLQINPMASK0 * BYTE ^ 3
+local VLQOUTMASK4 = VLQOUTMASK3 + VLQINPMASK0 * BYTE ^ 4
+
 type Set<K, V = true?> = { [K]: V }
 
 export type Datatype<T = any> = number & { __HOLY_T: T }
@@ -47,26 +66,14 @@ local metadata = {
 
 local CONST_LOOKUPS = {}
 
-local IS_STFU_MODE = false
-
-local sybau = error
-
-local function stfu(shut_up: boolean?): ()
-	if shut_up or shut_up == nil then
-		IS_STFU_MODE = true
-	else
-		IS_STFU_MODE = false
-	end
+local function stfu(sybau: boolean): ()
+	GLOBALCONFIG.__SYBAU = sybau
 end
 
 local function stfu_check(): ()
-	if IS_STFU_MODE then
-		sybau()
+	if GLOBALCONFIG.__SYBAU then
+		error()
 	end
-end
-
-local function is_stfu(): boolean
-	return IS_STFU_MODE
 end
 
 local function fetch_ser_no_realloc<T>(
@@ -110,32 +117,72 @@ end
 Returns the minimum number of bytes required to encode a given unsigned int.
 ]=]
 local function uint_size_bytes(uint: number): number
-	local check = 2^8
-	for bytes = 1, 7 do
-		if uint >= check then
-			check *= 2^8
-			continue
+	if uint >= BYTE then
+		if uint >= BYTE^2 then
+			if uint >= BYTE^3 then
+				if uint >= BYTE^4 then
+					if uint >= BYTE^5 then
+						if uint >= BYTE^6 then
+							if uint >= BYTE^6 then
+								if uint >= BYTE^7 then
+									stfu_check()
+									--stylua: ignore
+									error(debug.traceback(
+										`Problem converting number -> uint bytes. Expected value < {BYTE^7}`,
+										2
+									), -1)
+								end
+								return 8
+							end
+							return 7
+						end
+						return 6
+					end
+					return 5
+				end
+				return 4
+			end
+			return 3
 		end
-		return bytes
+		return 2
 	end
-	stfu_check()
-	error(debug.traceback("uint size too big"))
+	return 1
 end
 
 --[=[
 Returns the minimum number of bytes required to encode a given unsigned int as a VLQ value.
 ]=]
 local function vlq_size_bytes(uint: number): number
-	local check = 2^7
-	for bytes = 1, 7 do
-		if uint >= check then
-			check *= 2^7
-			continue
+	if uint >= VLQINPMASK0 then
+		if uint >= VLQINPMASK1 then
+			if uint >= VLQINPMASK2 then
+				if uint >= VLQINPMASK3 then
+					if uint >= VLQINPMASK4 then
+						if uint >= VLQINPMASK5 then
+							if uint >= VLQINPMASK6 then
+								if uint >= VLQINPMASK7 then
+									stfu_check()
+									--stylua: ignore
+									error(debug.traceback(
+										`Problem converting number -> vlq bytes. Expected value < {VLQINPMASK7}`,
+										2
+									), -1)
+								end
+								return 8
+							end
+							return 7
+						end
+						return 6
+					end
+					return 5
+				end
+				return 4
+			end
+			return 3
 		end
-		return bytes
+		return 2
 	end
-	stfu_check()
-	error(debug.traceback("vlq too big"))
+	return 1
 end
 
 local function check_datatype_exists(datatype: any): boolean
@@ -275,7 +322,7 @@ do
 	@native
 	local function u24_ser_no_realloc(buff: buffer, byte_ptr: number, input: any): (number)
 		buffer.writeu8(buff, byte_ptr, input)
-		input //= 2^8
+		input /= 2^8
 		byte_ptr += 1
 
 		buffer.writeu16(buff, byte_ptr, input)
@@ -287,7 +334,7 @@ do
 	@native
 	local function u24_ser_static(buff: buffer, byte_ptr: number, input: any): ()
 		buffer.writeu8(buff, byte_ptr, input)
-		input //= 2^8
+		input /= 2^8
 		byte_ptr += 1
 
 		buffer.writeu16(buff, byte_ptr, input)
@@ -304,7 +351,7 @@ do
 		end
 
 		buffer.writeu8(buff, byte_ptr, input)
-		input //= 2^8
+		input /= 2^8
 		byte_ptr += 1
 
 		buffer.writeu16(buff, byte_ptr, input)
@@ -376,7 +423,7 @@ do
 	@native
 	local function u40_ser_no_realloc(buff: buffer, byte_ptr: number, input: any): (number)
 		buffer.writeu8(buff, byte_ptr, input)
-		input //= 2^8
+		input /= 2^8
 		byte_ptr += 1
 
 		buffer.writeu32(buff, byte_ptr, input)
@@ -388,7 +435,7 @@ do
 	@native
 	local function u40_ser_static(buff: buffer, byte_ptr: number, input: any): ()
 		buffer.writeu8(buff, byte_ptr, input)
-		input //= 2^8
+		input /= 2^8
 		byte_ptr += 1
 
 		buffer.writeu32(buff, byte_ptr, input)
@@ -405,7 +452,7 @@ do
 		end
 
 		buffer.writeu8(buff, byte_ptr, input)
-		input //= 2^8
+		input /= 2^8
 		byte_ptr += 1
 
 		buffer.writeu32(buff, byte_ptr, input)
@@ -440,7 +487,7 @@ do
 	@native
 	local function u48_ser_no_realloc(buff: buffer, byte_ptr: number, input: any): (number)
 		buffer.writeu16(buff, byte_ptr, input)
-		input //= 2^16
+		input /= 2^16
 		byte_ptr += 2
 
 		buffer.writeu32(buff, byte_ptr, input)
@@ -452,7 +499,7 @@ do
 	@native
 	local function u48_ser_static(buff: buffer, byte_ptr: number, input: any): ()
 		buffer.writeu16(buff, byte_ptr, input)
-		input //= 2^16
+		input /= 2^16
 		byte_ptr += 2
 
 		buffer.writeu32(buff, byte_ptr, input)
@@ -469,7 +516,7 @@ do
 		end
 
 		buffer.writeu16(buff, byte_ptr, input)
-		input //= 2^16
+		input /= 2^16
 		byte_ptr += 2
 
 		buffer.writeu32(buff, byte_ptr, input)
@@ -498,17 +545,17 @@ datatypes.u48 = u48 :: Datatype<number> end
 
 do
 	local static_size = 7
-	local u53 = new_datatype(static_size)
-	metadata.is_number[u53] = true
+	local u56 = new_datatype(static_size)
+	metadata.is_number[u56] = true
 
 	@native
-	local function u53_ser_no_realloc(buff: buffer, byte_ptr: number, input: any): (number)
+	local function u56_ser_no_realloc(buff: buffer, byte_ptr: number, input: any): (number)
 		buffer.writeu8(buff, byte_ptr, input)
-		input //= 2^8
+		input /= 2^8
 		byte_ptr += 1
 
 		buffer.writeu16(buff, byte_ptr, input)
-		input //= 2^16
+		input /= 2^16
 		byte_ptr += 2
 
 		buffer.writeu32(buff, byte_ptr, input)
@@ -518,20 +565,20 @@ do
 	end
 
 	@native
-	local function u53_ser_static(buff: buffer, byte_ptr: number, input: any): ()
+	local function u56_ser_static(buff: buffer, byte_ptr: number, input: any): ()
 		buffer.writeu8(buff, byte_ptr, input)
-		input //= 2^8
+		input /= 2^8
 		byte_ptr += 1
 
 		buffer.writeu16(buff, byte_ptr, input)
-		input //= 2^16
+		input /= 2^16
 		byte_ptr += 2
 
 		buffer.writeu32(buff, byte_ptr, input)
 	end
 
 	@native
-	local function u53_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
+	local function u56_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 		local len = buffer.len(buff)
 
 		local target_ptr = byte_ptr + static_size
@@ -541,11 +588,11 @@ do
 		end
 
 		buffer.writeu8(buff, byte_ptr, input)
-		input //= 2^8
+		input /= 2^8
 		byte_ptr += 1
 
 		buffer.writeu16(buff, byte_ptr, input)
-		input //= 2^16
+		input /= 2^16
 		byte_ptr += 2
 
 		buffer.writeu32(buff, byte_ptr, input)
@@ -555,7 +602,7 @@ do
 	end
 
 	@native
-	local function u53_des(buff: buffer, byte_ptr: number): (number, number)
+	local function u56_des(buff: buffer, byte_ptr: number): (number, number)
 		local output = buffer.readu8(buff, byte_ptr)
 		byte_ptr += 1
 
@@ -568,12 +615,12 @@ do
 		return byte_ptr, output
 	end
 
-	metadata.ser_no_realloc[u53] = u53_ser_no_realloc
-	metadata.ser_static[u53] = u53_ser_static
-	metadata.ser[u53] = u53_ser
-	metadata.des[u53] = u53_des
+	metadata.ser_no_realloc[u56] = u56_ser_no_realloc
+	metadata.ser_static[u56] = u56_ser_static
+	metadata.ser[u56] = u56_ser
+	metadata.des[u56] = u56_des
 
-datatypes.u53 = u53 :: Datatype<number> end
+datatypes.u56 = u56 :: Datatype<number> end
 
 CONST_LOOKUPS.uint = {
 	type = {
@@ -583,7 +630,7 @@ CONST_LOOKUPS.uint = {
 		[4] = datatypes.u32,
 		[5] = datatypes.u40,
 		[6] = datatypes.u48,
-		[7] = datatypes.u53,
+		[7] = datatypes.u56,
 	} :: Set<number, Datatype<number>>,
 	ser_no_realloc = {
 		[1] = metadata.ser_no_realloc[datatypes.u8],
@@ -592,7 +639,7 @@ CONST_LOOKUPS.uint = {
 		[4] = metadata.ser_no_realloc[datatypes.u32],
 		[5] = metadata.ser_no_realloc[datatypes.u40],
 		[6] = metadata.ser_no_realloc[datatypes.u48],
-		[7] = metadata.ser_no_realloc[datatypes.u53],
+		[7] = metadata.ser_no_realloc[datatypes.u56],
 	} :: Set<number, SerNoRealloc>,
 	ser_static = {
 		[1] = metadata.ser_static[datatypes.u8],
@@ -601,7 +648,7 @@ CONST_LOOKUPS.uint = {
 		[4] = metadata.ser_static[datatypes.u32],
 		[5] = metadata.ser_static[datatypes.u40],
 		[6] = metadata.ser_static[datatypes.u48],
-		[7] = metadata.ser_static[datatypes.u53],
+		[7] = metadata.ser_static[datatypes.u56],
 	} :: Set<number, SerStatic>,
 	ser = {
 		[1] = metadata.ser[datatypes.u8],
@@ -610,7 +657,7 @@ CONST_LOOKUPS.uint = {
 		[4] = metadata.ser[datatypes.u32],
 		[5] = metadata.ser[datatypes.u40],
 		[6] = metadata.ser[datatypes.u48],
-		[7] = metadata.ser[datatypes.u53],
+		[7] = metadata.ser[datatypes.u56],
 	} :: Set<number, Ser>,
 	des = {
 		[1] = metadata.des[datatypes.u8],
@@ -619,7 +666,7 @@ CONST_LOOKUPS.uint = {
 		[4] = metadata.des[datatypes.u32],
 		[5] = metadata.des[datatypes.u40],
 		[6] = metadata.des[datatypes.u48],
-		[7] = metadata.des[datatypes.u53],
+		[7] = metadata.des[datatypes.u56],
 	} :: Set<number, Des>,
 }
 
@@ -717,7 +764,7 @@ do
 		input += 2^23
 
 		buffer.writeu8(buff, byte_ptr, input)
-		input //= 2^8
+		input /= 2^8
 		byte_ptr += 1
 
 		buffer.writeu16(buff, byte_ptr, input)
@@ -731,7 +778,7 @@ do
 		input += 2^23
 
 		buffer.writeu8(buff, byte_ptr, input)
-		input //= 2^8
+		input /= 2^8
 		byte_ptr += 1
 
 		buffer.writeu16(buff, byte_ptr, input)
@@ -749,7 +796,7 @@ do
 		end
 
 		buffer.writeu8(buff, byte_ptr, input)
-		input //= 2^8
+		input /= 2^8
 		byte_ptr += 1
 
 		buffer.writeu16(buff, byte_ptr, input)
@@ -827,7 +874,7 @@ do
 		input += 2^39
 
 		buffer.writeu8(buff, byte_ptr, input)
-		input //= 2^8
+		input /= 2^8
 		byte_ptr += 1
 
 		buffer.writeu32(buff, byte_ptr, input)
@@ -841,7 +888,7 @@ do
 		input += 2^39
 
 		buffer.writeu8(buff, byte_ptr, input)
-		input //= 2^8
+		input /= 2^8
 		byte_ptr += 1
 
 		buffer.writeu32(buff, byte_ptr, input)
@@ -859,7 +906,7 @@ do
 		end
 
 		buffer.writeu8(buff, byte_ptr, input)
-		input //= 2^8
+		input /= 2^8
 		byte_ptr += 1
 
 		buffer.writeu32(buff, byte_ptr, input)
@@ -896,7 +943,7 @@ do
 		input += 2^47
 
 		buffer.writeu16(buff, byte_ptr, input)
-		input //= 2^16
+		input /= 2^16
 		byte_ptr += 2
 
 		buffer.writeu32(buff, byte_ptr, input)
@@ -910,7 +957,7 @@ do
 		input += 2^47
 
 		buffer.writeu16(buff, byte_ptr, input)
-		input //= 2^16
+		input /= 2^16
 		byte_ptr += 2
 
 		buffer.writeu32(buff, byte_ptr, input)
@@ -928,7 +975,7 @@ do
 		end
 
 		buffer.writeu16(buff, byte_ptr, input)
-		input //= 2^16
+		input /= 2^16
 		byte_ptr += 2
 
 		buffer.writeu32(buff, byte_ptr, input)
@@ -956,21 +1003,21 @@ datatypes.i48 = i48 :: Datatype<number> end
 
 do
 	local static_size = 7
-	local i54 = new_datatype(static_size)
-	metadata.is_number[i54] = true
+	local i53 = new_datatype(static_size)
+	metadata.is_number[i53] = true
 
 	@native
-	local function i54_ser_no_realloc(buff: buffer, byte_ptr: number, input: any): (number)
+	local function i53_ser_no_realloc(buff: buffer, byte_ptr: number, input: any): (number)
 		if input < 0 then
 			input += 2^53
 		end
 
 		buffer.writeu8(buff, byte_ptr, input)
-		input //= 2^8
+		input /= 2^8
 		byte_ptr += 1
 
 		buffer.writeu16(buff, byte_ptr, input)
-		input //= 2^16
+		input /= 2^16
 		byte_ptr += 2
 
 		buffer.writeu32(buff, byte_ptr, input)
@@ -980,24 +1027,24 @@ do
 	end
 
 	@native
-	local function i54_ser_static(buff: buffer, byte_ptr: number, input: any): ()
+	local function i53_ser_static(buff: buffer, byte_ptr: number, input: any): ()
 		if input < 0 then
 			input += 2^53
 		end
 
 		buffer.writeu8(buff, byte_ptr, input)
-		input //= 2^8
+		input /= 2^8
 		byte_ptr += 1
 
 		buffer.writeu16(buff, byte_ptr, input)
-		input //= 2^16
+		input /= 2^16
 		byte_ptr += 2
 
 		buffer.writeu32(buff, byte_ptr, input)
 	end
 
 	@native
-	local function i54_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
+	local function i53_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 		local len = buffer.len(buff)
 
 		local target_ptr = byte_ptr + static_size
@@ -1011,10 +1058,10 @@ do
 		end
 
 		buffer.writeu8(buff, byte_ptr, input)
-		input //= 2^8
+		input /= 2^8
 		byte_ptr += 1
 		buffer.writeu16(buff, byte_ptr, input)
-		input //= 2^16
+		input /= 2^16
 		byte_ptr += 2
 		buffer.writeu32(buff, byte_ptr, input)
 
@@ -1022,7 +1069,7 @@ do
 	end
 
 	@native
-	local function i54_des(buff: buffer, byte_ptr: number): (number, number)
+	local function i53_des(buff: buffer, byte_ptr: number): (number, number)
 		local output = buffer.readu8(buff, byte_ptr)
 		byte_ptr += 1
 
@@ -1039,12 +1086,12 @@ do
 		return byte_ptr, output
 	end
 
-	metadata.ser_no_realloc[i54] = i54_ser_no_realloc
-	metadata.ser_static[i54] = i54_ser_static
-	metadata.ser[i54] = i54_ser
-	metadata.des[i54] = i54_des
+	metadata.ser_no_realloc[i53] = i53_ser_no_realloc
+	metadata.ser_static[i53] = i53_ser_static
+	metadata.ser[i53] = i53_ser
+	metadata.des[i53] = i53_des
 
-datatypes.i54 = i54 :: Datatype<number> end
+datatypes.i53 = i53 :: Datatype<number> end
 
 CONST_LOOKUPS.int = {
 	type = {
@@ -1054,7 +1101,7 @@ CONST_LOOKUPS.int = {
 		[4] = datatypes.i32,
 		[5] = datatypes.i40,
 		[6] = datatypes.i48,
-		[7] = datatypes.i54,
+		[7] = datatypes.i53,
 	} :: Set<number, Datatype<number>>,
 	ser_no_realloc = {
 		[1] = metadata.ser_no_realloc[datatypes.i8],
@@ -1063,7 +1110,7 @@ CONST_LOOKUPS.int = {
 		[4] = metadata.ser_no_realloc[datatypes.i32],
 		[5] = metadata.ser_no_realloc[datatypes.i40],
 		[6] = metadata.ser_no_realloc[datatypes.i48],
-		[7] = metadata.ser_no_realloc[datatypes.i54],
+		[7] = metadata.ser_no_realloc[datatypes.i53],
 	} :: Set<number, SerNoRealloc>,
 	ser_static = {
 		[1] = metadata.ser_static[datatypes.i8],
@@ -1072,7 +1119,7 @@ CONST_LOOKUPS.int = {
 		[4] = metadata.ser_static[datatypes.i32],
 		[5] = metadata.ser_static[datatypes.i40],
 		[6] = metadata.ser_static[datatypes.i48],
-		[7] = metadata.ser_static[datatypes.i54],
+		[7] = metadata.ser_static[datatypes.i53],
 	} :: Set<number, SerStatic>,
 	ser = {
 		[1] = metadata.ser[datatypes.i8],
@@ -1081,7 +1128,7 @@ CONST_LOOKUPS.int = {
 		[4] = metadata.ser[datatypes.i32],
 		[5] = metadata.ser[datatypes.i40],
 		[6] = metadata.ser[datatypes.i48],
-		[7] = metadata.ser[datatypes.i54],
+		[7] = metadata.ser[datatypes.i53],
 	} :: Set<number, Ser>,
 	des = {
 		[1] = metadata.des[datatypes.i8],
@@ -1090,7 +1137,7 @@ CONST_LOOKUPS.int = {
 		[4] = metadata.des[datatypes.i32],
 		[5] = metadata.des[datatypes.i40],
 		[6] = metadata.des[datatypes.i48],
-		[7] = metadata.des[datatypes.i54],
+		[7] = metadata.des[datatypes.i53],
 	} :: Set<number, Des>,
 }
 
@@ -1471,75 +1518,838 @@ do
 			if cached ~= nil then return cached :: any end
 		end
 
-		if typeof(max_bytes) ~= "number" then
+		if type(max_bytes) ~= "number" then
 			error(debug.traceback(`Invalid vlq: max_bytes should be a number. Got type: {typeof(max_bytes)}`))
 		elseif max_bytes ~= max_bytes then
 			error(debug.traceback(`Invalid vlq: max_bytes should not be nan`))
 		elseif (max_bytes // 1) ~= max_bytes then
 			error(debug.traceback(`Invalid vlq: max_bytes should be an integer. Got: {max_bytes}`))
-		elseif max_bytes > 7 then
-			error(debug.traceback(`Invalid vlq: max_bytes should be less than or equal to 7. Got: {max_bytes}`))
-		elseif max_bytes < 1 then
-			error(debug.traceback(`Invalid vlq: max_bytes should be greater than or equal to 1. Got: {max_bytes}`))
-		end
-
-		if max_bytes == 1 then
-			return datatypes.range(0, 127)
+		elseif max_bytes > 8 then
+			error(debug.traceback(`Invalid vlq: max_bytes should be less than or equal to 8. Got: {max_bytes}`))
+		elseif max_bytes <= 1 then
+			error(debug.traceback(`Invalid vlq: max_bytes should be greater than 1. Got: {max_bytes}`))
 		end
 
 		local vlq_shape = new_datatype()
 		cache[max_bytes] = vlq_shape
 
-		local lookup_ser_static_uint = CONST_LOOKUPS.uint.ser_static
+		local vlq_ser, vlq_des
+		if max_bytes == 8 then
+			@native --dynamic_ncgen
+			function vlq_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
+				if input >= VLQINPMASK0 then
+					if input >= VLQINPMASK1 then
+						if input >= VLQINPMASK2 then
+							if input >= VLQINPMASK3 then
+								if input >= VLQINPMASK4 then
+									if input >= VLQINPMASK5 then
+										if input >= VLQINPMASK6 then
+											if input >= VLQINPMASK7 then
+												stfu_check()
+												--stylua: ignore
+												error(debug.traceback(
+													`Invalid vlq serialized: Expected value < {VLQINPMASK7}`,
+													2
+												), -1)
+											end
+											local target_ptr = byte_ptr + 8
+											--stylua: ignore
+											do -- alloc
+												local len = buffer.len(buff)
+												if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+											end
+											local output = VLQOUTMASK3
+											local sep = input % VLQINPMASK0
+											input -= sep
+											output += sep
+											sep = input % VLQINPMASK1
+											input -= sep
+											output += sep * 0b10 ^ 1
+											sep = input % VLQINPMASK2
+											input -= sep
+											output += sep * 0b10 ^ 2
+											sep = input % VLQINPMASK3
+											output += sep * 0b10 ^ 3
+											buffer.writeu32(buff, byte_ptr, output)
+											byte_ptr += 4
 
-		@native --dynamic_ncgen
-		local function vlq_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
-			local output = 0
-			local septet: number
+											input //= VLQINPMASK3
+											output = VLQOUTMASK2
 
-			for byte = 1, max_bytes do
-				local offset = (0b10^8) ^ (byte - 1)
+											output = VLQOUTMASK2
+											sep = input % VLQINPMASK0
+											input -= sep
+											output += sep
+											sep = input % VLQINPMASK1
+											input -= sep
+											output += sep * 0b10 ^ 1
+											sep = input % VLQINPMASK2
+											input -= sep
+											output += sep * 0b10 ^ 2
+											sep = input % VLQINPMASK3
+											output += sep * 0b10 ^ 3
+											buffer.writeu32(buff, byte_ptr, output)
+											
+											return target_ptr, buff
+										end
+										local target_ptr = byte_ptr + 7
+										--stylua: ignore
+										do -- alloc
+											local len = buffer.len(buff)
+											if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+										end
+										local output = VLQOUTMASK3
+										local sep = input % VLQINPMASK0
+										input -= sep
+										output += sep
+										sep = input % VLQINPMASK1
+										input -= sep
+										output += sep * 0b10 ^ 1
+										sep = input % VLQINPMASK2
+										input -= sep
+										output += sep * 0b10 ^ 2
+										sep = input % VLQINPMASK3
+										output += sep * 0b10 ^ 3
+										buffer.writeu32(buff, byte_ptr, output)
+										byte_ptr += 4
 
-				septet = input % 0b10^7
-				output += septet * offset
-				input //= 0b10^7
+										input //= VLQINPMASK3
+										output = VLQOUTMASK2
 
-				if input >= 0b1 then
-					output += 0b10000000 * offset
-					continue
+										output = VLQOUTMASK1
+										sep = input % VLQINPMASK0
+										output += sep
+										input -= sep
+										sep = input % VLQINPMASK1
+										input -= sep
+										output += sep * 0b10 ^ 1
+										output += input * 0b10 ^ 2
+										buffer.writeu16(buff, byte_ptr, output)
+										byte_ptr += 2
+										output /= 2 ^ 16
+										buffer.writeu8(buff, byte_ptr, output)
+
+										return target_ptr, buff
+									end
+									local target_ptr = byte_ptr + 6
+									--stylua: ignore
+									do -- alloc
+										local len = buffer.len(buff)
+										if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+									end
+									local output = VLQOUTMASK4
+									local sep = input % VLQINPMASK0
+									input -= sep
+									output += sep
+									sep = input % VLQINPMASK1
+									input -= sep
+									output += sep * 0b10 ^ 1
+									sep = input % VLQINPMASK2
+									input -= sep
+									output += sep * 0b10 ^ 2
+									sep = input % VLQINPMASK3
+									input -= sep
+									output += sep * 0b10 ^ 3
+									sep = input % VLQINPMASK4
+									input -= sep
+									output += sep * 0b10 ^ 4
+									output += input * 0b10 ^ 5
+									buffer.writeu32(buff, byte_ptr, output)
+									byte_ptr += 4
+									output /= 2 ^ 32
+									buffer.writeu16(buff, byte_ptr, output)
+									return target_ptr, buff
+								end
+								local target_ptr = byte_ptr + 5
+								--stylua: ignore
+								do -- alloc
+									local len = buffer.len(buff)
+									if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+								end
+								local output = VLQOUTMASK3
+								local sep = input % VLQINPMASK0
+								input -= sep
+								output += sep
+								sep = input % VLQINPMASK1
+								input -= sep
+								output += sep * 0b10 ^ 1
+								sep = input % VLQINPMASK2
+								input -= sep
+								output += sep * 0b10 ^ 2
+								sep = input % VLQINPMASK3
+								input -= sep
+								output += sep * 0b10 ^ 3
+								output += input * 0b10 ^ 4
+								buffer.writeu32(buff, byte_ptr, output)
+								byte_ptr += 4
+								output /= 2 ^ 32
+								buffer.writeu8(buff, byte_ptr, output)
+								return target_ptr, buff
+							end
+							local target_ptr = byte_ptr + 4
+							--stylua: ignore
+							do -- alloc
+								local len = buffer.len(buff)
+								if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+							end
+							local output = VLQOUTMASK2
+							local sep = input % VLQINPMASK0
+							input -= sep
+							output += sep
+							sep = input % VLQINPMASK1
+							input -= sep
+							output += sep * 0b10 ^ 1
+							sep = input % VLQINPMASK2
+							input -= sep
+							output += sep * 0b10 ^ 2
+							output += input * 0b10 ^ 3
+							buffer.writeu32(buff, byte_ptr, output)
+							return target_ptr, buff
+						end
+						local target_ptr = byte_ptr + 3
+						--stylua: ignore
+						do -- alloc
+							local len = buffer.len(buff)
+							if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+						end
+						local output = VLQOUTMASK1
+						local sep = input % VLQINPMASK0
+						output += sep
+						input -= sep
+						sep = input % VLQINPMASK1
+						input -= sep
+						output += sep * 0b10 ^ 1
+						output += input * 0b10 ^ 2
+						buffer.writeu16(buff, byte_ptr, output)
+						byte_ptr += 2
+						output /= 2 ^ 16
+						buffer.writeu8(buff, byte_ptr, output)
+						return target_ptr, buff
+					end
+					local target_ptr = byte_ptr + 2
+					--stylua: ignore
+					do -- alloc
+						local len = buffer.len(buff)
+						if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+					end
+					local output = VLQOUTMASK0
+					local sep = input % VLQINPMASK0
+					input -= sep
+					output += sep
+					output += input * 0b10
+					buffer.writeu16(buff, byte_ptr, output)
+					return target_ptr, buff
 				end
-
-				local len = buffer.len(buff)
-
-				local target_ptr = byte_ptr + byte
+				local target_ptr = byte_ptr + 1
 				--stylua: ignore
 				do -- alloc
+					local len = buffer.len(buff)
 					if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
 				end
-
-				local uint_ser = lookup_ser_static_uint[byte]
-				uint_ser(buff, byte_ptr, output)
-
+				buffer.writeu8(buff, byte_ptr, input)
 				return target_ptr, buff
 			end
+		elseif max_bytes == 7 then
+			@native --dynamic_ncgen
+			function vlq_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
+				if input >= VLQINPMASK0 then
+					if input >= VLQINPMASK1 then
+						if input >= VLQINPMASK2 then
+							if input >= VLQINPMASK3 then
+								if input >= VLQINPMASK4 then
+									if input >= VLQINPMASK5 then
+										if input >= VLQINPMASK6 then
+											stfu_check()
+											--stylua: ignore
+											error(debug.traceback(
+												`Invalid vlq serialized: Expected value < {VLQINPMASK6}`,
+												2
+											), -1)
+										end
+										local target_ptr = byte_ptr + 7
+										--stylua: ignore
+										do -- alloc
+											local len = buffer.len(buff)
+											if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+										end
+										local output = VLQOUTMASK3
+										local sep = input % VLQINPMASK0
+										input -= sep
+										output += sep
+										sep = input % VLQINPMASK1
+										input -= sep
+										output += sep * 0b10 ^ 1
+										sep = input % VLQINPMASK2
+										input -= sep
+										output += sep * 0b10 ^ 2
+										sep = input % VLQINPMASK3
+										output += sep * 0b10 ^ 3
+										buffer.writeu32(buff, byte_ptr, output)
+										byte_ptr += 4
 
+										input //= VLQINPMASK3
+										output = VLQOUTMASK2
+
+										output = VLQOUTMASK1
+										sep = input % VLQINPMASK0
+										output += sep
+										input -= sep
+										sep = input % VLQINPMASK1
+										input -= sep
+										output += sep * 0b10 ^ 1
+										output += input * 0b10 ^ 2
+										buffer.writeu16(buff, byte_ptr, output)
+										byte_ptr += 2
+										output /= 2 ^ 16
+										buffer.writeu8(buff, byte_ptr, output)
+
+										return target_ptr, buff
+									end
+									local target_ptr = byte_ptr + 6
+									--stylua: ignore
+									do -- alloc
+										local len = buffer.len(buff)
+										if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+									end
+									local output = VLQOUTMASK4
+									local sep = input % VLQINPMASK0
+									input -= sep
+									output += sep
+									sep = input % VLQINPMASK1
+									input -= sep
+									output += sep * 0b10 ^ 1
+									sep = input % VLQINPMASK2
+									input -= sep
+									output += sep * 0b10 ^ 2
+									sep = input % VLQINPMASK3
+									input -= sep
+									output += sep * 0b10 ^ 3
+									sep = input % VLQINPMASK4
+									input -= sep
+									output += sep * 0b10 ^ 4
+									output += input * 0b10 ^ 5
+									buffer.writeu32(buff, byte_ptr, output)
+									byte_ptr += 4
+									output /= 2 ^ 32
+									buffer.writeu16(buff, byte_ptr, output)
+									return target_ptr, buff
+								end
+								local target_ptr = byte_ptr + 5
+								--stylua: ignore
+								do -- alloc
+									local len = buffer.len(buff)
+									if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+								end
+								local output = VLQOUTMASK3
+								local sep = input % VLQINPMASK0
+								input -= sep
+								output += sep
+								sep = input % VLQINPMASK1
+								input -= sep
+								output += sep * 0b10 ^ 1
+								sep = input % VLQINPMASK2
+								input -= sep
+								output += sep * 0b10 ^ 2
+								sep = input % VLQINPMASK3
+								input -= sep
+								output += sep * 0b10 ^ 3
+								output += input * 0b10 ^ 4
+								buffer.writeu32(buff, byte_ptr, output)
+								byte_ptr += 4
+								output /= 2 ^ 32
+								buffer.writeu8(buff, byte_ptr, output)
+								return target_ptr, buff
+							end
+							local target_ptr = byte_ptr + 4
+							--stylua: ignore
+							do -- alloc
+								local len = buffer.len(buff)
+								if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+							end
+							local output = VLQOUTMASK2
+							local sep = input % VLQINPMASK0
+							input -= sep
+							output += sep
+							sep = input % VLQINPMASK1
+							input -= sep
+							output += sep * 0b10 ^ 1
+							sep = input % VLQINPMASK2
+							input -= sep
+							output += sep * 0b10 ^ 2
+							output += input * 0b10 ^ 3
+							buffer.writeu32(buff, byte_ptr, output)
+							return target_ptr, buff
+						end
+						local target_ptr = byte_ptr + 3
+						--stylua: ignore
+						do -- alloc
+							local len = buffer.len(buff)
+							if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+						end
+						local output = VLQOUTMASK1
+						local sep = input % VLQINPMASK0
+						output += sep
+						input -= sep
+						sep = input % VLQINPMASK1
+						input -= sep
+						output += sep * 0b10 ^ 1
+						output += input * 0b10 ^ 2
+						buffer.writeu16(buff, byte_ptr, output)
+						byte_ptr += 2
+						output /= 2 ^ 16
+						buffer.writeu8(buff, byte_ptr, output)
+						return target_ptr, buff
+					end
+					local target_ptr = byte_ptr + 2
+					--stylua: ignore
+					do -- alloc
+						local len = buffer.len(buff)
+						if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+					end
+					local output = VLQOUTMASK0
+					local sep = input % VLQINPMASK0
+					input -= sep
+					output += sep
+					output += input * 0b10
+					buffer.writeu16(buff, byte_ptr, output)
+					return target_ptr, buff
+				end
+				local target_ptr = byte_ptr + 1
+				--stylua: ignore
+				do -- alloc
+					local len = buffer.len(buff)
+					if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+				end
+				buffer.writeu8(buff, byte_ptr, input)
+				return target_ptr, buff
+			end
+		elseif max_bytes == 6 then
+			@native --dynamic_ncgen
+			function vlq_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
+				if input >= VLQINPMASK0 then
+					if input >= VLQINPMASK1 then
+						if input >= VLQINPMASK2 then
+							if input >= VLQINPMASK3 then
+								if input >= VLQINPMASK4 then
+									if input >= VLQINPMASK5 then
+										stfu_check()
+										--stylua: ignore
+										error(debug.traceback(
+											`Invalid vlq serialized: Expected value < {VLQINPMASK5}`,
+											2
+										), -1)
+									end
+									local target_ptr = byte_ptr + 6
+									--stylua: ignore
+									do -- alloc
+										local len = buffer.len(buff)
+										if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+									end
+									local output = VLQOUTMASK4
+									local sep = input % VLQINPMASK0
+									input -= sep
+									output += sep
+									sep = input % VLQINPMASK1
+									input -= sep
+									output += sep * 0b10 ^ 1
+									sep = input % VLQINPMASK2
+									input -= sep
+									output += sep * 0b10 ^ 2
+									sep = input % VLQINPMASK3
+									input -= sep
+									output += sep * 0b10 ^ 3
+									sep = input % VLQINPMASK4
+									input -= sep
+									output += sep * 0b10 ^ 4
+									output += input * 0b10 ^ 5
+									buffer.writeu32(buff, byte_ptr, output)
+									byte_ptr += 4
+									output /= 2 ^ 32
+									buffer.writeu16(buff, byte_ptr, output)
+									return target_ptr, buff
+								end
+								local target_ptr = byte_ptr + 5
+								--stylua: ignore
+								do -- alloc
+									local len = buffer.len(buff)
+									if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+								end
+								local output = VLQOUTMASK3
+								local sep = input % VLQINPMASK0
+								input -= sep
+								output += sep
+								sep = input % VLQINPMASK1
+								input -= sep
+								output += sep * 0b10 ^ 1
+								sep = input % VLQINPMASK2
+								input -= sep
+								output += sep * 0b10 ^ 2
+								sep = input % VLQINPMASK3
+								input -= sep
+								output += sep * 0b10 ^ 3
+								output += input * 0b10 ^ 4
+								buffer.writeu32(buff, byte_ptr, output)
+								byte_ptr += 4
+								output /= 2 ^ 32
+								buffer.writeu8(buff, byte_ptr, output)
+								return target_ptr, buff
+							end
+							local target_ptr = byte_ptr + 4
+							--stylua: ignore
+							do -- alloc
+								local len = buffer.len(buff)
+								if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+							end
+							local output = VLQOUTMASK2
+							local sep = input % VLQINPMASK0
+							input -= sep
+							output += sep
+							sep = input % VLQINPMASK1
+							input -= sep
+							output += sep * 0b10 ^ 1
+							sep = input % VLQINPMASK2
+							input -= sep
+							output += sep * 0b10 ^ 2
+							output += input * 0b10 ^ 3
+							buffer.writeu32(buff, byte_ptr, output)
+							return target_ptr, buff
+						end
+						local target_ptr = byte_ptr + 3
+						--stylua: ignore
+						do -- alloc
+							local len = buffer.len(buff)
+							if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+						end
+						local output = VLQOUTMASK1
+						local sep = input % VLQINPMASK0
+						output += sep
+						input -= sep
+						sep = input % VLQINPMASK1
+						input -= sep
+						output += sep * 0b10 ^ 1
+						output += input * 0b10 ^ 2
+						buffer.writeu16(buff, byte_ptr, output)
+						byte_ptr += 2
+						output /= 2 ^ 16
+						buffer.writeu8(buff, byte_ptr, output)
+						return target_ptr, buff
+					end
+					local target_ptr = byte_ptr + 2
+					--stylua: ignore
+					do -- alloc
+						local len = buffer.len(buff)
+						if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+					end
+					local output = VLQOUTMASK0
+					local sep = input % VLQINPMASK0
+					input -= sep
+					output += sep
+					output += input * 0b10
+					buffer.writeu16(buff, byte_ptr, output)
+					return target_ptr, buff
+				end
+				local target_ptr = byte_ptr + 1
+				--stylua: ignore
+				do -- alloc
+					local len = buffer.len(buff)
+					if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+				end
+				buffer.writeu8(buff, byte_ptr, input)
+				return target_ptr, buff
+			end
+		elseif max_bytes == 5 then
+			@native --dynamic_ncgen
+			function vlq_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
+				if input >= VLQINPMASK0 then
+					if input >= VLQINPMASK1 then
+						if input >= VLQINPMASK2 then
+							if input >= VLQINPMASK3 then
+								if input >= VLQINPMASK4 then
+									stfu_check()
+									--stylua: ignore
+									error(debug.traceback(
+										`Invalid vlq serialized: Expected value < {VLQINPMASK5}`,
+										2
+									), -1)
+								end
+								local target_ptr = byte_ptr + 5
+								--stylua: ignore
+								do -- alloc
+									local len = buffer.len(buff)
+									if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+								end
+								local output = VLQOUTMASK3
+								local sep = input % VLQINPMASK0
+								input -= sep
+								output += sep
+								sep = input % VLQINPMASK1
+								input -= sep
+								output += sep * 0b10 ^ 1
+								sep = input % VLQINPMASK2
+								input -= sep
+								output += sep * 0b10 ^ 2
+								sep = input % VLQINPMASK3
+								input -= sep
+								output += sep * 0b10 ^ 3
+								output += input * 0b10 ^ 4
+								buffer.writeu32(buff, byte_ptr, output)
+								byte_ptr += 4
+								output /= 2 ^ 32
+								buffer.writeu8(buff, byte_ptr, output)
+								return target_ptr, buff
+							end
+							local target_ptr = byte_ptr + 4
+							--stylua: ignore
+							do -- alloc
+								local len = buffer.len(buff)
+								if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+							end
+							local output = VLQOUTMASK2
+							local sep = input % VLQINPMASK0
+							input -= sep
+							output += sep
+							sep = input % VLQINPMASK1
+							input -= sep
+							output += sep * 0b10 ^ 1
+							sep = input % VLQINPMASK2
+							input -= sep
+							output += sep * 0b10 ^ 2
+							output += input * 0b10 ^ 3
+							buffer.writeu32(buff, byte_ptr, output)
+							return target_ptr, buff
+						end
+						local target_ptr = byte_ptr + 3
+						--stylua: ignore
+						do -- alloc
+							local len = buffer.len(buff)
+							if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+						end
+						local output = VLQOUTMASK1
+						local sep = input % VLQINPMASK0
+						output += sep
+						input -= sep
+						sep = input % VLQINPMASK1
+						input -= sep
+						output += sep * 0b10 ^ 1
+						output += input * 0b10 ^ 2
+						buffer.writeu16(buff, byte_ptr, output)
+						byte_ptr += 2
+						output /= 2 ^ 16
+						buffer.writeu8(buff, byte_ptr, output)
+						return target_ptr, buff
+					end
+					local target_ptr = byte_ptr + 2
+					--stylua: ignore
+					do -- alloc
+						local len = buffer.len(buff)
+						if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+					end
+					local output = VLQOUTMASK0
+					local sep = input % VLQINPMASK0
+					input -= sep
+					output += sep
+					output += input * 0b10
+					buffer.writeu16(buff, byte_ptr, output)
+					return target_ptr, buff
+				end
+				local target_ptr = byte_ptr + 1
+				--stylua: ignore
+				do -- alloc
+					local len = buffer.len(buff)
+					if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+				end
+				buffer.writeu8(buff, byte_ptr, input)
+				return target_ptr, buff
+			end
+		elseif max_bytes == 4 then
+			@native --dynamic_ncgen
+			function vlq_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
+				if input >= VLQINPMASK0 then
+					if input >= VLQINPMASK1 then
+						if input >= VLQINPMASK2 then
+							if input >= VLQINPMASK3 then
+								stfu_check()
+								--stylua: ignore
+								error(debug.traceback(
+									`Invalid vlq serialized: Expected value < {VLQINPMASK5}`,
+									2
+								), -1)
+							end
+							local target_ptr = byte_ptr + 4
+							--stylua: ignore
+							do -- alloc
+								local len = buffer.len(buff)
+								if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+							end
+							local output = VLQOUTMASK2
+							local sep = input % VLQINPMASK0
+							input -= sep
+							output += sep
+							sep = input % VLQINPMASK1
+							input -= sep
+							output += sep * 0b10 ^ 1
+							sep = input % VLQINPMASK2
+							input -= sep
+							output += sep * 0b10 ^ 2
+							output += input * 0b10 ^ 3
+							buffer.writeu32(buff, byte_ptr, output)
+							return target_ptr, buff
+						end
+						local target_ptr = byte_ptr + 3
+						--stylua: ignore
+						do -- alloc
+							local len = buffer.len(buff)
+							if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+						end
+						local output = VLQOUTMASK1
+						local sep = input % VLQINPMASK0
+						output += sep
+						input -= sep
+						sep = input % VLQINPMASK1
+						input -= sep
+						output += sep * 0b10 ^ 1
+						output += input * 0b10 ^ 2
+						buffer.writeu16(buff, byte_ptr, output)
+						byte_ptr += 2
+						output /= 2 ^ 16
+						buffer.writeu8(buff, byte_ptr, output)
+						return target_ptr, buff
+					end
+					local target_ptr = byte_ptr + 2
+					--stylua: ignore
+					do -- alloc
+						local len = buffer.len(buff)
+						if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+					end
+					local output = VLQOUTMASK0
+					local sep = input % VLQINPMASK0
+					input -= sep
+					output += sep
+					output += input * 0b10
+					buffer.writeu16(buff, byte_ptr, output)
+					return target_ptr, buff
+				end
+				local target_ptr = byte_ptr + 1
+				--stylua: ignore
+				do -- alloc
+					local len = buffer.len(buff)
+					if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+				end
+				buffer.writeu8(buff, byte_ptr, input)
+				return target_ptr, buff
+			end
+		elseif max_bytes == 3 then
+			@native --dynamic_ncgen
+			function vlq_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
+				if input >= VLQINPMASK0 then
+					if input >= VLQINPMASK1 then
+						if input >= VLQINPMASK2 then
+							stfu_check()
+							--stylua: ignore
+							error(debug.traceback(
+								`Invalid vlq serialized: Expected value < {VLQINPMASK5}`,
+								2
+							), -1)
+						end
+						local target_ptr = byte_ptr + 3
+						--stylua: ignore
+						do -- alloc
+							local len = buffer.len(buff)
+							if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+						end
+						local output = VLQOUTMASK1
+						local sep = input % VLQINPMASK0
+						output += sep
+						input -= sep
+						sep = input % VLQINPMASK1
+						input -= sep
+						output += sep * 0b10 ^ 1
+						output += input * 0b10 ^ 2
+						buffer.writeu16(buff, byte_ptr, output)
+						byte_ptr += 2
+						output /= 2 ^ 16
+						buffer.writeu8(buff, byte_ptr, output)
+						return target_ptr, buff
+					end
+					local target_ptr = byte_ptr + 2
+					--stylua: ignore
+					do -- alloc
+						local len = buffer.len(buff)
+						if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+					end
+					local output = VLQOUTMASK0
+					local sep = input % VLQINPMASK0
+					input -= sep
+					output += sep
+					output += input * 0b10
+					buffer.writeu16(buff, byte_ptr, output)
+					return target_ptr, buff
+				end
+				local target_ptr = byte_ptr + 1
+				--stylua: ignore
+				do -- alloc
+					local len = buffer.len(buff)
+					if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+				end
+				buffer.writeu8(buff, byte_ptr, input)
+				return target_ptr, buff
+			end
+		elseif max_bytes == 2 then
+			@native --dynamic_ncgen
+			function vlq_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
+				if input >= VLQINPMASK0 then
+					if input >= VLQINPMASK1 then
+						stfu_check()
+						--stylua: ignore
+						error(debug.traceback(
+							`Invalid vlq serialized: Expected value < {VLQINPMASK5}`,
+							2
+						), -1)
+					end
+					local target_ptr = byte_ptr + 2
+					--stylua: ignore
+					do -- alloc
+						local len = buffer.len(buff)
+						if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+					end
+					local output = VLQOUTMASK0
+					local sep = input % VLQINPMASK0
+					input -= sep
+					output += sep
+					output += input * 0b10
+					buffer.writeu16(buff, byte_ptr, output)
+					return target_ptr, buff
+				end
+				local target_ptr = byte_ptr + 1
+				--stylua: ignore
+				do -- alloc
+					local len = buffer.len(buff)
+					if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+				end
+				buffer.writeu8(buff, byte_ptr, input)
+				return target_ptr, buff
+			end
+		else
 			stfu_check()
-			error(debug.traceback(`Invalid vlq serialized: Expected length <= {0b10000000^max_bytes}`))
+			--stylua: ignore
+			error(debug.traceback(
+				`Invalid vlq: could not process max_byes = {max_bytes}. bug?`,
+				2
+			), -1)
 		end
 
 		@native --dynamic_ncgen
-		local function vlq_des(buff: buffer, byte_ptr: number): (number, number)
+		function vlq_des(buff: buffer, byte_ptr: number): (number, number)
 			local output = 0
 
-			for septet = 0, max_bytes - 1 do
+			for septet = 0, max_bytes do
 				local byte = buffer.readu8(buff, byte_ptr)
 				byte_ptr += 1
 
-				local tag = byte // 0b10000000
-				byte %= 0b10000000
-				output += byte * (0b10000000 ^ septet)
+				local masked_byte = byte % VLQINPMASK0
+				output += masked_byte * (0b10000000 ^ septet)
 
-				if tag ~= 1 then
+				if masked_byte == byte then
 					break
 				end
 			end
@@ -1586,7 +2396,7 @@ do
 			local literal_len_value = metadata.literal_value[length_datatype]
 			metadata.static_size[str_datatype] = literal_len_value
 
-			@native
+			@native --dynamic_ncgen
 			function string_ser_no_realloc(buff: buffer, byte_ptr: number, input: any): (number)
 				buffer.writestring(buff, byte_ptr, input, literal_len_value)
 				byte_ptr += literal_len_value
@@ -1594,12 +2404,12 @@ do
 				return byte_ptr
 			end
 
-			@native
+			@native --dynamic_ncgen
 			function string_ser_static(buff: buffer, byte_ptr: number, input: any): ()
 				buffer.writestring(buff, byte_ptr, input, literal_len_value)
 			end
 
-			@native
+			@native --dynamic_ncgen
 			function string_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 				local len = buffer.len(buff)
 
@@ -1613,7 +2423,7 @@ do
 				return target_ptr, buff
 			end
 
-			@native
+			@native --dynamic_ncgen
 			function string_des(buff: buffer, byte_ptr: number): (number, string)
 				local output = buffer.readstring(buff, byte_ptr, literal_len_value)
 				byte_ptr += literal_len_value
@@ -1625,7 +2435,7 @@ do
 			local static_ser_length = metadata.ser_static[length_datatype]
 			local des_length = metadata.des[length_datatype]
 
-			@native
+			@native --dynamic_ncgen
 			function string_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 				local str_len = #input
 				local len = buffer.len(buff)
@@ -1644,7 +2454,7 @@ do
 				return target_ptr, buff
 			end
 
-			@native
+			@native --dynamic_ncgen
 			function string_des(buff: buffer, byte_ptr: number): (number, string)
 				local str_len
 				byte_ptr, str_len = des_length(buff, byte_ptr)
@@ -1658,7 +2468,7 @@ do
 			local ser_length = metadata.ser[length_datatype]
 			local des_length = metadata.des[length_datatype]
 
-			@native
+			@native --dynamic_ncgen
 			function string_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 				local str_len = #input
 				byte_ptr, buff = ser_length(buff, byte_ptr, str_len)
@@ -1676,7 +2486,7 @@ do
 				return target_ptr, buff
 			end
 
-			@native
+			@native --dynamic_ncgen
 			function string_des(buff: buffer, byte_ptr: number): (number, string)
 				local str_len
 				byte_ptr, str_len = des_length(buff, byte_ptr)
@@ -3657,7 +4467,6 @@ datatypes.computed = computed end
 local holy = {
 	_datatype_metadata = metadata,
 	_stfu_check = stfu_check,
-	_is_stfu = is_stfu,
 
 	fetch = {
 		ser_no_realloc = fetch_ser_no_realloc,
