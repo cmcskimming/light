@@ -46,7 +46,7 @@ local datatypes = {
 	u32 = IMPL :: Datatype<number>,
 	u40 = IMPL :: Datatype<number>,
 	u48 = IMPL :: Datatype<number>,
-	u53 = IMPL :: Datatype<number>,
+	u56 = IMPL :: Datatype<number>,
 
 	i8 = IMPL :: Datatype<number>,
 	i16 = IMPL :: Datatype<number>,
@@ -54,7 +54,7 @@ local datatypes = {
 	i32 = IMPL :: Datatype<number>,
 	i40 = IMPL :: Datatype<number>,
 	i48 = IMPL :: Datatype<number>,
-	i54 = IMPL :: Datatype<number>,
+	i53 = IMPL :: Datatype<number>,
 
 	f32 = IMPL :: Datatype<number>,
 	f64 = IMPL :: Datatype<number>,
@@ -91,6 +91,13 @@ function datatypes.cached<Input>(schema: Input): Datatype<Input>
 end
 
 --[=[
+```luau
+function arr<Item>(--Sync--
+	item: Datatype<Item>,
+	length: Datatype<number>?
+): Datatype<{ Item }>
+```
+
 An array represents a contiguous list of values in a table. I.e., `{ "a", "b", "c" }`
 
 Arrays take in a datatype for what kind of item they should use, and an optional parameter for length which defaults
@@ -98,13 +105,6 @@ to [`u16`](https://light.ardi.gg/api/datatypes/numbers/uints/). The length datat
 number—instead: use a datatype that represents a number, like a
 [`uint`](https://light.ardi.gg/api/datatypes/numbers/uints/), or
 [`range`](https://light.ardi.gg/api/datatypes/generics/range/).
-
-```luau
-function arr<Item>(--Sync--
-	item: Datatype<Item>,
-	length: Datatype<number>?
-): Datatype<{ Item }>
-```
 
 [Learn More](https://light.ardi.gg/api/datatypes/generics/tables/arr/)
 ]=]

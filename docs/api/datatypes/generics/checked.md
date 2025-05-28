@@ -1,8 +1,8 @@
 # Checked
 
 For types that are especially hard to describe, you could use `checked`. Checked is generally an [any](../any.md)
-[Datatype](../index.md#what-is-a-datatype) which allows you to pass a "sanity check" callback. This makes sure that even though Roblox's
-default networking is used, you still get proper type validation & annotation.
+[Datatype](../index.md#what-is-a-datatype) which allows you to pass a "sanity check" callback. This makes sure that even
+though Roblox's default networking is used, you still get proper type validation & annotation.
 
 ## `#!luau function light.datatypes.checked`
 

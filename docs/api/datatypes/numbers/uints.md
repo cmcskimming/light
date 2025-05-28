@@ -16,7 +16,7 @@ The number afterward tells you how many bits the [Datatype](../index.md#what-is-
 | `u32`  | `4 bytes`   | `4,294,967,295` | `0`            |
 | `u40`  | `5 bytes`   | `2^40 - 1`      | `0`            |
 | `u48`  | `6 bytes`   | `2^48 - 1`      | `0`            |
-| `u53`  | `7 bytes`   | `2^53`          | `0`            |
+| `u56`  | `7 bytes`   | <b>`2^53`</b>   | `0`            |
 
 You can access each one with `light.datatypes.<Name>`.
 

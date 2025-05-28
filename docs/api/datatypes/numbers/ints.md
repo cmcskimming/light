@@ -15,7 +15,7 @@ The number afterward tells you how many bits the [Datatype](../index.md#what-is-
 | `i32`  | `4 bytes` | `2,147,483,647`   | `- 2,147,483,648` |
 | `i40`  | `5 bytes` | `2^39 - 1`        | `- 2^39`          |
 | `i48`  | `6 bytes` | `2^47 - 1`        | `- 2^47`          |
-| `i54`  | `7 bytes` | `2^53`            | `- 2^53`          |
+| `i53`  | `7 bytes` | `2^52 - 1`        | `- 2^52`          |
 
 You can access each one with `light.datatypes.<Name>`.
 

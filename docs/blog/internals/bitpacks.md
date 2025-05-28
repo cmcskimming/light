@@ -19,7 +19,7 @@ if bool then
    bitpack.current += increment
 end
 
-if increment <= 2^32 then
+if increment < 2^32 then
    bitpack.increment = increment * 0b10
 else
    bitpack.increment = 1

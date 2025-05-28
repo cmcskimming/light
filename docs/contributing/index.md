@@ -17,14 +17,21 @@ order of most to least preferred. Please only use my discord for critical bug re
 
 The documentation is primarily available through a site built with [Mkdocs](https://www.mkdocs.org/), and
 [Material For Mkdocs](https://squidfunk.github.io/mkdocs-material/). Changes to the documentation site will be built
-automatically when a PR is merged.
+automatically when a PR is merged. To build documentation locally, install both of the tools mentioned previously, and
+run:
+
+```bash
+python -m mkdocs serve
+```
+
+And visit <http://127.0.0.1:8000/> in your browser.
 
 ## Setup
 
 Light can be set up locally by installing [Rokit](https://github.com/rojo-rbx/rokit) and running the following commands
 in the project's root directory:
 
-```none
+```bash
 rokit install
 rojo sourcemap -o sourcemap.json
 ```
@@ -73,12 +80,24 @@ Light requires a minimal set of external tools to make contributing smooth:
 ## Testing
 
 Testing for most changes to the library is done through a set of
-[Lune](https://github.com/lune-org/lune) scripts found in `tests/cases/*`, and will be run on a pull request or with the
-command `lune run tests`. However, for some runtime-specific features of light
+[Lune](https://github.com/lune-org/lune) scripts found in `tests/_specs/*`, and will be run on a pull request or with
+this command:
+
+```bash
+lune run tests
+```
+
+or, to only run tests matching a luau string pattern:
+
+```bash
+lune run tests --match [PATTERN]
+```
+
+However, for some runtime-specific features of light
 (such as changes to the impl_roblox folder), tests are run in Roblox Studio with [Rojo](https://rojo.space/). Make sure
 you've followed the steps in [Setup](#setup), and run the following command in the project's root directory:
 
-```none
+```bash
 lune run test_roblox
 ```
 

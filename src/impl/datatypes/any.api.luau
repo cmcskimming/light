@@ -26,14 +26,12 @@ SOFTWARE.
 ]]
 do
 end
---- newproxy() gets encoded as nil over the network, preventing gaps in the unknown index
---- <br>cursed as hell but if it works it works
-local NULL = newproxy()
 local U16_BYTES = 2
 
 local datatypes = require("../../include/datatypes/main.h")
 local holy = require("../../holy")
 local incoming_stream_state = require("../../streams/incoming_state")
+local null = require("../../internal_NULL")
 local outgoing_stream_state = require("../../streams/outgoing_state")
 local stream_types = require("../../streams/types")
 
@@ -54,7 +52,7 @@ local function any_ser_no_realloc(buff: buffer, byte_ptr: number, input: any): n
 	unknown_len += 1
 	current_outgoing_stream.batch_unknown_len = unknown_len
 
-	unknown_table[unknown_len] = if input == nil then NULL else input
+	unknown_table[unknown_len] = if input == nil then null else input
 
 	buffer.writeu16(buff, byte_ptr, unknown_len)
 	byte_ptr += U16_BYTES
@@ -72,7 +70,7 @@ local function any_ser_static(buff: buffer, byte_ptr: number, input: any): ()
 	unknown_len += 1
 	current_outgoing_stream.batch_unknown_len = unknown_len
 
-	unknown_table[unknown_len] = if input == nil then NULL else input
+	unknown_table[unknown_len] = if input == nil then null else input
 
 	buffer.writeu16(buff, byte_ptr, unknown_len)
 end
@@ -87,7 +85,7 @@ local function any_ser(buff: buffer, byte_ptr: number, input: any): (number, buf
 	unknown_len += 1
 	current_outgoing_stream.batch_unknown_len = unknown_len
 
-	unknown_table[unknown_len] = if input == nil then NULL else input
+	unknown_table[unknown_len] = if input == nil then null else input
 
 	local target_ptr = byte_ptr + U16_BYTES
 	--stylua: ignore

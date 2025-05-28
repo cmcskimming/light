@@ -202,15 +202,42 @@ h6 {
     --md-tag-color: #bababa;
 }
 
+.md-tag.md-tag--server:hover {
+    --md-tag-color: #6485f3b0;
+}
+
+.md-tag.md-tag--client:hover {
+    --md-tag-color: #ffb0ffb0;
+}
+
+.md-tag.md-tag--shared:hover {
+    --md-tag-color: #32905fb0;
+}
+
+.md-tag.md-tag--async:hover {
+    --md-tag-color: #ffa32cb0;
+}
+
+.md-tag.md-tag--sync:hover {
+    --md-tag-color: #9bd32bb0;
+}
+
+.md-tag.md-tag--experimental:hover {
+    --md-tag-color: #6d54bbb0;
+}
+
+.md-tag.md-tag--errors:hover {
+    --md-tag-color: #ff5779b0;
+}
+
+.md-tag.md-tag--internal:hover {
+    --md-tag-color: #bababab0;
+}
+
 /* tag hover behavior*/
 
 .md-tag.md-tag:hover {
     cursor: pointer;
-
-    transition: 0.3s !important;
-    -webkit-box-shadow: 0px 0px 80px 4.5px var(--md-tag-color);
-    -moz-box-shadow: 0px 0px 80px 4.5px var(--md-tag-color);
-    box-shadow: 0px 0px 80px 4.5px var(--md-tag-color);
 }
 
 /* badges from mkdocs material */

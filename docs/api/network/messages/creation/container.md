@@ -19,18 +19,19 @@ function container<MessageNames>(
 ): (MessageNames)
 ```
 
-1. The "namespace" parameter exists to allow you to have multiple containers with overlapping message names.
-
 ## `#!luau function light.container` <small>(On The Server)</small>
 
 ```luau title='<!-- shared --> <!-- sync -->'
 function container<T>(
     message_names: T, -- { [string]: Datatype }
-    namespace: string? --(1)!
+    namespace: string?
 ): (T)
 ```
 
-1. The "namespace" parameter exists to allow you to have multiple containers with overlapping message names.
+!!!tip "Namespaces don't impact behavior"
+
+    Namespaces do not impact message ordering whatsoever in light. They are entirely cosmetic, allowing you to have
+    multiple containers with overlapping message names.
 
 Some example code using containers:
 

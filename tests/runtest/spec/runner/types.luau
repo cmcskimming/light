@@ -26,17 +26,33 @@ SOFTWARE.
 ]]
 do
 end
+export type SpecTimer = {
+	time_began: number?,
+	time_initialized: number?,
+	time_finished: number?,
+}
+
+export type CompletedTest = {
+	result: "PASS" | "FAIL" | "ERROR",
+	log: string,
+
+	timer: SpecTimer,
+}
+
+export type CompletedSpec = CompletedTest & {
+	tests: { [string]: CompletedTest },
+	amount_pass: number,
+	amount_fail: number,
+	amount_error: number,
+}
+
 export type SpecRunner = {
 	_spec_path: string,
 	_spec_name: string,
 
 	active_test: string?,
 	is_initializing: boolean,
-	test: (self: SpecRunner) -> Results,
-}
-export type Results = {
-	success: { [string]: string },
-	failure: { [string]: string },
+	test: (self: SpecRunner) -> CompletedSpec,
 }
 
 return nil

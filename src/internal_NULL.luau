@@ -24,38 +24,7 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
-local filesystem_hierarchy = require("@runtest/utils/filesystem_hierarchy")
-local regex = require("@lune/regex")
+--- newproxy() gets encoded as nil over the network without making a table with gaps
+local NULL = newproxy(false)
 
-local luau_file_eh = regex.new("\\.luau$")
-
-local function implement(path: string): ()
-	if not luau_file_eh:isMatch(path) then return end
-	(require)(path)
-end
-
-local impl_client = {}
-
-function impl_client.init_lune(): ()
-	require("@test/impl_lune/task/main.api")
-
-	local lune_hierarchy = filesystem_hierarchy.new("./tests/impl_lune/")
-	for filename in filesystem_hierarchy.files(lune_hierarchy, "@root/tests/impl_lune/") do
-		implement(filename)
-	end
-end
-
-function impl_client.init_instance(): ()
-	local server_hierarchy = filesystem_hierarchy.new("./tests/light_instance/server/impl/")
-	for filename in
-		filesystem_hierarchy.files(server_hierarchy, "@root/tests/light_instance/server/impl/")
-	do
-		implement(filename)
-	end
-	local src_hierarchy = filesystem_hierarchy.new("./src/impl/")
-	for filename in filesystem_hierarchy.files(src_hierarchy, "@root/src/impl/") do
-		implement(filename)
-	end
-end
-
-return impl_client
+return NULL

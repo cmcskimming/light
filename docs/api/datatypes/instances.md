@@ -6,7 +6,20 @@ Instances are generally [Any](./any.md) [Datatypes](./index.md#what-is-a-datatyp
 which represent a Roblox Instance Classname. Using these datatypes while sending unreliably can cause consistent
 packet dropping issues if the packet is too large.
 
-You can access each one with `light.datatypes.instances.<Name>`.
+You can access each one with `datatypes.instances.<Name>`, or any Instance with `datatypes.instances.Instance`
+
+## Tips
+
+!!! tip "Use Enums"
+
+    It is recommended to [Use An Identifier Enum](./generics/enums.md#identifier-enums) instead of `instances.*`
+    whenever possible to avoid performance implications and validation overhead of instance datatypes.
+
+!!! danger "Instance Replication"
+
+    Keep in mind instances may not exist yet on the client when sent by light, unless you wait for them explicitly.
+
+## Supported Classes
 
 [//]: # (i'm so funny for putting like 500 lines of instance datatypes in this file)
 

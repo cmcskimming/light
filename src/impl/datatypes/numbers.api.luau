@@ -36,14 +36,14 @@ datatypes.u24 = ty.u24
 datatypes.u32 = ty.u32
 datatypes.u40 = ty.u40
 datatypes.u48 = ty.u48
-datatypes.u53 = ty.u53
+datatypes.u56 = ty.u56
 datatypes.i8 = ty.i8
 datatypes.i16 = ty.i16
 datatypes.i24 = ty.i24
 datatypes.i32 = ty.i32
 datatypes.i40 = ty.i40
 datatypes.i48 = ty.i48
-datatypes.i54 = ty.i54
+datatypes.i53 = ty.i53
 datatypes.f32 = ty.f32
 datatypes.f64 = ty.f64
 

@@ -31,8 +31,8 @@ function map<Key, Value>(
 ): (Datatype<{ [Key]: Value }>)
 ```
 
-First two arguments should be any [Datatypes](../../index.md#what-is-a-datatype) which cannot be `#!luau nil`. The
-`length` parameter should represent the number of keys in the map, and will default to
+First two arguments should be any [Datatypes](../../index.md#what-is-a-datatype) which cannot represent `#!luau nil`.
+The `length` parameter should represent the number of keys in the map, and will default to
 [`#!luau datatypes.u16`](../../numbers/uints.md).
 
 The length datatype should NOT be a regular number—instead: use a

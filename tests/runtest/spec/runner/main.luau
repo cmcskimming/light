@@ -38,124 +38,236 @@ local test_interface = require("@runtest/spec/test/interface")
 
 type LoadedSpec = spec_types.LoadedSpec
 type SpecRunner = spec_runner_types.SpecRunner
-type SpecResults = spec_runner_types.Results
+type SpecTimer = spec_runner_types.SpecTimer
+type CompletedTest = spec_runner_types.CompletedTest
+type CompletedSpec = spec_runner_types.CompletedSpec
 
+local os_clock = os.clock
 local indent_newlines = pretty_print.indent_newlines
 
-local function spec_run_tests(self: SpecRunner): SpecResults
+local function spec_run_tests(self: SpecRunner): CompletedSpec
+	local completed_spec: CompletedSpec = {
+		result = "PASS",
+		tests = {} :: index<CompletedSpec, "tests">,
+		timer = {
+			time_began = os_clock(),
+		} :: index<CompletedSpec, "timer">,
+		log = "",
+		amount_pass = 0,
+		amount_fail = 0,
+		amount_error = 0,
+	}
+
 	local spec_path = self._spec_path
 	local spec_name = self._spec_name
 
 	local readfile_success, readfile_result = pcall(filesystem.readFile, spec_path)
 	if not readfile_success then
-		error(
-			`Failed to import spec "{spec_name}" from path "{spec_path}". Lune's Filesystem API errored:\n{readfile_result}`,
+		completed_spec.log ..= "\n"
+		completed_spec.log ..= debug.traceback(
+			`Failed to import spec "{spec_name}" from path "{spec_path}".`
+				.. ` Lune's Filesystem API errored:\n{readfile_result}`,
 			2
 		)
+
+		completed_spec.result = "ERROR"
+
+		return completed_spec
 	end
 
-	local compile_success, compile_result = pcall(luau.compile, readfile_result)
-	if not compile_success then
-		error(
-			`Failed to import spec "{spec_name}" with path "{spec_path}". Luau's compiler errored:\n{compile_result}`,
-			2
-		)
-	end
+	local compile_success, compile_result = xpcall(function()
+		return luau.compile(readfile_result)
+	end, function(err: string): ()
+		completed_spec.result = "ERROR"
+		completed_spec.log ..= `\nFailed to import spec "{spec_name}" from path "{spec_path}". Luau's compiler errored:\n{err}`
+	end)
+
+	if not compile_success then return completed_spec end
 
 	local env_require_path = process.cwd .. spec_path
 
 	self.is_initializing = true
 
-	local initialized_spec: LoadedSpec = luau.load(compile_result, {
+	local loaded_spec = luau.load(compile_result, {
 		debugName = `[SPEC "{spec_name}" (Initialization)]`,
 		environment = {
 			require = env_require.new(env_require_path),
 		},
-	})(self)
+	})
+	local initialize_success, initialized_spec: LoadedSpec = xpcall(function()
+		return loaded_spec(self)
+	end, function(err: string): ()
+		completed_spec.result = "ERROR"
+		--stylua: ignore
+		completed_spec.log ..= `\nFailed to initialize. The spec errored on startup:`
+			.. `\n{debug.traceback(err, 2)}`
+	end)
+
+	if not initialize_success then return completed_spec end
 
 	self.is_initializing = false
 
-	assert(initialized_spec.kind == "init", "mfw you forgot to call spec.done()?")
+	completed_spec.timer.time_initialized = os_clock()
+
+	if initialized_spec.kind ~= "init" then
+		completed_spec.log ..= "\n"
+		completed_spec.log ..= debug.traceback(
+			`Initialization return type wrong from spec path "{spec_path}".`
+				.. ` Did you forget to call spec.done()?`,
+			2
+		)
+
+		completed_spec.result = "ERROR"
+
+		return completed_spec
+	end
 
 	local test_names = initialized_spec.test_names
 
-	local successful_tests = {} :: { [string]: string }
-	local failed_tests = {} :: { [string]: string }
-
-	local awaiting = {} :: { thread }
+	local awaiting = {} :: { [thread]: true? }
 
 	for _, test_name in test_names do
+		local completed_test: CompletedTest = {
+			result = "PASS",
+			timer = {
+				time_began = os_clock(),
+			},
+			log = "",
+		}
+
 		self.active_test = test_name
 
-		local identity_spec: LoadedSpec = luau.load(compile_result, {
+		local loaded_test = luau.load(compile_result, {
 			debugName = `[SPEC "{spec_name}" (Test "{test_name}")]`,
 			environment = {
 				require = env_require.new(env_require_path),
 			},
-		})(self)
+		})
+
+		local test_initialize_success, spec_test: LoadedSpec = xpcall(function()
+			return loaded_test(self)
+		end, function(err: string): ()
+			completed_spec.result = "FAIL"
+			completed_test.log ..= debug.traceback(err, 2)
+		end)
 
 		self.active_test = nil
 
-		assert(identity_spec.kind == "test", "what the carp?")
+		if not test_initialize_success then
+			completed_spec.log ..= `\nFailed to initialize test "{test_name}". The test errored on startup.`
 
-		local definition = identity_spec.definition
+			completed_spec.tests[test_name] = completed_test
 
-		assert(definition, "What the carp!...")
-		assert(identity_spec.name == test_name, "what the carp!?")
+			continue
+		end
+
+		completed_test.timer.time_initialized = os_clock()
+
+		if spec_test.kind ~= "test" then
+			completed_spec.log ..= "\n"
+			completed_spec.log ..= debug.traceback(
+				`Failed to load test "{test_name}" because spec kind was not "test", bug?`,
+				2
+			)
+
+			completed_spec.result = "ERROR"
+
+			return completed_spec
+		elseif spec_test.name ~= test_name then
+			completed_spec.log ..= "\n"
+			completed_spec.log ..= debug.traceback(
+				`Failed to load test "{test_name}" due to mismatch loaded: "{spec_test.name}", bug?`,
+				2
+			)
+
+			completed_spec.result = "ERROR"
+
+			return completed_spec
+		end
+
+		local definition = spec_test.definition
+
+		if not definition then
+			completed_spec.log ..= "\n"
+			completed_spec.log ..= debug.traceback(
+				`Failed to load definition for test "{test_name}", bug?`,
+				2
+			)
+
+			completed_spec.result = "ERROR"
+
+			return completed_spec
+		end
 
 		local interface = test_interface.new()
 
 		local case_thread = task.spawn(function(): ()
-			local case_success, err_msg = xpcall(function()
+			local didnt_error, err_msg = xpcall(function()
 				definition(interface)
 				return nil :: string?
 			end, function(err: string)
 				return debug.traceback(err, 2)
 			end)
 
-			if not case_success then
-				interface:fail(indent_newlines(`\nError in test case:\n{err_msg}\n`))
+			completed_test.timer.time_finished = os_clock()
+
+			if not didnt_error then
+				interface:fail(`\n{indent_newlines(`Error in test case:\n{err_msg}\n`)}`)
+
+				completed_test.result = "ERROR"
+			elseif interface._failed then
+				completed_test.result = "FAIL"
 			end
+
+			completed_test.log ..= `\n{interface._output}`
+
+			completed_spec.tests[test_name] = completed_test
 		end)
 
-		interface._break:connect(function(): ()
-			interface:fail("\nCase was ended early.")
+		if coroutine.status(case_thread) ~= "dead" then
+			interface._break:once(function(): ()
+				if coroutine.status(case_thread) == "dead" then return end
 
-			task.cancel(case_thread)
-		end)
+				interface:fail("\nCase was ended early.")
+				-- Luau
+				if completed_test.result == "SUCCESS" then (completed_test :: any).result = "FAIL" end
 
-		table.insert(
-			awaiting,
-			task.spawn(function(): ()
-				repeat
-					task.wait()
-				until coroutine.status(case_thread) == "dead"
+				completed_test.log ..= `\n{interface._output}`
 
-				if interface._failed then
-					failed_tests[test_name] = interface._output
-				else
-					successful_tests[test_name] = interface._output
-				end
+				task.cancel(case_thread)
 			end)
-		)
-	end
 
-	while #awaiting ~= 0 do
-		for awaiting_index = #awaiting, 1, -1 do
-			local thread = awaiting[awaiting_index]
-
-			if coroutine.status(thread) ~= "dead" then continue end
-
-			table.remove(awaiting, awaiting_index)
+			awaiting[case_thread] = true
 		end
-
-		task.wait()
 	end
 
-	return {
-		success = successful_tests,
-		failure = failed_tests,
-	}
+	local next_awaiting = next(awaiting)
+	while next_awaiting do
+		if coroutine.status(next_awaiting) == "dead" then
+			awaiting[next_awaiting] = nil
+		else
+			task.wait()
+		end
+		next_awaiting = next(awaiting)
+	end
+
+	for _, completed_test in completed_spec.tests do
+		if completed_test.result == "PASS" then
+			completed_spec.amount_pass += 1
+			continue
+		elseif completed_test.result == "FAIL" then
+			completed_spec.amount_fail += 1
+		elseif completed_test.result == "ERROR" then
+			completed_spec.amount_error += 1
+		else
+			completed_spec.log ..= `\nEncountered bugged test result kind: "{completed_test.result}"`
+		end
+		completed_spec.result = "FAIL"
+	end
+
+	completed_spec.timer.time_finished = os_clock()
+
+	return completed_spec
 end
 
 local function constructor(path: string, name: string?): SpecRunner

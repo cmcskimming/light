@@ -5,7 +5,7 @@
     This page is a little outdated to Light's current process. The core ideas are still here, but the query function is
     a bit more optimized now due to some fundamental changes.
 
-Light utilizes [message batching](./replication_batch.md) to keep the library's data overhead low. Because messages are
+Light utilizes [message batching](./replication_format.md) to keep the library's data overhead low. Because messages are
 batched until the end of the frame, there comes to be an issue with broadcasting the same data to multiple players.
 If we want to be able to send things to individual groups of people, we have to have distinct buffers to separate those
 people from one another.

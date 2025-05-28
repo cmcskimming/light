@@ -1,30 +1,27 @@
 # Shut The Fuck Up
 
-This function silences warnings from schema assembly, as well as makes runtime errors less susceptible to DOS attacks.
+This function silences warnings from datatype assembly, as well as strips information from runtime error reporting.
 
 ## `#!luau function light.stfu`
 
 ```luau title='<!-- client --> <!-- server --> <!-- shared --> <!-- sync -->'
 function stfu(
-    sybau: boolean?
+    sybau: boolean
 ): ()
 ```
 
-As an example, you may want to send an array of instances which may not be replicated yet over the network. Normally,
-creating an array datatype with an optional value prints a warning to the console. To silence it, you can use
-`#!luau light.stfu()`:
+As an example, you may want to send an array of [`any`](./datatypes/any.md). Since `any` is considered "nilable" by
+default, using it in an array will print a warning to your console. To silence it, you can use `#!luau light.stfu()`:
 
 ```luau
 local ty = light.datatypes
-local instance = ty.instances.instance
 
-light.stfu()
-local arr_instances = ty.arr(ty.optional(instance))
--- tell light to exit sybau mode
+light.stfu(true)
+local arr_any = ty.arr(ty.any)
 light.stfu(false)
 
 return light.container({
     foo = { ty.u8 },
-    bar = arr_instances,
+    bar = arr_any,
 })
 ```

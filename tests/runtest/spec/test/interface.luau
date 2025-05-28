@@ -166,7 +166,7 @@ function test_interface.expect_truthy<Value>(self: TestInterface, value: Value):
 
 	self:fail(
 		red_bright(`\nExpected value to be truthy.`)
-			.. `VALUE:\n{INDENT}{indent_newlines(style_str(value :: any))}`
+			.. `\nVALUE:\n{INDENT}{indent_newlines(style_str(value :: any))}`
 	)
 end
 

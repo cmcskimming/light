@@ -191,10 +191,10 @@ do
 
 		local metadata_kind = metadata.kind
 
-		local metadata_kind_is_file = metadata_kind == "file"
-		cache[input] = metadata_kind_is_file
+		local metadata_kind_file_eh = metadata_kind == "file"
+		cache[input] = metadata_kind_file_eh
 
-		return metadata_kind_is_file
+		return metadata_kind_file_eh
 	end
 end
 
