@@ -53,7 +53,7 @@ it.
 
 Performance enhancements are always welcome as an [Issue](https://light.ardi.gg/github_issues), or
 [Pull Request](https://light.ardi.gg/github_pull_request). You will be expected to provide an explanation as to why the
-optimization is worthwhile, and / or why it will yield better performance for most users. I.e.,:
+optimization is worthwhile, and / or why it will yield better performance for most users. E.g.,:
 
 - Logical Explanation of what is being optimized <small>(In the motivation of an RFC)</small>
 

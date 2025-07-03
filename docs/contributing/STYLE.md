@@ -69,7 +69,7 @@ rather than the what.
 
     Always putting a comment line(s) prior to code line(s) makes the location of a comment consistent for readers, and
 putting it on the line of code can push [column width](#column-width) a bit far. As an exception, it is okay to put very
-simple comments on or after a line of control flow. I.e.,
+simple comments on or after a line of control flow. E.g.,
 
     ```luau
     if cached then
@@ -89,7 +89,7 @@ comment style consistent and allows for additions to this style guide to include
 
 - Block Titles
 
-    It is recommended large block comments be given titles on the line on which they begin. I.e. `CONFIG` in the
+    It is recommended large block comments be given titles on the line on which they begin. E.g. `CONFIG` in the
 following code:
 
     ```luau
@@ -149,7 +149,7 @@ EXPLAIN WHY SOMETHING WAS REMOVED IN A COMMENT!**
 
     Data structures and code patterns are somewhat unique in how they follow this ideal, because often the *why* of a
 pattern is closely tied to *what* it is. Make sure the explanation for code patterns or data structures are immediate
-relative to the code, and independant of any consumer. I.e., a comment above a sparse set should not say *what* happens
+relative to the code, and independant of any consumer. E.g., a comment above a sparse set should not say *what* happens
 in some other code gets an index from it, or when another file imports it. Instead, it should explain why accessing a
 sparse set is more advantageous compared to alternatives such as a dense array. This is primarily to avoid
 [Legacy Comments](#why-over-what), as well as [Prior Context](#why-over-what) violations.
@@ -168,7 +168,7 @@ This section exists to make sure certain portions and kinds of code are distinct
 - Use of single comments vs. multi-line comments.
 
     All lines explaining a line of code, specific control flow, individual expression, or type/alias should use multiple
-comments. I.e.,
+comments. E.g.,
 
     ```luau
     --- Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna
@@ -179,7 +179,7 @@ comments. I.e.,
     ```
 
     In contrast, explanations for multiple portions of code must be enclosed in a multiline comment `--[[` or `--[=[` even
-    if the explanation is only a single line. I.e.,
+    if the explanation is only a single line. E.g.,
 
     ```luau
     --[[
@@ -204,7 +204,7 @@ the function's definition.
 - Separate Boundaries
 
     If there is a boundary between the purpose of multiple sections / blocks of comments, they should not be combined
-into one comment. I.e., a function's inline justification should not be in the same block as its doc comment:
+into one comment. E.g., a function's inline justification should not be in the same block as its doc comment:
 
     ```luau
     --[[

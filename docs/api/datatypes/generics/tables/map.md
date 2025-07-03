@@ -5,7 +5,7 @@ Maps (a.k.a. Dictionaries) are quite simple.
 A map represents a set of keys and values in a table.(1)
 {.annotate}
 
-1. I.e., This is something you might want to represent with a map:
+1. E.g., This is something you might want to represent with a map:
 
     ```luau
     local abc = { [tostring(math.random())] = 255 }

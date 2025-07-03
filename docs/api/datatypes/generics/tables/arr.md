@@ -2,7 +2,7 @@
 
 Arrays are quite simple.
 
-An array represents a contiguous list of values in a table. I.e., `#!luau { "a", "b", "c" }`
+An array represents a contiguous list of values in a table. E.g., `#!luau { "a", "b", "c" }`
 
 An array shouldn't have any `#!luau nil`s or "gaps". If you want holes in a table, use [Maps](./map.md).
 

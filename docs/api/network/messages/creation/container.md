@@ -4,7 +4,7 @@ Containers are the recommended and easy way to group together messages in light 
 
 Container inputs should be a map of string message-names to any valid [Datatype](../../../datatypes/index.md#what-is-a-datatype).
 This includes [Datatypes](../../../datatypes/index.md#what-is-a-datatype) like arrays or maps that are defined with luau tables.
-I.e., `#!luau { light.datatypes.u8 }`
+E.g., `#!luau { light.datatypes.u8 }`
 
 !!! info "If messages inside are already synchronized beforehand, the container will not yield."
 

@@ -23,7 +23,7 @@ function message<Data>(
 
 `template` in both above samples should always be any valid [Datatype](../../../datatypes/index.md#what-is-a-datatype).
 This includes [Datatypes](../../../datatypes/index.md#what-is-a-datatype) like arrays or maps that are defined with luau tables.
-I.e., `#!luau { light.datatypes.u8 }`
+E.g., `#!luau { light.datatypes.u8 }`
 
 If you wanted to create messages en-masse without restricting yourself to the structure of a container, this can be
 very useful. You could also use it to re-invent the wheel:

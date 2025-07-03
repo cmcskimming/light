@@ -6,17 +6,17 @@ There are three ways to use light's functions, properties, etc:
 `#!luau local light = require(ReplicatedStorage.light).shared--(1)!`
 {.annotate}
 
-1. This should be used when writing code for the client <em>and</em> the server, I.e., a `ModuleScript`.
+1. This should be used when writing code for the client <em>and</em> the server, E.g., a `ModuleScript`.
 
 `#!luau local light = require(ReplicatedStorage.light).client--(1)!`
 {.annotate}
 
-1. This should be used when writing code for the <em>client</em>. I.e., inside a `LocalScript`.
+1. This should be used when writing code for the <em>client</em>. E.g., inside a `LocalScript`.
 
 `#!luau local light = require(ReplicatedStorage.light).server--(1)!`
 {.annotate}
 
-1. This should be used for writing code for the <em>server</em>. I.e., inside a `Script`.
+1. This should be used for writing code for the <em>server</em>. E.g., inside a `Script`.
 
 ## <small><em>What</em> is a </small><b>Message</b>?
 

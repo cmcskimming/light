@@ -18,7 +18,7 @@ local RunService = game:GetService("RunService")
 local light = require(ReplicatedStorage.light).shared
 
 -- identical to initializing without manual replication
-RunService.PostSimulation:Connect(function()
+RunService.Heartbeat:Connect(function()
     light.step_replication()
 end)
 ```

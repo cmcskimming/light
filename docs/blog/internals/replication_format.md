@@ -30,7 +30,7 @@ as `bit`, and an optional value as `opt(T)`.
 
 An array of u8s signifying a number of identical booleans in sequence notated as `bbyte` or `bbyte[<L>]`. Light streams
 encode a "state" for `bbyte`s, defaulting to false. When encountering a boolean that does not match the current state of
-the `bbyte`, the state will "flip", and write the number of items from the previous state into the `bbyte`. I.e., take
+the `bbyte`, the state will "flip", and write the number of items from the previous state into the `bbyte`. E.g., take
 the following list of booleans:
 
 ```lua
