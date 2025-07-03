@@ -24,6 +24,20 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
+local signal_types = require("../signal/types")
+
+type Signal<Parameters...> = signal_types.SignalIdentity<Parameters...>
+
 export type Identity = Player
+
+export type ApiIdentity = {
+	local_client: Identity,
+
+	all_clients: () -> { Identity },
+	is_connected: { [Identity]: true? },
+
+	client_added: Signal<Identity>,
+	client_removed: Signal<Identity>,
+}
 
 return nil

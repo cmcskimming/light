@@ -24,11 +24,22 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
-local IMPL: any = true
+do
+end
+type SignalCallback<Parameters...> = (Parameters...) -> ()
 
-local clients_types = require("./types")
-local header_graph = require("../graph")
+type SignalIndex<Parameters...> = {
+	connect: <Self>(self: Self, callback: SignalCallback<Parameters...>) -> (),
+	fire: <Self>(self: Self, Parameters...) -> (),
+}
 
-type ApiIdentity = clients_types.ApiIdentity
+export type SignalIdentity<Parameters...> = setmetatable<
+	{ SignalCallback<Parameters...> },
+	{ __index: SignalIndex<Parameters...> }
+>
 
-return header_graph:define(IMPL :: ApiIdentity)
+export type ApiIdentity = {
+	new: <Parameters...>() -> SignalIdentity<Parameters...>,
+}
+
+return nil

@@ -26,24 +26,32 @@ SOFTWARE.
 ]]
 export type Task<Arguments..., Returns...> = thread | (Arguments...) -> Returns...
 
-export type wait = (seconds: number) -> number
+export type Wait = (seconds: number) -> number
 
-export type spawn = <Arguments..., Returns...>(
+export type Spawn = <Arguments..., Returns...>(
 	resume: Task<Arguments..., Returns...>,
 	Arguments...
 ) -> thread
 
-export type defer = <Arguments..., Returns...>(
+export type Defer = <Arguments..., Returns...>(
 	task: Task<Arguments..., Returns...>,
 	Arguments...
 ) -> thread
 
-export type delay = <Arguments..., Returns...>(
+export type Delay = <Arguments..., Returns...>(
 	seconds: number,
 	task: Task<Arguments..., Returns...>,
 	Arguments...
 ) -> thread
 
-export type close = (thread) -> ()
+export type Close = (thread) -> ()
+
+export type ApiIdentity = {
+	wait: Wait,
+	spawn: Spawn,
+	defer: Defer,
+	delay: Delay,
+	close: Close,
+}
 
 return nil

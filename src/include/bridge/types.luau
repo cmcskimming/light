@@ -43,4 +43,8 @@ export type Bridge<BridgeData...> = {
 	fire_client: (Client, BridgeData...) -> (),
 }
 
+export type ApiIdentity = {
+	new: <BridgeData...>(name: string, unreliable: boolean?) -> Bridge<BridgeData...>,
+}
+
 return nil

@@ -24,11 +24,14 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
-local IMPL: any = true
+local signal_types = require("../signal/types")
 
-local clients_types = require("./types")
-local header_graph = require("../graph")
+type Signal<Parameters...> = signal_types.SignalIdentity<Parameters...>
 
-type ApiIdentity = clients_types.ApiIdentity
+type DeltaTime = number
 
-return header_graph:define(IMPL :: ApiIdentity)
+export type ApiIdentity = {
+	before_replication: Signal<DeltaTime>,
+}
+
+return nil

@@ -24,11 +24,29 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
-local IMPL: any = true
+--[[report.luau
+General functions for reporting errors / problems.
+]]
+do
+end
 
-local clients_types = require("./types")
-local header_graph = require("../graph")
+local report = {}
 
-type ApiIdentity = clients_types.ApiIdentity
+function report.bug(text: string): string
+	return `\n(LIKELY BUG, PLEASE REPORT ON THE GITHUB: https://github.com/hardlyardi/light/issues/)\n{text}`
+end
 
-return header_graph:define(IMPL :: ApiIdentity)
+function report.problem(msg: string, trace_level: number?): string
+	local level = trace_level and trace_level + 3 or 3
+
+	return debug.traceback(`\n[LIGHT]: {msg}\nERROR TRACE:`, level)
+end
+
+function report.thread(msg: string, thread: thread, trace_level: number?): string
+	local level = trace_level and trace_level + 3 or 3
+
+	return debug.traceback(thread, `\n[LIGHT]: {msg}\nTHREAD TRACE:`)
+		.. debug.traceback(`\nERROR TRACE:`, level)
+end
+
+return report

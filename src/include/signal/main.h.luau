@@ -53,8 +53,8 @@ SOFTWARE.
 local IMPL: any = true
 
 local header_graph = require("../graph")
-local instance_classes_types = require("./types")
+local signal_types = require("./types")
 
-type InstanceClassname = instance_classes_types.InstanceClassname
+type ApiIdentity = signal_types.ApiIdentity
 
-return header_graph:define(IMPL :: { [InstanceClassname | string]: true? })
+return header_graph:define(IMPL :: ApiIdentity)

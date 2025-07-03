@@ -24,25 +24,11 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
-local report = require("../../report")
+local IMPL: any = true
+
+local header_graph = require("../graph")
 local task_types = require("./types")
 
-export type ApiIdentity = {
-	wait: task_types.wait,
-	spawn: task_types.spawn,
-	defer: task_types.defer,
-	delay: task_types.delay,
-	close: task_types.close,
-}
+type ApiIdentity = task_types.ApiIdentity
 
-local identity = setmetatable({} :: ApiIdentity, {
-	__index = function(_, index_name)
-		error(
-			report.bug(
-				report.problem(`Error while indexing: key of name "{index_name}" is undefined!`)
-			)
-		)
-	end,
-})
-
-return identity
+return header_graph:define(IMPL :: ApiIdentity)

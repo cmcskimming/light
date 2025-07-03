@@ -24,11 +24,7 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
-local IMPL: any = true
+--- newproxy() gets encoded as nil over the network without making a table with gaps
+local NULL = newproxy(false)
 
-local clients_types = require("./types")
-local header_graph = require("../graph")
-
-type ApiIdentity = clients_types.ApiIdentity
-
-return header_graph:define(IMPL :: ApiIdentity)
+return NULL

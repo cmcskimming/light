@@ -26,4 +26,8 @@ SOFTWARE.
 ]]
 export type RunContext = "server" | "client"
 
+export type ApiIdentity = {
+	runcontext: RunContext,
+}
+
 return nil

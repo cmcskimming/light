@@ -24,11 +24,12 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
-local IMPL: any = true
+local holy = require("../utils/holy")
 
-local clients_types = require("./types")
-local header_graph = require("../graph")
+export type HolyApi = typeof(holy)
 
-type ApiIdentity = clients_types.ApiIdentity
+export type DynamicWriter = {
+	__LIGHT_WRITER: true,
+}
 
-return header_graph:define(IMPL :: ApiIdentity)
+return nil

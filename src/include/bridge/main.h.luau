@@ -24,22 +24,11 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
+local IMPL: any = true
 
 local bridge_types = require("./types")
-local report = require("../../report")
+local header_graph = require("../graph")
 
-export type ApiIdentity = {
-	new: <BridgeData...>(name: string, unreliable: boolean?) -> bridge_types.Bridge<BridgeData...>,
-}
+type ApiIdentity = bridge_types.ApiIdentity
 
-local identity = setmetatable({}, {
-	__index = function(_, index_name)
-		error(
-			report.bug(
-				report.problem(`Error while indexing: key of name "{index_name}" is undefined!`)
-			)
-		)
-	end,
-}) :: ApiIdentity
-
-return identity
+return header_graph:define(IMPL :: ApiIdentity)

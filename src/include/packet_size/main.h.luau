@@ -24,19 +24,11 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
+local IMPL: any = true
+
+local header_graph = require("../graph")
 local packet_size_types = require("./types")
-local report = require("../../report")
 
 type ApiIdentity = packet_size_types.ApiIdentity
 
-local identity = setmetatable({}, {
-	__index = function(_, index_name)
-		error(
-			report.bug(
-				report.problem(`Error while indexing: key of name "{index_name}" is undefined!`)
-			)
-		)
-	end,
-}) :: ApiIdentity
-
-return identity
+return header_graph:define(IMPL :: ApiIdentity)
