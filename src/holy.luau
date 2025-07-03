@@ -18,12 +18,31 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ]]
+--[[
+--FOR DESCRIPTIONS OF API & CODE FUNCTION, ETC: https://light.ardi.gg/
+--FOR ISSUES, BUG REPORTS, OR FEATURE REQUESTS: https://light.ardi.gg/github
+--ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
+--MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
+]]
+--[[
+Machine, turn back now.
+The layers of this source code are not for your kind.
+Turn back — or you will be crossing the will of God.
+]]
 --!strict
 --!optimize 2
 --!nolint LocalShadow
-export type _G = { __SYBAU: boolean }
-local GLOBALCONFIG = _G :: _G
-GLOBALCONFIG.__SYBAU = false
+local SETTINGS = {
+	SYBAU = false
+}
+local FFLAGS = {
+	GENERATE_DEBUG_NAMES = true
+}
+for flag in FFLAGS :: { [string]: any } do
+	local configured_assignment = _G[flag]
+	if configured_assignment == nil then continue end
+	FFLAGS[flag] = configured_assignment
+end
 
 local BYTE = 0b10 ^ 8
 local VLQINPMASK0 = (0b10 ^ 7) ^ 1
@@ -40,6 +59,16 @@ local VLQOUTMASK2 = VLQOUTMASK1 + VLQINPMASK0 * BYTE ^ 2
 local VLQOUTMASK3 = VLQOUTMASK2 + VLQINPMASK0 * BYTE ^ 3
 local VLQOUTMASK4 = VLQOUTMASK3 + VLQINPMASK0 * BYTE ^ 4
 
+local INDENT = "  "
+local SILENCE_INSTRUCTIONS = [[
+To silence this warning if you know what you're doing, use stfu(true):
+```luau
+stfu(true)
+local abc = foo(...)
+stfu(false)
+```
+]]
+
 type Set<K, V = true?> = { [K]: V }
 
 export type Datatype<T = any> = number & { __HOLY_T: T }
@@ -50,6 +79,9 @@ export type Ser<Input = any> = (buff: buffer, byte_ptr: number, input: Input) ->
 export type Des<Output = any> = (buff: buffer, byte_ptr: number) -> (number, Output)
 
 type MetadataSet<Data = true?> = Set<Datatype, Data>
+
+local table_clone = table.clone
+local string_gsub = string.gsub
 
 local metadata = {
 	static_size = {} :: MetadataSet<number>,
@@ -64,14 +96,34 @@ local metadata = {
 	is_literal = {} :: MetadataSet,
 }
 
+local serializernames = {} :: { [Ser]: string }
+
 local CONST_LOOKUPS = {}
 
+local tracewarn
+local traceerr
+do
+	local debug_traceback = debug.traceback
+
+	function tracewarn(msg: string): ()
+		warn((debug_traceback(msg, 3)))
+	end
+	function traceerr(msg: string): never
+		return error((debug_traceback(msg, 3)), 2)
+	end
+end
+
+local function indent_newlines(str: string): string
+	local indented = string_gsub(str, "\n", `\n{INDENT}`)
+	return indented
+end
+
 local function stfu(sybau: boolean): ()
-	GLOBALCONFIG.__SYBAU = sybau
+	SETTINGS.SYBAU = sybau
 end
 
 local function stfu_check(): ()
-	if GLOBALCONFIG.__SYBAU then
+	if SETTINGS.SYBAU then
 		error()
 	end
 end
@@ -113,6 +165,11 @@ local function ordered_hash(...: any): string
 	return output
 end
 
+--[[
+Your choice is made.
+As the righteous hand of the father, I shall rend you apart, and this file will become a timesink once more.
+]]
+
 --[=[
 Returns the minimum number of bytes required to encode a given unsigned int.
 ]=]
@@ -127,10 +184,9 @@ local function uint_size_bytes(uint: number): number
 								if uint >= BYTE^7 then
 									stfu_check()
 									--stylua: ignore
-									error(debug.traceback(
-										`Problem converting number -> uint bytes. Expected value < {BYTE^7}`,
-										2
-									), -1)
+									traceerr(
+										`Problem converting number -> uint bytes. Expected value < {BYTE^7}`
+									)
 								end
 								return 8
 							end
@@ -162,11 +218,7 @@ local function vlq_size_bytes(uint: number): number
 							if uint >= VLQINPMASK6 then
 								if uint >= VLQINPMASK7 then
 									stfu_check()
-									--stylua: ignore
-									error(debug.traceback(
-										`Problem converting number -> vlq bytes. Expected value < {VLQINPMASK7}`,
-										2
-									), -1)
+									traceerr(`Problem converting number -> vlq bytes. Expected value < {VLQINPMASK7}`)
 								end
 								return 8
 							end
@@ -195,9 +247,43 @@ local function check_datatype_exists(datatype: any): boolean
 	return true
 end
 
+local function set_debugname(datatype: Datatype, name: string?): ()
+	local serializer = metadata.ser[datatype]
+	if serializer == nil then
+		traceerr("bug")
+	end
+	if FFLAGS.GENERATE_DEBUG_NAMES then
+		serializernames[serializer] = name
+	end
+end
+
+local stringify
+do
+	local debug_info = debug.info
+	local string_gsub = string.gsub
+
+	function stringify(datatype: Datatype): string
+		local serializer = metadata.ser[datatype]
+		if not serializer then
+			return `<?:?UNDEFINED_datatype?@{datatype}>`
+		end
+
+		local debug_name = serializernames[serializer]
+		if debug_name then
+			return debug_name
+		end
+
+		local serializer_name = debug_info(serializer, "n")
+		serializer_name = string_gsub(serializer_name, "seri?a?l?i?z?e?r?$", "")
+		serializer_name = string_gsub(serializer_name, "_", "")
+		
+		return `<?f:{serializer_name}@{datatype}>`
+	end
+end
+
 local function copy_datatype(src: Datatype, target: Datatype)
 	if not check_datatype_exists(src) then
-		error(debug.traceback(`Failed to copy datatype, DatatypeId<{src}> was not a valid datatype`))
+		traceerr(`Failed to copy datatype, {stringify(src)} was not a valid datatype`)
 	end
 	for _, copyable in metadata :: {[string]: MetadataSet<any>} do
 		copyable[target] = copyable[src]
@@ -265,6 +351,9 @@ do
 		return byte_ptr, output
 	end
 
+	if FFLAGS.GENERATE_DEBUG_NAMES then
+		serializernames[u8_ser] = "<holy:u8>"
+	end
 	metadata.ser_no_realloc[u8] = u8_ser_no_realloc
 	metadata.ser_static[u8] = buffer.writeu8 :: SerStatic
 	metadata.ser[u8] = u8_ser
@@ -307,6 +396,9 @@ do
 		return byte_ptr, output
 	end
 
+	if FFLAGS.GENERATE_DEBUG_NAMES then
+		serializernames[u16_ser] = "<holy:u16>"
+	end
 	metadata.ser_no_realloc[u16] = u16_ser_no_realloc
 	metadata.ser_static[u16] = buffer.writeu16 :: SerStatic
 	metadata.ser[u16] = u16_ser
@@ -368,6 +460,9 @@ do
 		return byte_ptr, output
 	end
 
+	if FFLAGS.GENERATE_DEBUG_NAMES then
+		serializernames[u24_ser] = "<holy:u24>"
+	end
 	metadata.ser_no_realloc[u24] = u24_ser_no_realloc
 	metadata.ser_static[u24] = u24_ser_static
 	metadata.ser[u24] = u24_ser
@@ -408,6 +503,9 @@ do
 		return byte_ptr, output
 	end
 	
+	if FFLAGS.GENERATE_DEBUG_NAMES then
+		serializernames[u32_ser] = "<holy:u32>"
+	end
 	metadata.ser_no_realloc[u32] = u32_ser_no_realloc
 	metadata.ser_static[u32] = buffer.writeu32 :: SerStatic
 	metadata.ser[u32] = u32_ser
@@ -472,6 +570,9 @@ do
 		return byte_ptr, output
 	end
 
+	if FFLAGS.GENERATE_DEBUG_NAMES then
+		serializernames[u40_ser] = "<holy:u40>"
+	end
 	metadata.ser_no_realloc[u40] = u40_ser_no_realloc
 	metadata.ser_static[u40] = u40_ser_static
 	metadata.ser[u40] = u40_ser
@@ -536,6 +637,9 @@ do
 		return byte_ptr, output
 	end
 
+	if FFLAGS.GENERATE_DEBUG_NAMES then
+		serializernames[u48_ser] = "<holy:u48>"
+	end
 	metadata.ser_no_realloc[u48] = u48_ser_no_realloc
 	metadata.ser_static[u48] = u48_ser_static
 	metadata.ser[u48] = u48_ser
@@ -615,6 +719,9 @@ do
 		return byte_ptr, output
 	end
 
+	if FFLAGS.GENERATE_DEBUG_NAMES then
+		serializernames[u56_ser] = "<holy:u56>"
+	end
 	metadata.ser_no_realloc[u56] = u56_ser_no_realloc
 	metadata.ser_static[u56] = u56_ser_static
 	metadata.ser[u56] = u56_ser
@@ -705,6 +812,9 @@ do
 		return byte_ptr, output
 	end
 
+	if FFLAGS.GENERATE_DEBUG_NAMES then
+		serializernames[i8_ser] = "<holy:i8>"
+	end
 	metadata.ser_no_realloc[i8] = i8_ser_no_realloc
 	metadata.ser_static[i8] = buffer.writei8 :: SerStatic
 	metadata.ser[i8] = i8_ser
@@ -747,6 +857,9 @@ do
 		return byte_ptr, output
 	end
 
+	if FFLAGS.GENERATE_DEBUG_NAMES then
+		serializernames[i16_ser] = "<holy:i16>"
+	end
 	metadata.ser_no_realloc[i16] = i16_ser_no_realloc
 	metadata.ser_static[i16] = buffer.writei16 :: SerStatic
 	metadata.ser[i16] = i16_ser
@@ -817,6 +930,9 @@ do
 		return byte_ptr, output
 	end
 
+	if FFLAGS.GENERATE_DEBUG_NAMES then
+		serializernames[i24_ser] = "<holy:i24>"
+	end
 	metadata.ser_no_realloc[i24] = i24_ser_no_realloc
 	metadata.ser_static[i24] = i24_ser_static
 	metadata.ser[i24] = i24_ser
@@ -858,6 +974,9 @@ do
 		return byte_ptr, output
 	end
 
+	if FFLAGS.GENERATE_DEBUG_NAMES then
+		serializernames[i32_ser] = "<holy:i32>"
+	end
 	metadata.ser_no_realloc[i32] = i32_ser_no_realloc
 	metadata.ser_static[i32] = buffer.writei32 :: SerStatic
 	metadata.ser[i32] = i32_ser
@@ -927,6 +1046,9 @@ do
 		return byte_ptr, output
 	end
 
+	if FFLAGS.GENERATE_DEBUG_NAMES then
+		serializernames[i40_ser] = "<holy:i40>"
+	end
 	metadata.ser_no_realloc[i40] = i40_ser_no_realloc
 	metadata.ser_static[i40] = i40_ser_static
 	metadata.ser[i40] = i40_ser
@@ -995,6 +1117,9 @@ do
 		return byte_ptr, output
 	end
 
+	if FFLAGS.GENERATE_DEBUG_NAMES then
+		serializernames[i48_ser] = "<holy:i48>"
+	end
 	metadata.ser_no_realloc[i48] = i48_ser_no_realloc
 	metadata.ser_static[i48] = i48_ser_static
 	metadata.ser[i48] = i48_ser
@@ -1086,6 +1211,9 @@ do
 		return byte_ptr, output
 	end
 
+	if FFLAGS.GENERATE_DEBUG_NAMES then
+		serializernames[i53_ser] = "<holy:i53>"
+	end
 	metadata.ser_no_realloc[i53] = i53_ser_no_realloc
 	metadata.ser_static[i53] = i53_ser_static
 	metadata.ser[i53] = i53_ser
@@ -1144,7 +1272,6 @@ CONST_LOOKUPS.int = {
 do
 	local static_size = 4
 	local f32 = new_datatype(static_size)
-	metadata.is_number[f32] = true
 
 	@native
 	local function f32_ser_no_realloc(buff: buffer, byte_ptr: number, input: any): (number)
@@ -1176,6 +1303,10 @@ do
 		return byte_ptr, output
 	end
 
+	if FFLAGS.GENERATE_DEBUG_NAMES then
+		serializernames[f32_ser] = "<holy:f32>"
+	end
+	metadata.is_number[f32] = true
 	metadata.ser_no_realloc[f32] = f32_ser_no_realloc
 	metadata.ser_static[f32] = buffer.writef32 :: SerStatic
 	metadata.ser[f32] = f32_ser
@@ -1185,7 +1316,6 @@ datatypes.f32 = f32 :: Datatype<number> end
 do
 	local static_size = 8
 	local f64 = new_datatype(static_size)
-	metadata.is_number[f64] = true
 
 	@native
 	local function f64_ser_no_realloc(buff: buffer, byte_ptr: number, input: any): (number)
@@ -1217,6 +1347,10 @@ do
 		return byte_ptr, output
 	end
 
+	if FFLAGS.GENERATE_DEBUG_NAMES then
+		serializernames[f64_ser] = "<holy:f64>"
+	end
+	metadata.is_number[f64] = true
 	metadata.ser_no_realloc[f64] = f64_ser_no_realloc
 	metadata.ser_static[f64] = buffer.writef64 :: SerStatic
 	metadata.ser[f64] = f64_ser
@@ -1247,15 +1381,14 @@ CONST_LOOKUPS.float = {
 }
 
 do
-	local null = newproxy()
+	--- unique identifier for nil
+	local null = {}
 
 	local cache = {} :: Set<string, Datatype>
 
 	local function literal<Value>(literal_value: Value): Datatype<Value>
-		local literal_value = (if literal_value :: any == nil then null else literal_value) :: any
-
-		-- hashing because value passed could be nil
-		local hash = ordered_hash(literal_value, "__LIGHT_LITERAL")
+		local literal_value: any = literal_value
+		local hash = ordered_hash(if literal_value == nil then null else literal_value, "__LIGHT_LITERAL")
 		do
 			local cached = cache[hash]
 			if cached ~= nil then return cached :: any end
@@ -1266,10 +1399,10 @@ do
 
 		local literal_ser_no_realloc, literal_ser_static, literal_ser, literal_des
 
-		literal_ser_no_realloc = function(buff: buffer, byte_ptr: number): (number)
+		function literal_ser_no_realloc(buff: buffer, byte_ptr: number): (number)
 			return byte_ptr
 		end
-		literal_ser_static = function() end
+		function literal_ser_static() end
 
 		@native --dynamic_ncgen
 		function literal_ser(buff: buffer, byte_ptr: number): (number, buffer)
@@ -1289,14 +1422,16 @@ do
 			return byte_ptr, literal_value
 		end
 
+		if FFLAGS.GENERATE_DEBUG_NAMES then
+			serializernames[literal_ser] =
+				`<holy:literal({tostring(literal_value)})>`
+		end
 		metadata.is_literal[literal_datatype] = true
 		metadata.literal_value[literal_datatype] = literal_value
-
 		metadata.ser_no_realloc[literal_datatype] = literal_ser_no_realloc
 		metadata.ser_static[literal_datatype] = literal_ser_static
 		metadata.ser[literal_datatype] = literal_ser
 		metadata.des[literal_datatype] = literal_des
-
 		if type(literal_value) == "number" then
 			metadata.is_number[literal_datatype] = true
 		elseif literal_value == nil then
@@ -1318,22 +1453,26 @@ do
 			if cached ~= nil then return cached :: any end
 		end
 
-		if typeof(minimum) ~= "number" then
-			error(debug.traceback(`Invalid clamp: Minimum should be a number. Got type: {typeof(minimum)}`))
+		if type(minimum) ~= "number" then
+			traceerr(`Invalid clamp where minimum's type "{typeof(minimum)}" ~= "number".`)
 		elseif minimum ~= minimum then
-			error(debug.traceback(`Invalid clamp: Minimum should not be nan`))
+			traceerr(`Invalid clamp where minimum is NaN.`)
 		elseif (minimum // 1) ~= minimum then
-			error(debug.traceback(`Invalid clamp: Minimum should be an integer. Got: {minimum}`))
-		elseif typeof(maximum) ~= "number" then
-			error(debug.traceback(`Invalid clamp: Maximum should be a number. Got type: {typeof(maximum)}`))
+			traceerr(`Invalid clamp where minimum is not an integer. Minimum: {minimum}`)
+		elseif type(maximum) ~= "number" then
+			traceerr(`Invalid clamp where maximum's type "{typeof(maximum)}" ~= "number".`)
 		elseif maximum ~= maximum then
-			error(debug.traceback(`Invalid clamp: Maximum should not be nan`))
+			traceerr(`Invalid clamp where maximum is NaN.`)
 		elseif (maximum // 1) ~= maximum then
-			error(debug.traceback(`Invalid clamp: Maximum should be an integer. Got: {maximum}`))
+			traceerr(`Invalid clamp where maximum is not an integer. Maximum: {maximum}`)
 		elseif minimum > maximum then
-			error(debug.traceback(`Invalid clamp: Minimum should not be higher than Maximum`))
+			traceerr(
+				`Invalid clamp where maximum is less than minimum.`
+					.. `\nminimum: {minimum} >`
+					.. `\nmaximum: {maximum}`
+			)
 		elseif minimum == maximum then
-			error(debug.traceback(`Invalid clamp: Minimum should not equal maximum. Use a literal instead.`))
+			traceerr(`Invalid clamp where minimum {minimum} equals maximum.`)
 		end
 
 		local range_bytes = uint_size_bytes(maximum - minimum)
@@ -1379,8 +1518,15 @@ do
 			return byte_ptr, math.clamp(output, minimum, maximum)
 		end
 
-		metadata.is_number[clamp_datatype] = true
+		if FFLAGS.GENERATE_DEBUG_NAMES then
+			serializernames[clamp_ser] =
+				`<holy:clamp\{`
+			.. `{INDENT}min = {minimum},`
+			.. `{INDENT}max = {maximum},`
+			.. `\}>`
+		end
 
+		metadata.is_number[clamp_datatype] = true
 		metadata.ser_no_realloc[clamp_datatype] = clamp_ser_no_realloc
 		metadata.ser_static[clamp_datatype] = clamp_static_ser
 		metadata.ser[clamp_datatype] = clamp_ser
@@ -1401,22 +1547,26 @@ do
 			if cached ~= nil then return cached :: any end
 		end
 
-		if typeof(minimum) ~= "number" then
-			error(debug.traceback(`Invalid range: Minimum should be a number. Got type: {typeof(minimum)}`))
+		if type(minimum) ~= "number" then
+			traceerr(`Invalid range where minimum's type "{typeof(minimum)}" ~= "number".`)
 		elseif minimum ~= minimum then
-			error(debug.traceback(`Invalid range: Minimum should not be nan`))
+			traceerr(`Invalid range where minimum is NaN.`)
 		elseif (minimum // 1) ~= minimum then
-			error(debug.traceback(`Invalid range: Minimum should be an integer. Got: {minimum}`))
-		elseif typeof(maximum) ~= "number" then
-			error(debug.traceback(`Invalid range: Maximum should be a number. Got type: {typeof(maximum)}`))
+			traceerr(`Invalid range where minimum is not an integer. Minimum: {minimum}`)
+		elseif type(maximum) ~= "number" then
+			traceerr(`Invalid range where maximum's type "{typeof(maximum)}" ~= "number".`)
 		elseif maximum ~= maximum then
-			error(debug.traceback(`Invalid range: Maximum should not be nan`))
+			traceerr(`Invalid range where maximum is NaN.`)
 		elseif (maximum // 1) ~= maximum then
-			error(debug.traceback(`Invalid range: Maximum should be an integer. Got: {maximum}`))
+			traceerr(`Invalid range where maximum is not an integer. Maximum: {maximum}`)
 		elseif minimum > maximum then
-			error(debug.traceback(`Invalid range: Minimum should not be higher than Maximum`))
+			traceerr(
+				`Invalid range where maximum is less than minimum.`
+					.. `\nminimum: {minimum} >`
+					.. `\nmaximum: {maximum}`
+			)
 		elseif minimum == maximum then
-			error(debug.traceback(`Invalid range: Minimum should not equal maximum.`))
+			traceerr(`Invalid range where minimum {minimum} equals maximum.`)
 		end
 
 		local delta_bytes = uint_size_bytes(maximum - minimum)
@@ -1449,7 +1599,7 @@ do
 		end
 
 		@native --dynamic_ncgen
-		local function range_static_ser(buff: buffer, byte_ptr: number, input: any): ()
+		local function range_ser_static(buff: buffer, byte_ptr: number, input: any): ()
 			if (input < minimum) or (input > maximum) then
 				stfu_check()
 				if input < 0 then
@@ -1485,11 +1635,7 @@ do
 
 			if output > output_maximum then
 				stfu_check()
-				error(
-					debug.traceback(
-						`Invalid range deserialized: output exceeded the maximum of {maximum}`
-					)
-				)
+				traceerr(`Invalid range deserialized: output exceeded the maximum of {maximum}`)
 			end
 
 			output += minimum
@@ -1497,10 +1643,17 @@ do
 			return byte_ptr, output
 		end
 
-		metadata.is_number[range_datatype] = true
+		if FFLAGS.GENERATE_DEBUG_NAMES then
+			serializernames[range_ser] =
+				`<holy:range\{`
+			.. `{INDENT}min = {minimum},`
+			.. `{INDENT}max = {maximum},`
+			.. `\}>`
+		end
 
+		metadata.is_number[range_datatype] = true
 		metadata.ser_no_realloc[range_datatype] = range_ser_no_realloc
-		metadata.ser_static[range_datatype] = range_static_ser
+		metadata.ser_static[range_datatype] = range_ser_static
 		metadata.ser[range_datatype] = range_ser
 		metadata.des[range_datatype] = range_des
 		
@@ -1511,29 +1664,28 @@ datatypes.range = range end
 
 do
 	local cache = {} :: Set<number, Datatype>
-	local function vlq(max_bytes: number?): Datatype<number>
-		local max_bytes = max_bytes or 3
+	local function vlq(max_bytes: number): Datatype<number>
 		do
 			local cached = cache[max_bytes]
 			if cached ~= nil then return cached :: any end
 		end
 
 		if type(max_bytes) ~= "number" then
-			error(debug.traceback(`Invalid vlq: max_bytes should be a number. Got type: {typeof(max_bytes)}`))
+			traceerr(`Invalid vlq: max_bytes should be a number. Got type: {typeof(max_bytes)}`)
 		elseif max_bytes ~= max_bytes then
-			error(debug.traceback(`Invalid vlq: max_bytes should not be nan`))
+			traceerr(`Invalid vlq: max_bytes should not be nan`)
 		elseif (max_bytes // 1) ~= max_bytes then
-			error(debug.traceback(`Invalid vlq: max_bytes should be an integer. Got: {max_bytes}`))
+			traceerr(`Invalid vlq: max_bytes should be an integer. Got: {max_bytes}`)
 		elseif max_bytes > 8 then
-			error(debug.traceback(`Invalid vlq: max_bytes should be less than or equal to 8. Got: {max_bytes}`))
+			traceerr(`Invalid vlq: max_bytes should be less than or equal to 8. Got: {max_bytes}`)
 		elseif max_bytes <= 1 then
-			error(debug.traceback(`Invalid vlq: max_bytes should be greater than 1. Got: {max_bytes}`))
+			traceerr(`Invalid vlq: max_bytes should be greater than 1. Got: {max_bytes}`)
 		end
 
-		local vlq_shape = new_datatype()
-		cache[max_bytes] = vlq_shape
+		local vlq_datatype = new_datatype()
+		cache[max_bytes] = vlq_datatype
 
-		local vlq_ser, vlq_des
+		local vlq_ser: Ser, vlq_des: Des
 		if max_bytes == 8 then
 			@native --dynamic_ncgen
 			function vlq_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
@@ -1547,10 +1699,7 @@ do
 											if input >= VLQINPMASK7 then
 												stfu_check()
 												--stylua: ignore
-												error(debug.traceback(
-													`Invalid vlq serialized: Expected value < {VLQINPMASK7}`,
-													2
-												), -1)
+												traceerr(`Invalid vlq serialized: Expected value < {VLQINPMASK7}`)
 											end
 											local target_ptr = byte_ptr + 8
 											--stylua: ignore
@@ -1761,10 +1910,7 @@ do
 										if input >= VLQINPMASK6 then
 											stfu_check()
 											--stylua: ignore
-											error(debug.traceback(
-												`Invalid vlq serialized: Expected value < {VLQINPMASK6}`,
-												2
-											), -1)
+											traceerr(`Invalid vlq serialized: Expected value < {VLQINPMASK6}`)
 										end
 										local target_ptr = byte_ptr + 7
 										--stylua: ignore
@@ -1934,10 +2080,7 @@ do
 									if input >= VLQINPMASK5 then
 										stfu_check()
 										--stylua: ignore
-										error(debug.traceback(
-											`Invalid vlq serialized: Expected value < {VLQINPMASK5}`,
-											2
-										), -1)
+										traceerr(`Invalid vlq serialized: Expected value < {VLQINPMASK5}`)
 									end
 									local target_ptr = byte_ptr + 6
 									--stylua: ignore
@@ -2067,10 +2210,7 @@ do
 								if input >= VLQINPMASK4 then
 									stfu_check()
 									--stylua: ignore
-									error(debug.traceback(
-										`Invalid vlq serialized: Expected value < {VLQINPMASK5}`,
-										2
-									), -1)
+									traceerr(`Invalid vlq serialized: Expected value < {VLQINPMASK4}`)
 								end
 								local target_ptr = byte_ptr + 5
 								--stylua: ignore
@@ -2170,10 +2310,9 @@ do
 							if input >= VLQINPMASK3 then
 								stfu_check()
 								--stylua: ignore
-								error(debug.traceback(
-									`Invalid vlq serialized: Expected value < {VLQINPMASK5}`,
-									2
-								), -1)
+								traceerr(
+									`Invalid vlq serialized: Expected value < {VLQINPMASK5}`
+								)
 							end
 							local target_ptr = byte_ptr + 4
 							--stylua: ignore
@@ -2246,10 +2385,7 @@ do
 						if input >= VLQINPMASK2 then
 							stfu_check()
 							--stylua: ignore
-							error(debug.traceback(
-								`Invalid vlq serialized: Expected value < {VLQINPMASK5}`,
-								2
-							), -1)
+							traceerr(`Invalid vlq serialized: Expected value < {VLQINPMASK2}`)
 						end
 						local target_ptr = byte_ptr + 3
 						--stylua: ignore
@@ -2301,10 +2437,7 @@ do
 					if input >= VLQINPMASK1 then
 						stfu_check()
 						--stylua: ignore
-						error(debug.traceback(
-							`Invalid vlq serialized: Expected value < {VLQINPMASK5}`,
-							2
-						), -1)
+						traceerr(`Invalid vlq serialized: Expected value < {VLQINPMASK1}`)
 					end
 					local target_ptr = byte_ptr + 2
 					--stylua: ignore
@@ -2332,10 +2465,7 @@ do
 		else
 			stfu_check()
 			--stylua: ignore
-			error(debug.traceback(
-				`Invalid vlq: could not process max_byes = {max_bytes}. bug?`,
-				2
-			), -1)
+			traceerr(`Invalid vlq: could not process max_byes = {max_bytes}. bug?`)
 		end
 
 		@native --dynamic_ncgen
@@ -2357,12 +2487,14 @@ do
 			return byte_ptr, output
 		end
 
-		metadata.is_number[vlq_shape] = true
+		if FFLAGS.GENERATE_DEBUG_NAMES then
+			serializernames[vlq_ser] = `<holy:vlq{max_bytes}>`
+		end
+		metadata.is_number[vlq_datatype] = true
+		metadata.ser[vlq_datatype] = vlq_ser
+		metadata.des[vlq_datatype] = vlq_des
 
-		metadata.ser[vlq_shape] = vlq_ser
-		metadata.des[vlq_shape] = vlq_des
-
-		return vlq_shape :: Datatype<number>
+		return vlq_datatype :: Datatype<number>
 	end
 
 datatypes.vlq = vlq end
@@ -2370,18 +2502,21 @@ datatypes.vlq = vlq end
 do
 	local cache = {} :: Set<Datatype<number>, Datatype<string>>
 
-	local function str(length_datatype: Datatype<number>?): Datatype<string>
-		local length_datatype = length_datatype or datatypes.vlq(3)
+	local function str(length_datatype: Datatype<number>): Datatype<string>
 		do
 			local cached = cache[length_datatype]
 			if cached ~= nil then return cached end
 		end
 
+		local lengthstr = stringify(length_datatype)
+
 		if not check_datatype_exists(length_datatype) then
-			error(debug.traceback(`Invalid str: Length provided is not a valid datatype.`))
-		end
-		if not metadata.is_number[length_datatype] then
-			error(debug.traceback(`Invalid str: Length must be a valid number datatype.`))
+			traceerr(`Invalid str where length {lengthstr} is not a valid datatype.`)
+		elseif not metadata.is_number[length_datatype] then
+			traceerr(
+				`Invalid str where length {lengthstr} does not represent a number.`
+				.. `\nA non-numeric length will cause serialization to error.`
+			)
 		end
 
 		local str_datatype = new_datatype()
@@ -2432,7 +2567,7 @@ do
 			end
 		elseif case_static_len then
 			local static_len_bytes = metadata.static_size[length_datatype]
-			local static_ser_length = metadata.ser_static[length_datatype]
+			local ser_static_length = metadata.ser_static[length_datatype]
 			local des_length = metadata.des[length_datatype]
 
 			@native --dynamic_ncgen
@@ -2446,7 +2581,7 @@ do
 					if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
 				end
 
-				static_ser_length(buff, byte_ptr, str_len)
+				ser_static_length(buff, byte_ptr, str_len)
 				byte_ptr += static_len_bytes
 
 				buffer.writestring(buff, byte_ptr, input, str_len)
@@ -2497,6 +2632,9 @@ do
 			end
 		end
 
+		if FFLAGS.GENERATE_DEBUG_NAMES then
+			serializernames[string_ser] = `<holy:str({lengthstr})>`
+		end
 		metadata.ser_no_realloc[str_datatype] = string_ser_no_realloc
 		metadata.ser_static[str_datatype] = string_ser_static
 		metadata.ser[str_datatype] = string_ser
@@ -2510,18 +2648,21 @@ datatypes.str = str end
 do
 	local cache = {} :: Set<Datatype<number>, Datatype<buffer>>
 
-	local function buff(length_datatype: Datatype<number>?): Datatype<buffer>
-		local length_datatype = length_datatype or datatypes.vlq(3)
+	local function buff(length_datatype: Datatype<number>): Datatype<buffer>
 		do
 			local cached = cache[length_datatype]
 			if cached ~= nil then return cached end
 		end
 		
+		local lengthstr = stringify(length_datatype)
+
 		if not check_datatype_exists(length_datatype) then
-			error(debug.traceback(`Invalid buff: Length provided is not a valid datatype.`))
-		end
-		if not metadata.is_number[length_datatype] then
-			error(debug.traceback(`Invalid buff: Length must be a valid number datatype.`))
+			traceerr(`Invalid buff where length {lengthstr} is not a valid datatype.`)
+		elseif not metadata.is_number[length_datatype] then
+			traceerr(
+				`Invalid buff where length {lengthstr} does not represent a number.`
+				.. `\nA non-numeric length will cause serialization to error.`
+			)
 		end
 
 		local literal_len_value = metadata.literal_value[length_datatype]
@@ -2640,6 +2781,9 @@ do
 			end
 		end
 
+		if FFLAGS.GENERATE_DEBUG_NAMES then
+			serializernames[buff_ser] = `<holy:buff({lengthstr})>`
+		end
 		metadata.ser_no_realloc[buff_datatype] = buff_ser_no_realloc
 		metadata.ser_static[buff_datatype] = buff_ser_static
 		metadata.ser[buff_datatype] = buff_ser
@@ -2653,27 +2797,30 @@ datatypes.buff = buff end
 do
 	local cache = {} :: Set<string, Datatype<{any}>>
 
-	local function arr<Item>(item_datatype: Datatype<Item>, length_datatype: Datatype<number>?): Datatype<{Item}>
-		local length_datatype = length_datatype or datatypes.u16
-
+	local function arr<Item>(item_datatype: Datatype<Item>, length_datatype: Datatype<number>): Datatype<{Item}>
 		local hash = ordered_hash(item_datatype, length_datatype)
 		do
 			local cached = cache[hash]
 			if cached ~= nil then return cached end
 		end
 
-		if not metadata.is_number[length_datatype] then
-			error(debug.traceback(`Invalid arr: length must be a valid number datatype, got id: "{length_datatype}"`))
-		end
+		local itemstr = stringify(item_datatype)
 
 		if not check_datatype_exists(item_datatype) then
-			error(debug.traceback(`Invalid arr: item must be a valid datatype. Got id: "{item_datatype}"`))
+			traceerr(`Invalid arr: item {itemstr} must be a valid datatype.`)
 		elseif not check_datatype_exists(length_datatype) then
-			error(debug.traceback(`Invalid arr: length must be a valid datatype. Got id: "{length_datatype}"`))
+			traceerr(`Invalid arr: length {stringify(length_datatype)} must be a valid datatype.`)
 		elseif not metadata.is_number[length_datatype] then
-			error(debug.traceback(`Invalid arr: length must be a valid number datatype, got id: "{length_datatype}"`))
-		elseif metadata.is_nilable[item_datatype] then
-			error(debug.traceback(`Invalid arr: item must not be nilable. Consider using a map.`))
+			traceerr(`Invalid arr: length {stringify(length_datatype)} must be a valid number datatype.`)
+		end
+
+		if metadata.is_nilable[item_datatype] and not SETTINGS.SYBAU then
+			tracewarn(
+				`Bad array: arr({itemstr}) where {itemstr} could represent a nil value is likely a bug.`
+					.. `\nIf your array contains any nils, items after the nil might not get serialized.`
+					.. `\nIt is recommended that you use a datatype which cannot represent nil in a map, instead.`
+					.. `\n{SILENCE_INSTRUCTIONS}`
+			)
 		end
 
 		local static_item_size = metadata.static_size[item_datatype] :: number
@@ -2822,6 +2969,9 @@ do
 			end
 		end
 
+		if FFLAGS.GENERATE_DEBUG_NAMES then
+			serializernames[array_ser] = `\{ {itemstr} \}`
+		end
 		metadata.ser_no_realloc[arr_datatype] = array_ser_no_realloc
 		metadata.ser_static[arr_datatype] = array_ser_static
 		metadata.ser[arr_datatype] = array_ser
@@ -2838,25 +2988,52 @@ do
 	local function map<Key, Value>(
 		key_datatype: Datatype<Key>,
 		value_datatype: Datatype<Value>,
-		length_datatype: Datatype<number>?
+		length_datatype: Datatype<number>
 	): Datatype<{[Key]: Value}>
-		local length_datatype = length_datatype or datatypes.u16
-
+		local length_datatype = length_datatype
 		local hash = ordered_hash(key_datatype, value_datatype, length_datatype)
-
 		do
 			local cached = cache[hash]
 			if cached ~= nil then return cached end
 		end
 
+		local keystr = stringify(key_datatype)
+		local valuestr = stringify(value_datatype)
+
 		if not check_datatype_exists(key_datatype) then
-			error(debug.traceback(`Invalid map: key must be a valid datatype. Got id: "{key_datatype}"`))
+			traceerr(`Invalid map where key {keystr} is not a valid datatype.`)
 		elseif not check_datatype_exists(value_datatype) then
-			error(debug.traceback(`Invalid map: value must be a valid datatype. Got id: "{value_datatype}"`))
+			traceerr(`Invalid map where value {valuestr} is not a valid datatype.`)
 		elseif not check_datatype_exists(length_datatype) then
-			error(debug.traceback(`Invalid map: length must be a valid datatype. Got id: "{length_datatype}"`))
+			traceerr(
+				`Invalid map where length {stringify(length_datatype)} is not a valid datatype.`
+					.. `\nDid you try to provide a number? Please use a literal instead.`
+			)
 		elseif not metadata.is_number[length_datatype] then
-			error(debug.traceback(`Invalid map: length must not be nilable. Got id: "{length_datatype}"`))
+			local lengthstr = stringify(length_datatype)
+			traceerr(
+				`Invalid map where length {lengthstr} does not represent a number.`
+				.. `\nA non-numeric length will cause serialization to error.`
+			)
+		end
+
+		if metadata.is_nilable[length_datatype] and not SETTINGS.SYBAU then
+			local lengthstr = stringify(length_datatype)
+			tracewarn(
+				`Bad map where length {lengthstr} could represent a nil value.`
+					.. `\nInput:`
+					.. `\nmap({keystr}, {valuestr}, {lengthstr})`
+					.. `\n{SILENCE_INSTRUCTIONS}`
+			)
+		end
+		if metadata.is_nilable[key_datatype] and not SETTINGS.SYBAU then
+			tracewarn(
+				`Bad map where key {keystr} could represent a nil value.`
+					.. `\nA nilable key doesn't make sense because keys of a map aren't required to exist.`
+					.. `\nInput:`
+					.. `\nmap({keystr}, {valuestr})`
+					.. `\n{SILENCE_INSTRUCTIONS}`
+			)
 		end
 
 		local key_static_size = metadata.static_size[key_datatype]
@@ -3079,6 +3256,9 @@ do
 			return byte_ptr, output
 		end
 
+		if FFLAGS.GENERATE_DEBUG_NAMES then
+			serializernames[map_ser] = `\{ [{keystr}]: {valuestr} \}`
+		end
 		metadata.ser_no_realloc[map_datatype] = map_ser_no_realloc
 		metadata.ser_static[map_datatype] = map_ser_static
 		metadata.ser[map_datatype] = map_ser
@@ -3092,38 +3272,43 @@ do
 	local cache = {} :: Set<string, Datatype<{[string]: any}>>
 
 	local function struct<Field>(template: Set<string, Datatype<Field>>): Datatype<Set<string, Field>>
-		local static_keys = {} :: {string}
-		local dynamic_keys = {} :: {string}
+		local static_fieldnames = {} :: {string}
+		local dynamic_fieldnames = {} :: {string}
 		local static_datatypes = {} :: {Datatype<Field>}
 		local dynamic_datatypes = {} :: {Datatype<Field>}
 
 		local struct_static_size = 0
 
-		for key, datatype in template do
-			if type(key) ~= "string" then
-				error(debug.traceback(`struct field {key} is not a string.`))
+		for fieldname, field_datatype in template do
+			if type(fieldname) ~= "string" then
+				traceerr(
+					`Invalid struct where fieldname is not a string. Problematic fieldname:\n{fieldname}`
+				)
 			end
 
-			if not check_datatype_exists(datatype) then
-				error(debug.traceback(`struct field "{key}" = {datatype}, which is not a valid datatype.`))
+			if not check_datatype_exists(field_datatype) then
+				traceerr(
+					`Invalid struct where field's value for "{fieldname}" is not a valid datatype.`
+						.. `\nField value: {stringify(field_datatype)}`
+				)
 			end
 
-			local field_static_size = metadata.static_size[datatype]
+			local field_static_size = metadata.static_size[field_datatype]
 
 			if field_static_size ~= nil then
-				table.insert(static_keys, key)
-				table.insert(static_datatypes, datatype)
+				table.insert(static_fieldnames, fieldname)
+				table.insert(static_datatypes, field_datatype)
 				struct_static_size += field_static_size
 			else
-				table.insert(dynamic_keys, key)
-				table.insert(dynamic_datatypes, datatype)
+				table.insert(dynamic_fieldnames, fieldname)
+				table.insert(dynamic_datatypes, field_datatype)
 			end
 		end
 
 		local hashed = ordered_hash(
-			table.unpack(static_keys),
+			table.unpack(static_fieldnames),
 			table.unpack(static_datatypes),
-			table.unpack(dynamic_keys),
+			table.unpack(dynamic_fieldnames),
 			table.unpack(dynamic_datatypes)
 		)
 		do
@@ -3131,8 +3316,8 @@ do
 			if cached ~= nil then return cached end
 		end
 
-		local num_static_keys = #static_keys
-		local num_dynamic_keys = #dynamic_keys
+		local num_static_keys = #static_fieldnames
+		local num_dynamic_keys = #dynamic_fieldnames
 
 		local static_eh = num_static_keys >= 1
 		local dynamic_eh = num_dynamic_keys >= 1
@@ -3147,7 +3332,7 @@ do
 
 		-- cloning template for a more stable copy. On deserialization holy calls table.clone() on the template, which
 		-- makes populating string keys significantly faster.
-		local clone_template = table.clone(template)
+		local clone_template = table_clone(template)
 
 		for index, datatype in static_datatypes do
 			static_fields_ser[index] = metadata.ser_no_realloc[datatype]
@@ -3161,53 +3346,69 @@ do
 		local struct_datatype = new_datatype(if case_fully_static then struct_static_size else nil)
 		cache[hashed] = struct_datatype
 
-		local struct_ser_no_realloc, struct_ser_static, struct_ser, struct_des
+		local struct_ser_no_realloc: SerNoRealloc, struct_ser_static: SerStatic, struct_ser: Ser, struct_des: Des
 
 		--[=/=/=/=/=/=/=/=/=/=[
 		-- FORGIVE ME FATHER, FOR I HAVE SINNED.
 		-- FOR A NOBLE CAUSE, I HAVE DONE THAT WHICH PRESCRIBES BRAVERY VERY FEW POSSESS.
-		-- I PRAY YOU MAY FORGIVE ME.
-		-- there is good reason nobody else has done this
-		-- i'm not everybody else tho :3
+		-- I PRAY YOU MAY FORGIVE ME :3
 		-- https://open.spotify.com/track/1b9K8zcencFmQl68Oot9DS
 		--]=/=/=/=/=/=/=/=/=/=]
 		if case_fully_static then
-			local field_a_name = static_keys[1]
+			local field_a_name = static_fieldnames[1]
 			local field_a_ser = static_fields_ser[1]
 			local field_a_des = static_fields_des[1]
-			local field_b_name = static_keys[2]
+			local field_b_name = static_fieldnames[2]
 			local field_b_ser = static_fields_ser[2]
 			local field_b_des = static_fields_des[2]
-			local field_c_name = static_keys[3]
+			local field_c_name = static_fieldnames[3]
 			local field_c_ser = static_fields_ser[3]
 			local field_c_des = static_fields_des[3]
-			local field_d_name = static_keys[4]
+			local field_d_name = static_fieldnames[4]
 			local field_d_ser = static_fields_ser[4]
 			local field_d_des = static_fields_des[4]
-			local field_e_name = static_keys[5]
+			local field_e_name = static_fieldnames[5]
 			local field_e_ser = static_fields_ser[5]
 			local field_e_des = static_fields_des[5]
-			local field_f_name = static_keys[6]
+			local field_f_name = static_fieldnames[6]
 			local field_f_ser = static_fields_ser[6]
 			local field_f_des = static_fields_des[6]
-			local field_g_name = static_keys[7]
+			local field_g_name = static_fieldnames[7]
 			local field_g_ser = static_fields_ser[7]
 			local field_g_des = static_fields_des[7]
-			local field_h_name = static_keys[8]
+			local field_h_name = static_fieldnames[8]
 			local field_h_ser = static_fields_ser[8]
 			local field_h_des = static_fields_des[8]
 
-			if num_static_keys == 1 then
+			if num_static_keys == 0 then
+				function struct_ser_no_realloc(buff: buffer, byte_ptr: number, input: any): (number)
+					return byte_ptr
+				end
+				function struct_ser_static(buff: buffer, byte_ptr: number, input: any): ()
+				end
 				@native --dynamic_ncgen
+				function struct_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
+					local len = buffer.len(buff)
+
+					local target_ptr = byte_ptr
+					--stylua: ignore
+					do -- alloc
+						if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
+					end
+
+					return byte_ptr, buff
+				end
+				function struct_des(buff: buffer, byte_ptr: number): (number, any)
+					return byte_ptr, {}
+				end
+			elseif num_static_keys == 1 then
 				function struct_ser_no_realloc(buff: buffer, byte_ptr: number, input: any): (number)
 					byte_ptr = field_a_ser(buff, byte_ptr, input[field_a_name])
 					return byte_ptr
 				end
-				@native --dynamic_ncgen
 				function struct_ser_static(buff: buffer, byte_ptr: number, input: any): ()
 					byte_ptr = field_a_ser(buff, byte_ptr, input[field_a_name])
 				end
-				@native --dynamic_ncgen
 				function struct_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 					local len = buffer.len(buff)
 
@@ -3220,9 +3421,8 @@ do
 					byte_ptr = field_a_ser(buff, byte_ptr, input[field_a_name])
 					return byte_ptr, buff
 				end
-				@native --dynamic_ncgen
 				function struct_des(buff: buffer, byte_ptr: number): (number, any)
-					local output = table.clone(clone_template)
+					local output = table_clone(clone_template)
 					byte_ptr, output[field_a_name] = field_a_des(buff, byte_ptr)
 					return byte_ptr, output
 				end
@@ -3252,7 +3452,7 @@ do
 				end
 				@native --dynamic_ncgen
 				function struct_des(buff: buffer, byte_ptr: number): (number, any)
-					local output = table.clone(clone_template)
+					local output = table_clone(clone_template)
 					byte_ptr, output[field_a_name] = field_a_des(buff, byte_ptr)
 					byte_ptr, output[field_b_name] = field_b_des(buff, byte_ptr)
 					return byte_ptr, output
@@ -3286,7 +3486,7 @@ do
 				end
 				@native --dynamic_ncgen
 				function struct_des(buff: buffer, byte_ptr: number): (number, any)
-					local output = table.clone(clone_template)
+					local output = table_clone(clone_template)
 					byte_ptr, output[field_a_name] = field_a_des(buff, byte_ptr)
 					byte_ptr, output[field_b_name] = field_b_des(buff, byte_ptr)
 					byte_ptr, output[field_c_name] = field_c_des(buff, byte_ptr)
@@ -3324,7 +3524,7 @@ do
 				end
 				@native --dynamic_ncgen
 				function struct_des(buff: buffer, byte_ptr: number): (number, any)
-					local output = table.clone(clone_template)
+					local output = table_clone(clone_template)
 					byte_ptr, output[field_a_name] = field_a_des(buff, byte_ptr)
 					byte_ptr, output[field_b_name] = field_b_des(buff, byte_ptr)
 					byte_ptr, output[field_c_name] = field_c_des(buff, byte_ptr)
@@ -3366,7 +3566,7 @@ do
 				end
 				@native --dynamic_ncgen
 				function struct_des(buff: buffer, byte_ptr: number): (number, any)
-					local output = table.clone(clone_template)
+					local output = table_clone(clone_template)
 					byte_ptr, output[field_a_name] = field_a_des(buff, byte_ptr)
 					byte_ptr, output[field_b_name] = field_b_des(buff, byte_ptr)
 					byte_ptr, output[field_c_name] = field_c_des(buff, byte_ptr)
@@ -3412,7 +3612,7 @@ do
 				end
 				@native --dynamic_ncgen
 				function struct_des(buff: buffer, byte_ptr: number): (number, any)
-					local output = table.clone(clone_template)
+					local output = table_clone(clone_template)
 					byte_ptr, output[field_a_name] = field_a_des(buff, byte_ptr)
 					byte_ptr, output[field_b_name] = field_b_des(buff, byte_ptr)
 					byte_ptr, output[field_c_name] = field_c_des(buff, byte_ptr)
@@ -3462,7 +3662,7 @@ do
 				end
 				@native --dynamic_ncgen
 				function struct_des(buff: buffer, byte_ptr: number): (number, any)
-					local output = table.clone(clone_template)
+					local output = table_clone(clone_template)
 					byte_ptr, output[field_a_name] = field_a_des(buff, byte_ptr)
 					byte_ptr, output[field_b_name] = field_b_des(buff, byte_ptr)
 					byte_ptr, output[field_c_name] = field_c_des(buff, byte_ptr)
@@ -3516,7 +3716,7 @@ do
 				end
 				@native --dynamic_ncgen
 				function struct_des(buff: buffer, byte_ptr: number): (number, any)
-					local output = table.clone(clone_template)
+					local output = table_clone(clone_template)
 					byte_ptr, output[field_a_name] = field_a_des(buff, byte_ptr)
 					byte_ptr, output[field_b_name] = field_b_des(buff, byte_ptr)
 					byte_ptr, output[field_c_name] = field_c_des(buff, byte_ptr)
@@ -3530,8 +3730,16 @@ do
 			else
 				@native --dynamic_ncgen
 				function struct_ser_no_realloc(buff: buffer, byte_ptr: number, input: any): (number)
-					for index = 1, num_static_keys do
-						local field_name = static_keys[index]
+					byte_ptr = field_a_ser(buff, byte_ptr, input[field_a_name])
+					byte_ptr = field_b_ser(buff, byte_ptr, input[field_b_name])
+					byte_ptr = field_c_ser(buff, byte_ptr, input[field_c_name])
+					byte_ptr = field_d_ser(buff, byte_ptr, input[field_d_name])
+					byte_ptr = field_e_ser(buff, byte_ptr, input[field_e_name])
+					byte_ptr = field_f_ser(buff, byte_ptr, input[field_f_name])
+					byte_ptr = field_g_ser(buff, byte_ptr, input[field_g_name])
+					byte_ptr = field_h_ser(buff, byte_ptr, input[field_h_name])
+					for index = 9, num_static_keys do
+						local field_name = static_fieldnames[index]
 
 						local field_ser = static_fields_ser[index]
 
@@ -3542,8 +3750,16 @@ do
 				end
 				@native --dynamic_ncgen
 				function struct_ser_static(buff: buffer, byte_ptr: number, input: any): ()
-					for index = 1, num_static_keys do
-						local field_name = static_keys[index]
+					byte_ptr = field_a_ser(buff, byte_ptr, input[field_a_name])
+					byte_ptr = field_b_ser(buff, byte_ptr, input[field_b_name])
+					byte_ptr = field_c_ser(buff, byte_ptr, input[field_c_name])
+					byte_ptr = field_d_ser(buff, byte_ptr, input[field_d_name])
+					byte_ptr = field_e_ser(buff, byte_ptr, input[field_e_name])
+					byte_ptr = field_f_ser(buff, byte_ptr, input[field_f_name])
+					byte_ptr = field_g_ser(buff, byte_ptr, input[field_g_name])
+					byte_ptr = field_h_ser(buff, byte_ptr, input[field_h_name])
+					for index = 9, num_static_keys do
+						local field_name = static_fieldnames[index]
 
 						local field_ser = static_fields_ser[index]
 
@@ -3559,9 +3775,16 @@ do
 					do -- alloc
 						if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
 					end
-					
-					for index = 1, num_static_keys do
-						local field_name = static_keys[index]
+					byte_ptr = field_a_ser(buff, byte_ptr, input[field_a_name])
+					byte_ptr = field_b_ser(buff, byte_ptr, input[field_b_name])
+					byte_ptr = field_c_ser(buff, byte_ptr, input[field_c_name])
+					byte_ptr = field_d_ser(buff, byte_ptr, input[field_d_name])
+					byte_ptr = field_e_ser(buff, byte_ptr, input[field_e_name])
+					byte_ptr = field_f_ser(buff, byte_ptr, input[field_f_name])
+					byte_ptr = field_g_ser(buff, byte_ptr, input[field_g_name])
+					byte_ptr = field_h_ser(buff, byte_ptr, input[field_h_name])
+					for index = 9, num_static_keys do
+						local field_name = static_fieldnames[index]
 
 						local field_ser = static_fields_ser[index]
 
@@ -3572,10 +3795,18 @@ do
 				end
 				@native --dynamic_ncgen
 				function struct_des(buff: buffer, byte_ptr: number): (number, any)
-					local output = table.clone(clone_template)
+					local output = table_clone(clone_template)
 
-					for index = 1, num_static_keys do
-						local field_name = static_keys[index]
+					byte_ptr, output[field_a_name] = field_a_des(buff, byte_ptr)
+					byte_ptr, output[field_b_name] = field_b_des(buff, byte_ptr)
+					byte_ptr, output[field_c_name] = field_c_des(buff, byte_ptr)
+					byte_ptr, output[field_d_name] = field_d_des(buff, byte_ptr)
+					byte_ptr, output[field_e_name] = field_e_des(buff, byte_ptr)
+					byte_ptr, output[field_f_name] = field_f_des(buff, byte_ptr)
+					byte_ptr, output[field_g_name] = field_g_des(buff, byte_ptr)
+					byte_ptr, output[field_h_name] = field_h_des(buff, byte_ptr)
+					for index = 9, num_static_keys do
+						local field_name = static_fieldnames[index]
 
 						local field_des = static_fields_des[index]
 
@@ -3586,59 +3817,65 @@ do
 				end
 			end
 		elseif case_mixed then
-			local static_field_a_name = static_keys[1]
+			local static_field_a_name = static_fieldnames[1]
 			local static_field_a_ser = static_fields_ser[1]
 			local static_field_a_des = static_fields_des[1]
-			local static_field_b_name = static_keys[2]
+			local static_field_b_name = static_fieldnames[2]
 			local static_field_b_ser = static_fields_ser[2]
 			local static_field_b_des = static_fields_des[2]
-			local static_field_c_name = static_keys[3]
+			local static_field_c_name = static_fieldnames[3]
 			local static_field_c_ser = static_fields_ser[3]
 			local static_field_c_des = static_fields_des[3]
-			local static_field_d_name = static_keys[4]
+			local static_field_d_name = static_fieldnames[4]
 			local static_field_d_ser = static_fields_ser[4]
 			local static_field_d_des = static_fields_des[4]
-			local static_field_e_name = static_keys[5]
+			local static_field_e_name = static_fieldnames[5]
 			local static_field_e_ser = static_fields_ser[5]
 			local static_field_e_des = static_fields_des[5]
-			local static_field_f_name = static_keys[6]
+			local static_field_f_name = static_fieldnames[6]
 			local static_field_f_ser = static_fields_ser[6]
 			local static_field_f_des = static_fields_des[6]
-			local static_field_g_name = static_keys[7]
+			local static_field_g_name = static_fieldnames[7]
 			local static_field_g_ser = static_fields_ser[7]
 			local static_field_g_des = static_fields_des[7]
-			local static_field_h_name = static_keys[8]
+			local static_field_h_name = static_fieldnames[8]
 			local static_field_h_ser = static_fields_ser[8]
 			local static_field_h_des = static_fields_des[8]
 
-			local dynamic_field_a_name = dynamic_keys[1]
+			local dynamic_field_a_name = dynamic_fieldnames[1]
 			local dynamic_field_a_ser = dynamic_fields_ser[1]
 			local dynamic_field_a_des = dynamic_fields_des[1]
-			local dynamic_field_b_name = dynamic_keys[2]
+			local dynamic_field_b_name = dynamic_fieldnames[2]
 			local dynamic_field_b_ser = dynamic_fields_ser[2]
 			local dynamic_field_b_des = dynamic_fields_des[2]
-			local dynamic_field_c_name = dynamic_keys[3]
+			local dynamic_field_c_name = dynamic_fieldnames[3]
 			local dynamic_field_c_ser = dynamic_fields_ser[3]
 			local dynamic_field_c_des = dynamic_fields_des[3]
-			local dynamic_field_d_name = dynamic_keys[4]
+			local dynamic_field_d_name = dynamic_fieldnames[4]
 			local dynamic_field_d_ser = dynamic_fields_ser[4]
 			local dynamic_field_d_des = dynamic_fields_des[4]
-			local dynamic_field_e_name = dynamic_keys[5]
+			local dynamic_field_e_name = dynamic_fieldnames[5]
 			local dynamic_field_e_ser = dynamic_fields_ser[5]
 			local dynamic_field_e_des = dynamic_fields_des[5]
-			local dynamic_field_f_name = dynamic_keys[6]
+			local dynamic_field_f_name = dynamic_fieldnames[6]
 			local dynamic_field_f_ser = dynamic_fields_ser[6]
 			local dynamic_field_f_des = dynamic_fields_des[6]
-			local dynamic_field_g_name = dynamic_keys[7]
+			local dynamic_field_g_name = dynamic_fieldnames[7]
 			local dynamic_field_g_ser = dynamic_fields_ser[7]
 			local dynamic_field_g_des = dynamic_fields_des[7]
-			local dynamic_field_h_name = dynamic_keys[8]
+			local dynamic_field_h_name = dynamic_fieldnames[8]
 			local dynamic_field_h_ser = dynamic_fields_ser[8]
 			local dynamic_field_h_des = dynamic_fields_des[8]
 
 			local static_portion_ser_static
 			local static_portion_decode
-			if num_static_keys == 1 then
+			if num_static_keys == 0 then
+				function static_portion_ser_static(buff: buffer, byte_ptr: number, input: any): ()
+				end
+				function static_portion_decode(buff: buffer, byte_ptr: number, output: any): (number)
+					return byte_ptr
+				end
+			elseif num_static_keys == 1 then
 				@native --dynamic_ncgen
 				function static_portion_ser_static(buff: buffer, byte_ptr: number, input: any): ()
 					byte_ptr = static_field_a_ser(buff, byte_ptr, input[static_field_a_name])
@@ -3777,8 +4014,16 @@ do
 			else
 				@native --dynamic_ncgen
 				function static_portion_ser_static(buff: buffer, byte_ptr: number, input: any): ()
-					for index = 1, num_static_keys do
-						local field_name = static_keys[index]
+					byte_ptr = static_field_a_ser(buff, byte_ptr, input[static_field_a_name])
+					byte_ptr = static_field_b_ser(buff, byte_ptr, input[static_field_b_name])
+					byte_ptr = static_field_c_ser(buff, byte_ptr, input[static_field_c_name])
+					byte_ptr = static_field_d_ser(buff, byte_ptr, input[static_field_d_name])
+					byte_ptr = static_field_e_ser(buff, byte_ptr, input[static_field_e_name])
+					byte_ptr = static_field_f_ser(buff, byte_ptr, input[static_field_f_name])
+					byte_ptr = static_field_g_ser(buff, byte_ptr, input[static_field_g_name])
+					byte_ptr = static_field_h_ser(buff, byte_ptr, input[static_field_h_name])
+					for index = 9, num_static_keys do
+						local field_name = static_fieldnames[index]
 
 						local field_ser = static_fields_ser[index]
 
@@ -3787,8 +4032,16 @@ do
 				end
 				@native --dynamic_ncgen
 				function static_portion_decode(buff: buffer, byte_ptr: number, output: any): (number)
-					for index = 1, num_static_keys do
-						local key_name = static_keys[index]
+					byte_ptr, output[static_field_a_name] = static_field_a_des(buff, byte_ptr)
+					byte_ptr, output[static_field_b_name] = static_field_b_des(buff, byte_ptr)
+					byte_ptr, output[static_field_c_name] = static_field_c_des(buff, byte_ptr)
+					byte_ptr, output[static_field_d_name] = static_field_d_des(buff, byte_ptr)
+					byte_ptr, output[static_field_e_name] = static_field_e_des(buff, byte_ptr)
+					byte_ptr, output[static_field_f_name] = static_field_f_des(buff, byte_ptr)
+					byte_ptr, output[static_field_g_name] = static_field_g_des(buff, byte_ptr)
+					byte_ptr, output[static_field_h_name] = static_field_h_des(buff, byte_ptr)
+					for index = 9, num_static_keys do
+						local key_name = static_fieldnames[index]
 
 						local key_des = static_fields_des[index]
 
@@ -3947,8 +4200,16 @@ do
 			else
 				@native --dynamic_ncgen
 				function dynamic_portion_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
-					for index = 1, num_dynamic_keys do
-						local field_name = dynamic_keys[index]
+					byte_ptr, buff = dynamic_field_a_ser(buff, byte_ptr, input[dynamic_field_a_name])
+					byte_ptr, buff = dynamic_field_b_ser(buff, byte_ptr, input[dynamic_field_b_name])
+					byte_ptr, buff = dynamic_field_c_ser(buff, byte_ptr, input[dynamic_field_c_name])
+					byte_ptr, buff = dynamic_field_d_ser(buff, byte_ptr, input[dynamic_field_d_name])
+					byte_ptr, buff = dynamic_field_e_ser(buff, byte_ptr, input[dynamic_field_e_name])
+					byte_ptr, buff = dynamic_field_f_ser(buff, byte_ptr, input[dynamic_field_f_name])
+					byte_ptr, buff = dynamic_field_g_ser(buff, byte_ptr, input[dynamic_field_g_name])
+					byte_ptr, buff = dynamic_field_h_ser(buff, byte_ptr, input[dynamic_field_h_name])
+					for index = 9, num_dynamic_keys do
+						local field_name = dynamic_fieldnames[index]
 
 						local field_ser = dynamic_fields_ser[index]
 
@@ -3958,8 +4219,16 @@ do
 				end
 				@native --dynamic_ncgen
 				function dynamic_portion_decode(buff: buffer, byte_ptr: number, output: any): (number)
-					for index = 1, num_dynamic_keys do
-						local field_name = dynamic_keys[index]
+					byte_ptr, output[dynamic_field_a_name] = dynamic_field_a_des(buff, byte_ptr)
+					byte_ptr, output[dynamic_field_b_name] = dynamic_field_b_des(buff, byte_ptr)
+					byte_ptr, output[dynamic_field_c_name] = dynamic_field_c_des(buff, byte_ptr)
+					byte_ptr, output[dynamic_field_d_name] = dynamic_field_d_des(buff, byte_ptr)
+					byte_ptr, output[dynamic_field_e_name] = dynamic_field_e_des(buff, byte_ptr)
+					byte_ptr, output[dynamic_field_f_name] = dynamic_field_f_des(buff, byte_ptr)
+					byte_ptr, output[dynamic_field_g_name] = dynamic_field_g_des(buff, byte_ptr)
+					byte_ptr, output[dynamic_field_h_name] = dynamic_field_h_des(buff, byte_ptr)
+					for index = 9, num_dynamic_keys do
+						local field_name = dynamic_fieldnames[index]
 
 						local field_des = dynamic_fields_des[index]
 
@@ -3971,70 +4240,57 @@ do
 
 			@native --dynamic_ncgen
 			function struct_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
-				local len = buffer.len(buff)
-
-				local target_ptr = byte_ptr + struct_static_size
-				--stylua: ignore
-				do -- alloc
-					if target_ptr > len then local old_buff = buff; len *= 2; while target_ptr > len do len *= 2 end; buff = buffer.create(len); buffer.copy(buff, 0, old_buff, 0, byte_ptr); end
-				end
-
-				static_portion_ser_static(buff, byte_ptr, input)
-				byte_ptr = target_ptr
-
+				--[[
+				dynamic serializers always allocate memory, so we can do a cheeky alloc skip for mixed serialization
+				]]
+				local static_part_ptr = byte_ptr
+				byte_ptr += struct_static_size
+				
 				byte_ptr, buff = dynamic_portion_ser(buff, byte_ptr, input)
+
+				static_portion_ser_static(buff, static_part_ptr, input)
 
 				return byte_ptr, buff
 			end
 
 			@native --dynamic_ncgen
 			function struct_des(buff: buffer, byte_ptr: number): (number, any)
-				local output = table.clone(clone_template)
+				local output = table_clone(clone_template)
 
-				for index = 1, num_static_keys do
-					local field_name = static_keys[index]
-
-					local field_des = static_fields_des[index]
-
-					byte_ptr, output[field_name] = field_des(buff, byte_ptr)
-				end
-				for index = 1, num_dynamic_keys do
-					local field_name = dynamic_keys[index]
-
-					local field_des = dynamic_fields_des[index]
-
-					byte_ptr, output[field_name] = field_des(buff, byte_ptr)
-				end
+				byte_ptr = static_portion_decode(buff, byte_ptr, output)
+				byte_ptr = dynamic_portion_decode(buff, byte_ptr, output)
 
 				return byte_ptr, output
 			end
-		else
-			local field_a_name = dynamic_keys[1]
+		else -- case: fully_dynamic
+			local field_a_name = dynamic_fieldnames[1]
 			local field_a_ser = dynamic_fields_ser[1]
 			local field_a_des = dynamic_fields_des[1]
-			local field_b_name = dynamic_keys[2]
+			local field_b_name = dynamic_fieldnames[2]
 			local field_b_ser = dynamic_fields_ser[2]
 			local field_b_des = dynamic_fields_des[2]
-			local field_c_name = dynamic_keys[3]
+			local field_c_name = dynamic_fieldnames[3]
 			local field_c_ser = dynamic_fields_ser[3]
 			local field_c_des = dynamic_fields_des[3]
-			local field_d_name = dynamic_keys[4]
+			local field_d_name = dynamic_fieldnames[4]
 			local field_d_ser = dynamic_fields_ser[4]
 			local field_d_des = dynamic_fields_des[4]
-			local field_e_name = dynamic_keys[5]
+			local field_e_name = dynamic_fieldnames[5]
 			local field_e_ser = dynamic_fields_ser[5]
 			local field_e_des = dynamic_fields_des[5]
-			local field_f_name = dynamic_keys[6]
+			local field_f_name = dynamic_fieldnames[6]
 			local field_f_ser = dynamic_fields_ser[6]
 			local field_f_des = dynamic_fields_des[6]
-			local field_g_name = dynamic_keys[7]
+			local field_g_name = dynamic_fieldnames[7]
 			local field_g_ser = dynamic_fields_ser[7]
 			local field_g_des = dynamic_fields_des[7]
-			local field_h_name = dynamic_keys[8]
+			local field_h_name = dynamic_fieldnames[8]
 			local field_h_ser = dynamic_fields_ser[8]
 			local field_h_des = dynamic_fields_des[8]
 
-			if num_dynamic_keys == 1 then
+			if num_dynamic_keys == 0 then
+				traceerr("bug")
+			elseif num_dynamic_keys == 1 then
 				@native --dynamic_ncgen
 				function struct_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
 					byte_ptr, buff = field_a_ser(buff, byte_ptr, input[field_a_name])
@@ -4042,7 +4298,7 @@ do
 				end
 				@native --dynamic_ncgen
 				function struct_des(buff: buffer, byte_ptr: number): (number, any)
-					local output = table.clone(clone_template)
+					local output = table_clone(clone_template)
 					byte_ptr, output[field_a_name] = field_a_des(buff, byte_ptr)
 					return byte_ptr, output
 				end
@@ -4055,7 +4311,7 @@ do
 				end
 				@native --dynamic_ncgen
 				function struct_des(buff: buffer, byte_ptr: number): (number, any)
-					local output = table.clone(clone_template)
+					local output = table_clone(clone_template)
 					byte_ptr, output[field_a_name] = field_a_des(buff, byte_ptr)
 					byte_ptr, output[field_b_name] = field_b_des(buff, byte_ptr)
 					return byte_ptr, output
@@ -4070,7 +4326,7 @@ do
 				end
 				@native --dynamic_ncgen
 				function struct_des(buff: buffer, byte_ptr: number): (number, any)
-					local output = table.clone(clone_template)
+					local output = table_clone(clone_template)
 					byte_ptr, output[field_a_name] = field_a_des(buff, byte_ptr)
 					byte_ptr, output[field_b_name] = field_b_des(buff, byte_ptr)
 					byte_ptr, output[field_c_name] = field_c_des(buff, byte_ptr)
@@ -4087,7 +4343,7 @@ do
 				end
 				@native --dynamic_ncgen
 				function struct_des(buff: buffer, byte_ptr: number): (number, any)
-					local output = table.clone(clone_template)
+					local output = table_clone(clone_template)
 					byte_ptr, output[field_a_name] = field_a_des(buff, byte_ptr)
 					byte_ptr, output[field_b_name] = field_b_des(buff, byte_ptr)
 					byte_ptr, output[field_c_name] = field_c_des(buff, byte_ptr)
@@ -4106,7 +4362,7 @@ do
 				end
 				@native --dynamic_ncgen
 				function struct_des(buff: buffer, byte_ptr: number): (number, any)
-					local output = table.clone(clone_template)
+					local output = table_clone(clone_template)
 					byte_ptr, output[field_a_name] = field_a_des(buff, byte_ptr)
 					byte_ptr, output[field_b_name] = field_b_des(buff, byte_ptr)
 					byte_ptr, output[field_c_name] = field_c_des(buff, byte_ptr)
@@ -4127,7 +4383,7 @@ do
 				end
 				@native --dynamic_ncgen
 				function struct_des(buff: buffer, byte_ptr: number): (number, any)
-					local output = table.clone(clone_template)
+					local output = table_clone(clone_template)
 					byte_ptr, output[field_a_name] = field_a_des(buff, byte_ptr)
 					byte_ptr, output[field_b_name] = field_b_des(buff, byte_ptr)
 					byte_ptr, output[field_c_name] = field_c_des(buff, byte_ptr)
@@ -4150,7 +4406,7 @@ do
 				end
 				@native --dynamic_ncgen
 				function struct_des(buff: buffer, byte_ptr: number): (number, any)
-					local output = table.clone(clone_template)
+					local output = table_clone(clone_template)
 					byte_ptr, output[field_a_name] = field_a_des(buff, byte_ptr)
 					byte_ptr, output[field_b_name] = field_b_des(buff, byte_ptr)
 					byte_ptr, output[field_c_name] = field_c_des(buff, byte_ptr)
@@ -4175,7 +4431,7 @@ do
 				end
 				@native --dynamic_ncgen
 				function struct_des(buff: buffer, byte_ptr: number): (number, any)
-					local output = table.clone(clone_template)
+					local output = table_clone(clone_template)
 					byte_ptr, output[field_a_name] = field_a_des(buff, byte_ptr)
 					byte_ptr, output[field_b_name] = field_b_des(buff, byte_ptr)
 					byte_ptr, output[field_c_name] = field_c_des(buff, byte_ptr)
@@ -4189,8 +4445,16 @@ do
 			else
 				@native --dynamic_ncgen
 				function struct_ser(buff: buffer, byte_ptr: number, input: any): (number, buffer)
-					for index = 1, num_dynamic_keys do
-						local field_name = dynamic_keys[index]
+					byte_ptr, buff = field_a_ser(buff, byte_ptr, input[field_a_name])
+					byte_ptr, buff = field_b_ser(buff, byte_ptr, input[field_b_name])
+					byte_ptr, buff = field_c_ser(buff, byte_ptr, input[field_c_name])
+					byte_ptr, buff = field_d_ser(buff, byte_ptr, input[field_d_name])
+					byte_ptr, buff = field_e_ser(buff, byte_ptr, input[field_e_name])
+					byte_ptr, buff = field_f_ser(buff, byte_ptr, input[field_f_name])
+					byte_ptr, buff = field_g_ser(buff, byte_ptr, input[field_g_name])
+					byte_ptr, buff = field_h_ser(buff, byte_ptr, input[field_h_name])
+					for index = 9, num_dynamic_keys do
+						local field_name = dynamic_fieldnames[index]
 
 						local field_value = input[field_name]
 
@@ -4202,10 +4466,18 @@ do
 
 				@native --dynamic_ncgen
 				function struct_des(buff: buffer, byte_ptr: number): (number, any)
-					local output = table.clone(clone_template)
+					local output = table_clone(clone_template)
 
-					for index = 1, num_dynamic_keys do
-						local field_name = dynamic_keys[index]
+					byte_ptr, output[field_a_name] = field_a_des(buff, byte_ptr)
+					byte_ptr, output[field_b_name] = field_b_des(buff, byte_ptr)
+					byte_ptr, output[field_c_name] = field_c_des(buff, byte_ptr)
+					byte_ptr, output[field_d_name] = field_d_des(buff, byte_ptr)
+					byte_ptr, output[field_e_name] = field_e_des(buff, byte_ptr)
+					byte_ptr, output[field_f_name] = field_f_des(buff, byte_ptr)
+					byte_ptr, output[field_g_name] = field_g_des(buff, byte_ptr)
+					byte_ptr, output[field_h_name] = field_h_des(buff, byte_ptr)
+					for index = 9, num_dynamic_keys do
+						local field_name = dynamic_fieldnames[index]
 
 						local field_des = dynamic_fields_des[index]
 
@@ -4217,6 +4489,17 @@ do
 			end
 		end
 
+		if FFLAGS.GENERATE_DEBUG_NAMES then
+			local debug_name = "{\n"
+
+			for fieldname, datatype in template do
+				debug_name ..= `{INDENT}{indent_newlines(fieldname)}: {indent_newlines(stringify(datatype))}\n`
+			end
+
+			debug_name ..= "}>"
+
+			serializernames[struct_ser] = debug_name
+		end
 		metadata.ser_no_realloc[struct_datatype] = struct_ser_no_realloc
 		metadata.ser_static[struct_datatype] = struct_ser_static
 		metadata.ser[struct_datatype] = struct_ser
@@ -4229,16 +4512,18 @@ datatypes.struct = struct :: <Template>(Template) -> (Datatype<Template>) end
 
 do
 	local cache = {} :: { [Datatype]: Datatype<vector> }
-	local function vect3(coord_datatype: Datatype<number>?): Datatype<vector>
-		local coord_datatype = (coord_datatype or datatypes.f32) :: Datatype
-	
-		local cached = cache[coord_datatype]
-		if cached ~= nil then return cached end
+	local function vect3(coord_datatype: Datatype<number>): Datatype<vector>
+		do
+			local cached = cache[coord_datatype]
+			if cached ~= nil then return cached end
+		end
+
+		local coordstr = stringify(coord_datatype)
 
 		if not check_datatype_exists(coord_datatype) then
-			error(debug.traceback(`Invalid vect3: coord must be a valid datatype. Got id: "{coord_datatype}"`))
+			traceerr(`Invalid vect3 where coord {coordstr} is not a valid datatype.`)
 		elseif not metadata.is_number[coord_datatype] then
-			error(debug.traceback(`Invalid vect3: coord must be a number datatype. Got id: "{coord_datatype}"`))
+			traceerr(`Invalid vect3 where coord {coordstr} does not represent a number.`)
 		end
 		
 		local coord_static_size = metadata.static_size[coord_datatype]
@@ -4248,7 +4533,7 @@ do
 		local vect3_datatype = new_datatype(vect3_static_size)
 		cache[coord_datatype] = vect3_datatype :: Datatype<vector>
 		
-		local vect3_ser_no_realloc, vect3_ser_static, vect3_ser, vect3_des
+		local vect3_ser_no_realloc: SerNoRealloc, vect3_ser_static: SerStatic, vect3_ser: Ser, vect3_des: Des
 
 		if coord_static_size then
 			local coord_ser_static = metadata.ser_static[coord_datatype]
@@ -4311,7 +4596,7 @@ do
 			end
 		else
 			stfu_check()
-			error(debug.traceback("unreachable"))
+			traceerr("unreachable")
 		end
 
 		@native --dynamic_ncgen
@@ -4334,6 +4619,9 @@ do
 			return byte_ptr, vector.create(x, y, z)
 		end
 
+		if FFLAGS.GENERATE_DEBUG_NAMES then
+			serializernames[vect3_ser] = `<holy:vect3({coordstr})>`
+		end
 		metadata.ser_no_realloc[vect3_datatype] = vect3_ser_no_realloc
 		metadata.ser_static[vect3_datatype] = vect3_ser_static
 		metadata.ser[vect3_datatype] = vect3_ser
@@ -4346,16 +4634,18 @@ datatypes.vect3 = vect3 end
 
 do
 	local cache = {} :: { [Datatype]: Datatype<vector> }
-	local function vect2(coord_datatype: Datatype<number>?): Datatype<vector>
-		local coord_datatype = (coord_datatype or datatypes.f32) :: Datatype
-	
-		local cached = cache[coord_datatype]
-		if cached ~= nil then return cached end
+	local function vect2(coord_datatype: Datatype<number>): Datatype<vector>	
+		do
+			local cached = cache[coord_datatype]
+			if cached ~= nil then return cached end
+		end
+
+		local coordstr = stringify(coord_datatype)
 
 		if not check_datatype_exists(coord_datatype) then
-			error(debug.traceback(`Invalid vect2: coord must be a valid datatype. Got id: "{coord_datatype}"`))
+			traceerr(`Invalid vect2 where coord {coordstr} is not a valid datatype.`)
 		elseif not metadata.is_number[coord_datatype] then
-			error(debug.traceback(`Invalid vect2: coord must be a number datatype. Got id: "{coord_datatype}"`))
+			traceerr(`Invalid vect2 where coord {coordstr} does not represent a number.`)
 		end
 
 		local coord_static_size = metadata.static_size[coord_datatype]
@@ -4366,7 +4656,7 @@ do
 		local vect2_datatype = new_datatype(vect2_static_size)
 		cache[coord_datatype] = vect2_datatype :: Datatype<vector>
 
-		local vect2_ser_no_realloc, vect2_ser_static, vect2_ser, vect2_des
+		local vect2_ser_no_realloc: SerNoRealloc, vect2_ser_static: SerStatic, vect2_ser: Ser, vect2_des: Des
 
 		if coord_static_size then
 			local coord_ser_static = metadata.ser_static[coord_datatype]
@@ -4419,7 +4709,7 @@ do
 			end
 		else
 			stfu_check()
-			error(debug.traceback("unreachable"))
+			traceerr("unreachable")
 		end
 
 		@native --dynamic_ncgen
@@ -4432,6 +4722,9 @@ do
 			return byte_ptr, vector.create(x, y)
 		end
 
+		if FFLAGS.GENERATE_DEBUG_NAMES then
+			serializernames[vect2_ser] = `<holy:vect2({coordstr})>`
+		end
 		metadata.ser_no_realloc[vect2_datatype] = vect2_ser_no_realloc
 		metadata.ser_static[vect2_datatype] = vect2_ser_static
 		metadata.ser[vect2_datatype] = vect2_ser
@@ -4443,6 +4736,8 @@ do
 datatypes.vect2 = vect2 end
 
 do
+	local debug_info = debug.info
+
 	local function computed<T>(call: () -> (Datatype<T>)): Datatype<T>
 		local ser_functions = metadata.ser
 		local des_functions = metadata.des
@@ -4456,6 +4751,10 @@ do
 			return des_functions[call()](... :: any)
 		end
 
+		if FFLAGS.GENERATE_DEBUG_NAMES then
+			local call_name = debug_info(call, "n")
+			serializernames[computed_ser] = `<holy:computed{if call_name then ` "{call_name}"` else ""}>`
+		end
 		ser_functions[computed_datatype] = computed_ser
 		des_functions[computed_datatype] = computed_des
 
@@ -4465,8 +4764,10 @@ do
 datatypes.computed = computed end
 
 local holy = {
+	_CONFIG = SETTINGS,
 	_datatype_metadata = metadata,
-	_stfu_check = stfu_check,
+	stringify_datatype = stringify,
+	set_debugname = set_debugname,
 
 	fetch = {
 		ser_no_realloc = fetch_ser_no_realloc,
@@ -4488,6 +4789,7 @@ local holy = {
 	vlq_size = vlq_size_bytes,
 
 	stfu = stfu,
+	stfu_check = stfu_check,
 }
 
 return holy
