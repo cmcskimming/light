@@ -49,4 +49,4 @@ The "Angles" portion of Axis-Angles has an error flooring to the nearest `0.0054
 The `Z` axis error is less than or equal to the sum of the `X` and `Y` error.
 You can get the `Y` axis error with the following formula:
 <br>`( 2 · (1 - X ^ 2) ^ 0.5 ) / 2 ^ 15`
-<br>Want to know why? See [The Internals Blog](../../../blog/internals/cframe_encoding.md)
+<br>Want to know why? See The Internals Blog

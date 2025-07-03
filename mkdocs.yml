@@ -78,8 +78,7 @@ extra_css:
 
 extra:
   analytics:
-    provider: google
-    property: G-WJ3WTV5DDW
+    provider: Google
     feedback:
       title: Was this page helpful?
       ratings:
@@ -127,19 +126,6 @@ extra:
             <PRE><tt>／l、<br>（ﾟ､ ｡７<br>  l、ﾞ~ヽ<br>     じしf_,)ノ</tt></PRE>
             <img src="https://raw.githubusercontent.com/hardlyardi/light/main/docs/assets/images/the_cat.jpg" alt="Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow Meow"> 
             <br>...Though, if you have anything more to say, please visit the <a href="https://docs.google.com/forms/d/e/1FAIpQLSeOxVTHsijUPxAYUXJMvb0fCjYfNgHyMu7Hh310LqvLgFLG7Q/viewform?usp=header" target="_blank">feedback form</a>. <small>(Yes, Seriously.)</small>
-
-  consent:
-    title: "<h1>S<b><b>light</b></b>ly Annoying 🍪 Popup</h1>"
-    description: >-
-      We use cookies to recognize your repeated visits and preferences, as well
-      as to measure the effectiveness of our documentation and whether users
-      find what they're searching for. With your consent, you're helping us to
-      make our documentation better. They aren't vital for you to be able to
-      read, so don't sweat if you're not a fan of sweet things.
-    actions:
-      - accept
-      - reject
-      - manage
 
   social:
     - icon: fontawesome/brands/github
@@ -242,7 +228,6 @@ nav:
           - Instances: api/datatypes/instances.md
           - Checked: api/datatypes/generics/checked.md
           - Cached Datatypes: api/datatypes/generics/cached.md
-          - Computed: api/datatypes/generics/computed.md
           - Buffer: api/datatypes/generics/buff.md
       - Begin Replication: api/begin_replication.md
       - Step Replication: api/step_replication.md
@@ -261,6 +246,8 @@ nav:
               - broadcast_unreliably: api/network/messages/sending/broadcast_unreliably.md
               - broadcast_unreliably_to_all: api/network/messages/sending/broadcast_unreliably_to_all.md
               - broadcast_unreliably_to_all_except: api/network/messages/sending/broadcast_unreliably_to_all_except.md
+      - Groups:
+        - Groups: api/network/groups/index.md
       - Stfu: api/stfu.md
       - Security API:
           - api/security/index.md
@@ -292,13 +279,8 @@ nav:
       - Holy:
           - Holy: blog/internals/holy/index.md
           - Cached Closures: blog/internals/holy/cached_closures.md
-          - Special Cased Generics: blog/internals/holy/special_cased_generics.md
           - Reallocation Merging: blog/internals/holy/reallocation_merging.md
-      - Message Sync: blog/internals/message_sync.md
-      - Unreliable Fragmentation: blog/internals/unreliable_fragmentation.md
-      - Replication Batch: blog/internals/replication_format.md
-      - CFrame Encoding: blog/internals/cframe_encoding.md
-      - Dynamic Streams: blog/internals/dynamic_streams.md
+          - Specialcases: blog/internals/holy/special_cased_generics.md
       - Bitpacks: blog/internals/bitpacks.md
   - Contributing:
     - Contributing: contributing/index.md
