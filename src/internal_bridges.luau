@@ -24,7 +24,7 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
-local bridge = require("./include/bridge/main.h")
+local bridge = require("./include/bridge/main.h").include()
 local bridge_types = require("./include/bridge/types")
 local light_types = require("./types")
 
@@ -34,12 +34,14 @@ type Bridge<BridgeData...> = bridge_types.Bridge<BridgeData...>
 return {
 	to_client = {
 		reliable_messaging = bridge.new("TO_CLIENT_RELIABLE") :: Bridge<...MessagingBridgeData>,
-		unreliable_messaging = bridge.new("TO_CLIENT_UNRELIABLE") :: Bridge<MessagingBridgeData, buffer?>,
+		unreliable_messaging_buffs = bridge.new("TO_CLIENT_UNRELIABLE_BUFF", true) :: Bridge<buffer>,
+		unreliable_messaging_unknowns = bridge.new("TO_CLIENT_UNRELIABLE_UNKNOWN", true) :: Bridge<buffer, { unknown }>,
 		sync_one_id = bridge.new("TO_CLIENT_SYNC_ONE") :: Bridge<buffer>,
 		sync_many_ids = bridge.new("TO_CLIENT_SYNC_MANY") :: Bridge<buffer>,
 	},
 	to_server = {
 		reliable_messaging = bridge.new("TO_SERVER_RELIABLE") :: Bridge<MessagingBridgeData, buffer?>,
-		unreliable_messaging = bridge.new("TO_SERVER_UNRELIABLE") :: Bridge<MessagingBridgeData, buffer?>,
+		unreliable_messaging_buffs = bridge.new("TO_SERVER_UNRELIABLE_BUFF", true) :: Bridge<buffer>,
+		unreliable_messaging_unknowns = bridge.new("TO_SERVER_UNRELIABLE_UNKNOWN", true) :: Bridge<buffer>,
 	},
 }

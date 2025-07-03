@@ -24,7 +24,7 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
-local holy = require("./holy")
+local holy = require("./utils/holy")
 local library_datatypes = require("./include/datatypes/main.h")
 local message_id = require("./messages/id")
 local message_types = require("./messages/types")
@@ -49,10 +49,6 @@ end
 local internal_datatypes = {}
 
 do -- messages
-	local low_message =
-		range(message_id.LOW_MESSAGES_START, message_id.LOW_MESSAGES_END) :: MessageId
-	local high_message =
-		range(message_id.HIGH_MESSAGES_START, message_id.HIGH_MESSAGES_END) :: MessageId
 	local any_message =
 		range(message_id.LOW_MESSAGES_START, message_id.HIGH_MESSAGES_END) :: MessageId
 
@@ -62,9 +58,6 @@ do -- messages
 	})
 	local message_sync_many = arr(message_sync_one, ty.u32)
 
-	internal_datatypes.low_message = make_holy_t(low_message)
-	internal_datatypes.high_message = make_holy_t(high_message)
-	internal_datatypes.any_message = make_holy_t(any_message)
 	internal_datatypes.message_sync_one = make_holy_t(message_sync_one)
 	internal_datatypes.message_sync_many = make_holy_t(message_sync_many)
 end

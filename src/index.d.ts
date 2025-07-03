@@ -12,7 +12,7 @@ export namespace light {
         * 
         * Containers are the recommended and easy way to group together messages in light by name.
         * 
-        * Container inputs should be a map of string message-names to any valid Datatype. This includes Datatypes like arrays or maps that are defined with luau tables. I.e., { light.u8 }
+        * Container inputs should be a map of string message-names to any valid Datatype. This includes Datatypes like arrays or maps that are defined with luau tables. E.g., { light.u8 }
         * ### sync • yielding
         * https://light.ardi.gg/api/network/messages/creation/container/
         */
@@ -108,7 +108,7 @@ export namespace light {
         * 
         * Containers are the recommended and easy way to group together messages in light by name.
         * 
-        * Container inputs should be a map of string message-names to any valid Datatype. This includes Datatypes like arrays or maps that are defined with luau tables. I.e., { light.u8 }
+        * Container inputs should be a map of string message-names to any valid Datatype. This includes Datatypes like arrays or maps that are defined with luau tables. E.g., { light.u8 }
         * ### sync • yielding
         * https://light.ardi.gg/api/network/messages/creation/container/
         */

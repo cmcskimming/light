@@ -24,8 +24,6 @@ SOFTWARE.
 --ROBLOX OSS SERVER: https://discord.com/invite/5KjV64PA3d
 --MY DISCORD (please only contact for important questions): https://discord.com/users/331399684415553538/
 ]]
-export type LightDatatype<T> = T
-
 export type MessagingBridgeData = buffer | { unknown }
 export type SyncBridgeData = buffer
 
